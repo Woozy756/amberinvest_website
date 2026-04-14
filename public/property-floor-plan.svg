@@ -1,0 +1,25 @@
+<svg width="1200" height="860" viewBox="0 0 1200 860" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="860" fill="#F5F3EE"/>
+  <rect x="84" y="74" width="1032" height="712" stroke="#23262B" stroke-width="12"/>
+  <rect x="132" y="122" width="620" height="252" stroke="#23262B" stroke-width="8"/>
+  <rect x="780" y="122" width="288" height="252" stroke="#23262B" stroke-width="8"/>
+  <rect x="132" y="402" width="404" height="336" stroke="#23262B" stroke-width="8"/>
+  <rect x="564" y="402" width="236" height="336" stroke="#23262B" stroke-width="8"/>
+  <rect x="828" y="402" width="240" height="336" stroke="#23262B" stroke-width="8"/>
+  <path d="M752 246H780" stroke="#23262B" stroke-width="8"/>
+  <path d="M536 570H564" stroke="#23262B" stroke-width="8"/>
+  <path d="M800 570H828" stroke="#23262B" stroke-width="8"/>
+  <path d="M444 374V402" stroke="#23262B" stroke-width="8"/>
+  <path d="M948 374V402" stroke="#23262B" stroke-width="8"/>
+  <rect x="182" y="176" width="520" height="144" fill="#C79643" fill-opacity="0.14"/>
+  <rect x="172" y="570" width="236" height="118" fill="#C79643" fill-opacity="0.14"/>
+  <rect x="610" y="450" width="144" height="238" fill="#0F1115" fill-opacity="0.05"/>
+  <rect x="878" y="176" width="92" height="144" fill="#0F1115" fill-opacity="0.05"/>
+  <text x="214" y="230" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="4">DZIVOJAMA ISTABA</text>
+  <text x="214" y="278" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="3">+ VIRTUVE</text>
+  <text x="846" y="236" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">VANNAS</text>
+  <text x="856" y="270" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">ISTABA</text>
+  <text x="196" y="520" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="3">GULAMISTABA</text>
+  <text x="594" y="520" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">HALLE</text>
+  <text x="874" y="520" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="3">KABINETS</text>
+</svg>

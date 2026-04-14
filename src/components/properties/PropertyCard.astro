@@ -1,0 +1,256 @@
+---
+import {
+	getCategoryBySlug,
+	propertyStatusMeta,
+	type Property
+} from "../../data/properties";
+
+interface Props {
+	property: Property;
+	index?: number;
+}
+
+const { property, index = 0 } = Astro.props as Props;
+const category = getCategoryBySlug(property.category);
+const status = propertyStatusMeta[property.status];
+const priceFormatter = new Intl.NumberFormat("lv-LV");
+---
+
+<article class="property-card fade-in" data-reveal-delay={String(80 + index * 45)}>
+	<a class="property-card__media" href={`/properties/${property.slug}`} aria-label={`Skatīt ${property.title} detaļas`}>
+		<img src={property.image} alt={property.title} loading="lazy" width="1400" height="1040" />
+		<span class="property-card__status" data-tone={status.tone}>{status.label}</span>
+	</a>
+
+	<div class="property-card__body">
+		<p class="property-card__category">{category?.shortLabel ?? "Dzīvoklis"}</p>
+		<h2 class="property-card__title">
+			<a href={`/properties/${property.slug}`}>{property.title}</a>
+		</h2>
+		<p class="property-card__description">{property.shortDescription}</p>
+
+		<dl class="property-card__details" aria-label={`${property.title} pamatinformācija`}>
+			<div>
+				<dt>Istabas</dt>
+				<dd>{property.rooms}</dd>
+			</div>
+			<div>
+				<dt>Platība</dt>
+				<dd>{property.area.toFixed(1)} m²</dd>
+			</div>
+			<div>
+				<dt>Stāvs</dt>
+				<dd>{property.floor}.</dd>
+			</div>
+		</dl>
+
+		<div class="property-card__footer">
+			<p class="property-card__price">€{priceFormatter.format(property.price)}</p>
+			<a class="property-card__cta" href={`/properties/${property.slug}`}>Skatīt detaļas</a>
+		</div>
+	</div>
+</article>
+
+<style>
+	.property-card {
+		height: 100%;
+		display: grid;
+		grid-template-rows: auto 1fr;
+		border: 1px solid rgba(35, 38, 43, 0.14);
+		background: rgba(255, 255, 255, 0.82);
+		backdrop-filter: blur(14px);
+		overflow: clip;
+		transition:
+			transform 0.45s var(--ease-premium),
+			border-color 0.45s var(--ease-premium),
+			box-shadow 0.45s var(--ease-premium);
+	}
+
+	.property-card:hover,
+	.property-card:focus-within {
+		transform: translateY(-4px);
+		border-color: rgba(199, 150, 67, 0.34);
+		box-shadow: 0 18px 40px rgba(15, 17, 21, 0.08);
+	}
+
+	.property-card__media {
+		position: relative;
+		display: block;
+		aspect-ratio: 1.14;
+		overflow: hidden;
+		background: rgba(15, 17, 21, 0.08);
+	}
+
+	.property-card__media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 1.2s var(--ease-premium);
+	}
+
+	.property-card:hover .property-card__media img,
+	.property-card:focus-within .property-card__media img {
+		transform: scale(1.035);
+	}
+
+	.property-card__status {
+		position: absolute;
+		top: 1rem;
+		left: 1rem;
+		display: inline-flex;
+		align-items: center;
+		min-height: 2rem;
+		padding: 0.35rem 0.7rem;
+		border: 1px solid transparent;
+		background: rgba(245, 243, 238, 0.92);
+		font-size: 0.62rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+
+	.property-card__status[data-tone="available"] {
+		border-color: rgba(80, 129, 96, 0.2);
+		color: #3f6d4b;
+	}
+
+	.property-card__status[data-tone="reserved"] {
+		border-color: rgba(199, 150, 67, 0.22);
+		color: #966f29;
+	}
+
+	.property-card__status[data-tone="sold"] {
+		border-color: rgba(118, 124, 134, 0.2);
+		color: #5c6169;
+	}
+
+	.property-card__body {
+		display: grid;
+		align-content: start;
+		gap: 1rem;
+		padding: 1.3rem 1.3rem 1.4rem;
+	}
+
+	.property-card__category {
+		margin: 0;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--accent-primary);
+	}
+
+	.property-card__title {
+		margin: 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(1.55rem, 2vw, 1.85rem);
+		line-height: 1.08;
+		letter-spacing: -0.02em;
+	}
+
+	.property-card__title a {
+		color: var(--bg-primary);
+		text-decoration: none;
+	}
+
+	.property-card__title a:hover,
+	.property-card__title a:focus-visible {
+		color: var(--accent-primary);
+		outline: none;
+	}
+
+	.property-card__description {
+		margin: 0;
+		font-size: 0.97rem;
+		line-height: 1.72;
+		color: rgba(15, 17, 21, 0.62);
+	}
+
+	.property-card__details {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.75rem;
+		margin: 0;
+		padding-top: 1rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.1);
+	}
+
+	.property-card__details dt {
+		margin: 0;
+		font-size: 0.63rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: rgba(15, 17, 21, 0.45);
+	}
+
+	.property-card__details dd {
+		margin: 0.35rem 0 0;
+		font-size: 1rem;
+		line-height: 1.4;
+		color: var(--bg-primary);
+	}
+
+	.property-card__footer {
+		display: flex;
+		align-items: end;
+		justify-content: space-between;
+		gap: 1rem;
+		padding-top: 1rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.1);
+	}
+
+	.property-card__price {
+		margin: 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(1.6rem, 2.1vw, 2rem);
+		line-height: 1;
+		letter-spacing: -0.025em;
+		color: var(--bg-primary);
+	}
+
+	.property-card__cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 2.85rem;
+		padding: 0.55rem 1rem;
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+		text-decoration: none;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		transition:
+			background-color 180ms var(--ease-premium),
+			transform 180ms var(--ease-premium);
+	}
+
+	.property-card__cta:hover,
+	.property-card__cta:focus-visible {
+		background: var(--accent-hover);
+		transform: translateY(-2px);
+		outline: none;
+	}
+
+	@media (max-width: 720px) {
+		.property-card__body {
+			padding-inline: 1.1rem;
+		}
+
+		.property-card__details {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 0.7rem 0.5rem;
+		}
+
+		.property-card__footer {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.property-card__cta {
+			width: 100%;
+		}
+	}
+</style>

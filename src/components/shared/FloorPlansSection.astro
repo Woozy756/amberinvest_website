@@ -1,0 +1,540 @@
+---
+export interface FloorPlanSpec {
+	label: string;
+	value: string;
+}
+
+export interface FloorPlanTab {
+	id: string;
+	tabLabel: string;
+	title: string;
+	price: string;
+	image: string;
+	imageAlt: string;
+	ctaText: string;
+	ctaLink: string;
+	specs: FloorPlanSpec[];
+}
+
+interface Props {
+	eyebrow: string;
+	title: string;
+	lead: string;
+	tabsAriaLabel: string;
+	specsAriaLabel: string;
+	plans: FloorPlanTab[];
+	initialTabId?: string;
+	showTabs?: boolean;
+}
+
+const { eyebrow, title, lead, tabsAriaLabel, specsAriaLabel, plans, initialTabId, showTabs = true } = Astro.props as Props;
+const sectionId = `apartment-plans-${Math.random().toString(36).slice(2, 9)}`;
+const initialIndex = Math.max(
+	0,
+	plans.findIndex((plan) => plan.id === initialTabId)
+);
+---
+
+{
+	plans.length > 0 ? (
+		<section class="apartment-plans" aria-labelledby={`${sectionId}-title`}>
+			<div class="apartment-plans__container">
+				<div class:list={{ "apartment-plans__top-row": true, "apartment-plans__top-row--single": !showTabs }}>
+					<header class="apartment-plans__header">
+						<p class="apartment-plans__eyebrow fade-in">{eyebrow}</p>
+						<h2 id={`${sectionId}-title`} class="apartment-plans__title fade-in" data-reveal-delay="70">
+							{title}
+						</h2>
+						<p class="apartment-plans__lead fade-in" data-reveal-delay="130">{lead}</p>
+					</header>
+
+					<div class="apartment-plans__tabs-wrap fade-in" data-reveal-delay="170" hidden={!showTabs}>
+						<div class="apartment-plans__tabs" role="tablist" aria-label={tabsAriaLabel}>
+							{
+								plans.map((plan, index) => (
+									<button
+										type="button"
+										class:list={{
+											"apartment-plans__tab": true,
+											"is-active": index === initialIndex
+										}}
+										id={`${sectionId}-tab-${index}`}
+										role="tab"
+										aria-selected={index === initialIndex ? "true" : "false"}
+										aria-controls={`${sectionId}-panel-${index}`}
+										tabindex={index === initialIndex ? "0" : "-1"}
+										data-plan-tab
+										data-target={`${sectionId}-panel-${index}`}
+									>
+										<span>{plan.tabLabel}</span>
+									</button>
+								))
+							}
+						</div>
+					</div>
+				</div>
+
+				<div class="apartment-plans__panels" data-plan-tabs>
+					{
+						plans.map((plan, index) => (
+							<div
+								class:list={{
+									"apartment-plans__panel": true,
+									"is-active": index === initialIndex
+								}}
+								id={`${sectionId}-panel-${index}`}
+								role="tabpanel"
+								aria-labelledby={`${sectionId}-tab-${index}`}
+								data-plan-panel
+								hidden={index !== initialIndex}
+							>
+								<div class="apartment-plans__grid">
+									<div class="apartment-plans__media fade-in" data-reveal-delay="220">
+										<div class="apartment-plans__frame">
+											<img
+												class="apartment-plans__image"
+												src={plan.image}
+												alt={plan.imageAlt}
+												loading="lazy"
+											/>
+										</div>
+									</div>
+
+									<div class="apartment-plans__sidebar">
+										<div class="apartment-plans__details fade-in" data-reveal-delay="280">
+											<p class="apartment-plans__price">{plan.price}</p>
+											<h3 class="apartment-plans__apartment-title">{plan.title}</h3>
+
+											<dl class="apartment-plans__specs" aria-label={specsAriaLabel}>
+												{
+													plan.specs.map((spec, specIndex) => (
+														<div class="apartment-plans__spec" data-reveal-delay={String(320 + specIndex * 55)}>
+															<dt>{spec.label}</dt>
+															<dd>{spec.value}</dd>
+														</div>
+													))
+												}
+											</dl>
+
+											<a class="apartment-plans__cta" href={plan.ctaLink}>{plan.ctaText}</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						))
+					}
+				</div>
+			</div>
+		</section>
+	) : null
+}
+
+<script is:inline>
+	document.querySelectorAll('[data-plan-tabs]').forEach((tabsRoot) => {
+		const section = tabsRoot.closest('.apartment-plans');
+		const tabs = section?.querySelectorAll('[data-plan-tab]');
+		const panels = tabsRoot.querySelectorAll('[data-plan-panel]');
+
+		if (!tabs?.length || !panels.length) return;
+
+		const activateTab = (nextTab) => {
+			const targetId = nextTab.getAttribute('data-target');
+			if (!targetId) return;
+
+			tabs.forEach((tab) => {
+				const isActive = tab === nextTab;
+				tab.classList.toggle('is-active', isActive);
+				tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+				tab.setAttribute('tabindex', isActive ? '0' : '-1');
+			});
+
+			panels.forEach((panel) => {
+				const isActive = panel.id === targetId;
+				panel.classList.toggle('is-active', isActive);
+				panel.hidden = !isActive;
+			});
+		};
+
+		tabs.forEach((tab, index) => {
+			tab.addEventListener('click', () => activateTab(tab));
+
+			tab.addEventListener('keydown', (event) => {
+				if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft' && event.key !== 'Home' && event.key !== 'End') {
+					return;
+				}
+
+				event.preventDefault();
+
+				let nextIndex = index;
+				if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+				if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+				if (event.key === 'Home') nextIndex = 0;
+				if (event.key === 'End') nextIndex = tabs.length - 1;
+
+				const nextTab = tabs[nextIndex];
+				if (!(nextTab instanceof HTMLElement)) return;
+				activateTab(nextTab);
+				nextTab.focus();
+			});
+		});
+	});
+</script>
+
+<style>
+	.apartment-plans {
+		background: var(--surface-light);
+		color: var(--bg-primary);
+		padding: clamp(5rem, 9vw, 7.5rem) 0;
+	}
+
+	.apartment-plans__container {
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding: 0 clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.apartment-plans__top-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem);
+		gap: clamp(1.6rem, 3vw, 2.75rem);
+		align-items: end;
+		margin-bottom: clamp(2rem, 4vw, 2.75rem);
+	}
+
+	.apartment-plans__top-row--single {
+		grid-template-columns: 1fr;
+	}
+
+	.apartment-plans__header {
+		display: grid;
+		gap: 1rem;
+		max-width: 46rem;
+		margin: 0;
+	}
+
+	.apartment-plans__eyebrow {
+		margin: 0;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--accent-primary);
+	}
+
+	.apartment-plans__title {
+		margin: 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(2rem, 4vw, 3.7rem);
+		line-height: 1.08;
+		letter-spacing: -0.018em;
+		max-width: 12ch;
+		text-wrap: balance;
+	}
+
+	.apartment-plans__lead {
+		margin: 0;
+		max-width: 40rem;
+		font-size: clamp(1rem, 1.35vw, 1.1rem);
+		line-height: 1.72;
+		color: rgba(15, 17, 21, 0.62);
+	}
+
+	.apartment-plans__tabs-wrap {
+		align-self: end;
+		justify-self: end;
+		width: 100%;
+	}
+
+	.apartment-plans__tabs {
+		display: inline-flex;
+		flex-wrap: nowrap;
+		justify-content: flex-end;
+		width: 100%;
+		gap: clamp(1.1rem, 2vw, 2rem);
+		padding-bottom: 0.1rem;
+		border-bottom: 0;
+	}
+
+	.apartment-plans__tab {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0 0 0.9rem;
+		border: 0;
+		background: transparent;
+		color: rgba(15, 17, 21, 0.48);
+		font: inherit;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition:
+			color 0.3s var(--ease-premium),
+			transform 0.3s var(--ease-premium);
+	}
+
+	.apartment-plans__tab::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: -1px;
+		height: 2px;
+		background: var(--accent-primary);
+		transform: scaleX(0);
+		transform-origin: center;
+		opacity: 1;
+		transition:
+			transform 0.42s var(--ease-premium),
+			opacity 0.42s var(--ease-premium);
+	}
+
+	.apartment-plans__tab:hover,
+	.apartment-plans__tab:focus-visible,
+	.apartment-plans__tab.is-active {
+		color: var(--bg-primary);
+	}
+
+	.apartment-plans__tab.is-active::after {
+		transform: scaleX(1);
+	}
+
+	.apartment-plans__tab:focus-visible {
+		outline: none;
+	}
+
+	.apartment-plans__panels {
+		position: relative;
+	}
+
+	.apartment-plans__panel[hidden] {
+		display: none;
+	}
+
+	.apartment-plans__panel {
+		animation: apartment-plan-panel-in 720ms var(--ease-premium);
+	}
+
+	.apartment-plans__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
+		gap: clamp(2rem, 5vw, 4.5rem);
+		align-items: start;
+	}
+
+	.apartment-plans__sidebar {
+		display: grid;
+		gap: 0;
+		align-content: start;
+		justify-items: stretch;
+	}
+
+	.apartment-plans__media,
+	.apartment-plans__details {
+		min-width: 0;
+	}
+
+	.apartment-plans__frame {
+		position: relative;
+		display: grid;
+		place-items: center;
+		min-height: clamp(24rem, 44vw, 38rem);
+		padding: clamp(1.35rem, 2vw, 2rem);
+		border: 1px solid rgba(35, 38, 43, 0.12);
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.88)),
+			linear-gradient(135deg, rgba(15, 17, 21, 0.02), rgba(15, 17, 21, 0.06));
+	}
+
+	.apartment-plans__frame::before,
+	.apartment-plans__frame::after {
+		content: "";
+		position: absolute;
+		width: 1.4rem;
+		height: 1.4rem;
+		border-color: rgba(199, 150, 67, 0.55);
+		pointer-events: none;
+	}
+
+	.apartment-plans__frame::before {
+		top: 0.9rem;
+		left: 0.9rem;
+		border-top: 1px solid;
+		border-left: 1px solid;
+	}
+
+	.apartment-plans__frame::after {
+		right: 0.9rem;
+		bottom: 0.9rem;
+		border-right: 1px solid;
+		border-bottom: 1px solid;
+	}
+
+	.apartment-plans__image {
+		width: 100%;
+		height: auto;
+		max-height: min(72vh, 40rem);
+		object-fit: contain;
+	}
+
+	.apartment-plans__details {
+		display: grid;
+		align-content: start;
+		gap: 1.25rem;
+		padding-top: 0;
+		justify-self: stretch;
+	}
+
+	.apartment-plans__price {
+		margin: 0;
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--accent-primary);
+	}
+
+	.apartment-plans__apartment-title {
+		margin: 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(1.6rem, 2.6vw, 2.35rem);
+		line-height: 1.08;
+		letter-spacing: -0.018em;
+		text-wrap: balance;
+	}
+
+	.apartment-plans__specs {
+		display: grid;
+		gap: 0;
+		margin: 0;
+		border-top: 1px solid rgba(35, 38, 43, 0.14);
+	}
+
+	.apartment-plans__spec {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 1rem;
+		align-items: baseline;
+		padding: 1rem 0;
+		border-bottom: 1px solid rgba(35, 38, 43, 0.14);
+	}
+
+	.apartment-plans__spec dt,
+	.apartment-plans__spec dd {
+		margin: 0;
+	}
+
+	.apartment-plans__spec dt {
+		font-size: 0.76rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: rgba(15, 17, 21, 0.5);
+	}
+
+	.apartment-plans__spec dd {
+		font-size: 1rem;
+		line-height: 1.4;
+		text-align: right;
+		color: rgba(15, 17, 21, 0.86);
+	}
+
+	.apartment-plans__cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		justify-self: start;
+		min-height: 46px;
+		padding: 0.72rem 1.25rem;
+		margin-top: 0.55rem;
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+		text-decoration: none;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		transition:
+			transform 0.35s var(--ease-premium),
+			background-color 0.35s var(--ease-premium);
+	}
+
+	.apartment-plans__cta:hover,
+	.apartment-plans__cta:focus-visible {
+		background: var(--accent-hover);
+		transform: translateY(-2px);
+		outline: none;
+	}
+
+	@keyframes apartment-plan-panel-in {
+		from {
+			opacity: 0;
+			transform: translateY(16px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@media (max-width: 820px) {
+		.apartment-plans__top-row {
+			grid-template-columns: 1fr;
+			align-items: start;
+		}
+
+		.apartment-plans__tabs-wrap {
+			min-width: 0;
+			width: 100%;
+		}
+
+		.apartment-plans__grid {
+			grid-template-columns: 1fr;
+			gap: clamp(1.75rem, 5vw, 2.5rem);
+		}
+
+		.apartment-plans__title {
+			max-width: 15ch;
+		}
+
+		.apartment-plans__frame {
+			min-height: auto;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.apartment-plans__tabs {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			width: 100%;
+			gap: 0.9rem;
+			justify-content: start;
+		}
+
+		.apartment-plans__tab {
+			justify-content: flex-start;
+		}
+
+		.apartment-plans__spec {
+			grid-template-columns: 1fr;
+			gap: 0.4rem;
+		}
+
+		.apartment-plans__spec dd {
+			text-align: left;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.apartment-plans__tab,
+		.apartment-plans__tab::after,
+		.apartment-plans__cta,
+		.apartment-plans__panel {
+			transition: none;
+			animation: none;
+		}
+	}
+</style>

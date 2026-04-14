@@ -1,0 +1,18 @@
+---
+import PropertiesCatalogView from "../../components/properties/PropertiesCatalogView.astro";
+import { getAllProperties } from "../../data/properties";
+import Layout from "../../layouts/Layout.astro";
+
+const locale = "lv";
+const properties = getAllProperties();
+---
+
+<Layout title="Amberinvest | Dzīvokļi" locale={locale}>
+	<PropertiesCatalogView
+		eyebrow="Dzīvokļu kolekcija"
+		title="Atlasīti dzīvokļi pārdomātai dzīvei un ieguldījumam"
+		lead="Pārskatiet pieejamos dzīvokļus vienuviet, salīdziniet plānojumus un izvēlieties sev atbilstošāko piedāvājumu ar skaidri redzamu cenu un statusu."
+		properties={properties}
+		activeCategory="all"
+	/>
+</Layout>

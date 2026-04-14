@@ -1,0 +1,9 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getMessages } from "../i18n/translations";
+
+const locale = "lv";
+const messages = getMessages(locale);
+---
+
+<Layout title={messages.pages.aboutUs} locale={locale} />

@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+	--bg-primary: #0f1115;
+	--surface-light: #f5f3ee;
+	--accent-primary: #c79643;
+	--accent-hover: #a9782d;
+	--text-secondary: #8a9098;
+	--border-subtle: #23262b;
+	--nav-surface: rgba(16, 27, 42, 0.78);
+	--ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background-color: var(--bg-primary);
+	color: var(--surface-light);
+	font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+	line-height: 1.5;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+.fade-in {
+	--fade-in-offset: 24px;
+	--fade-in-duration: 1080ms;
+	--fade-in-delay: 0ms;
+}
+
+html.js-motion .fade-in {
+	opacity: 0;
+	transform: translateY(var(--fade-in-offset));
+	filter: blur(2px);
+	transition:
+		opacity var(--fade-in-duration) var(--ease-premium) var(--fade-in-delay),
+		transform var(--fade-in-duration) var(--ease-premium) var(--fade-in-delay),
+		filter var(--fade-in-duration) var(--ease-premium) var(--fade-in-delay);
+	will-change: opacity, transform, filter;
+}
+
+html.js-motion .fade-in.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+	filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.js-motion .fade-in,
+	html.js-motion .fade-in.is-visible {
+		opacity: 1;
+		transform: none;
+		filter: none;
+		transition: none;
+	}
+}

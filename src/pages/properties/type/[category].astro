@@ -1,0 +1,39 @@
+---
+import PropertiesCatalogView from "../../../components/properties/PropertiesCatalogView.astro";
+import {
+	getPropertiesByCategory,
+	getPropertyCategories,
+	type PropertyCategorySlug
+} from "../../../data/properties";
+import Layout from "../../../layouts/Layout.astro";
+
+export function getStaticPaths() {
+	return getPropertyCategories().map((category) => ({
+		params: { category: category.slug },
+		props: { category }
+	}));
+}
+
+interface CategoryPageProps {
+	category: {
+		slug: PropertyCategorySlug;
+		label: string;
+		shortLabel: string;
+		description: string;
+	};
+}
+
+const locale = "lv";
+const { category } = Astro.props as CategoryPageProps;
+const properties = getPropertiesByCategory(category.slug);
+---
+
+<Layout title={`Amberinvest | ${category.label}`} locale={locale}>
+	<PropertiesCatalogView
+		eyebrow="Dzīvokļu kategorija"
+		title={category.label}
+		lead={`${category.description} Skatā redzami tikai šai kategorijai aktuālie dzīvokļi ar skaidru pieejamības un cenu pārskatu.`}
+		properties={properties}
+		activeCategory={category.slug}
+	/>
+</Layout>

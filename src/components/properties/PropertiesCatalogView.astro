@@ -1,0 +1,341 @@
+---
+import PropertyCard from "./PropertyCard.astro";
+import {
+	getPropertyCategories,
+	getPropertyCountByCategory,
+	type Property,
+	type PropertyCategorySlug
+} from "../../data/properties";
+
+interface Props {
+	eyebrow: string;
+	title: string;
+	lead: string;
+	properties: Property[];
+	activeCategory?: PropertyCategorySlug | "all";
+}
+
+const { eyebrow, title, lead, properties, activeCategory = "all" } = Astro.props as Props;
+const categories = getPropertyCategories();
+const catalogTotalCount = categories.reduce((sum, category) => sum + getPropertyCountByCategory(category.slug), 0);
+
+const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
+---
+
+<main class="properties-catalog">
+	<section class="properties-catalog__hero">
+		<div class="properties-catalog__container">
+			<header class="properties-catalog__header">
+				<p class="properties-catalog__eyebrow fade-in">{eyebrow}</p>
+				<h1 class="properties-catalog__title fade-in" data-reveal-delay="50">{title}</h1>
+				<p class="properties-catalog__lead fade-in" data-reveal-delay="110">{lead}</p>
+			</header>
+		</div>
+	</section>
+
+	<section class="properties-catalog__listing">
+		<div class="properties-catalog__container">
+			<div class="properties-catalog__controls fade-in" data-reveal-delay="120">
+				<nav class="properties-filters" aria-label="Dzīvokļu kategorijas">
+					<a href="/properties" aria-current={activeCategory === "all" ? "page" : undefined}>
+						<span>Visi dzīvokļi</span>
+						<strong>{catalogTotalCount}</strong>
+					</a>
+					{
+						categories.map((category) => (
+							<a
+								href={`/properties/type/${category.slug}`}
+								aria-current={activeCategory === category.slug ? "page" : undefined}
+							>
+								<span>{category.shortLabel}</span>
+								<strong>{getPropertyCountByCategory(category.slug)}</strong>
+							</a>
+						))
+					}
+				</nav>
+			</div>
+
+			{
+				sortedProperties.length > 0 ? (
+					<ul class="properties-grid" role="list">
+						{
+							sortedProperties.map((property, index) => (
+								<li>
+									<PropertyCard property={property} index={index} />
+								</li>
+							))
+						}
+					</ul>
+				) : (
+					<div class="properties-empty fade-in" data-reveal-delay="140">
+						<p class="properties-empty__eyebrow">Atlase tiek atjaunota</p>
+						<h2>Šobrīd šajā kategorijā nav publicētu dzīvokļu.</h2>
+						<p>Pārskatiet visu katalogu vai sazinieties ar mums, lai saņemtu jaunākos piedāvājumus.</p>
+						<a href="/properties">Skatīt visu katalogu</a>
+					</div>
+				)
+			}
+		</div>
+	</section>
+</main>
+
+<style>
+	.properties-catalog {
+		padding-top: clamp(7rem, 9vw, 9rem);
+		background:
+			radial-gradient(circle at top left, rgba(199, 150, 67, 0.08), transparent 30%),
+			linear-gradient(180deg, #f7f4ed 0%, var(--surface-light) 38%, #efe9dd 100%);
+		color: var(--bg-primary);
+	}
+
+	.properties-catalog__container {
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding-inline: clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.properties-catalog__hero {
+		padding-bottom: clamp(2rem, 4vw, 3rem);
+	}
+
+	.properties-catalog__header {
+		display: grid;
+		gap: 0.85rem;
+		max-width: 46rem;
+	}
+
+	.properties-catalog__eyebrow,
+	.properties-empty__eyebrow {
+		margin: 0;
+		font-size: 0.68rem;
+		font-weight: 700;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+	}
+
+	.properties-catalog__eyebrow,
+	.properties-empty__eyebrow {
+		color: var(--accent-primary);
+	}
+
+	.properties-catalog__title {
+		margin: 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(2rem, 3.2vw, 3.2rem);
+		line-height: 1.08;
+		letter-spacing: -0.022em;
+		max-width: 16ch;
+		text-wrap: balance;
+	}
+
+	.properties-catalog__lead {
+		margin: 0;
+		max-width: 60ch;
+		font-size: clamp(0.97rem, 1.2vw, 1.06rem);
+		line-height: 1.72;
+		color: rgba(15, 17, 21, 0.64);
+	}
+
+	.properties-catalog__listing {
+		padding-bottom: clamp(5rem, 8vw, 7rem);
+	}
+
+	.properties-catalog__controls {
+		margin-bottom: clamp(1.8rem, 3vw, 2.6rem);
+		padding: 0.95rem 0 0.4rem;
+	}
+
+	.properties-filters {
+		position: relative;
+		display: inline-flex;
+		flex-wrap: nowrap;
+		gap: clamp(1rem, 1.8vw, 1.6rem);
+		width: fit-content;
+		max-width: 100%;
+		margin: 0;
+		padding-bottom: 0rem;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.properties-filters::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 3px;
+		height: 1px;
+		background: rgba(35, 38, 43, 0.24);
+		z-index: 1;
+	}
+
+	.properties-filters::-webkit-scrollbar {
+		display: none;
+	}
+
+	.properties-filters a {
+		position: relative;
+		z-index: 1;
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0 0 0.75rem;
+		border: 0;
+		background: transparent;
+		color: rgba(15, 17, 21, 0.5);
+		text-decoration: none;
+		font-size: 0.78rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		transition: color 0.3s var(--ease-premium);
+	}
+
+	.properties-filters a::after {
+		content: "";
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 2px;
+		height: 3px;
+		background: var(--accent-primary);
+		transform: scaleX(0);
+		transform-origin: center;
+		transition: transform 0.38s var(--ease-premium);
+		z-index: 2;
+	}
+
+	.properties-filters a strong {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.55rem;
+		height: 1.55rem;
+		border-radius: 999px;
+		background: rgba(15, 17, 21, 0.08);
+		border: 0;
+		font-size: 0.72rem;
+		font-weight: 700;
+		color: rgba(15, 17, 21, 0.7);
+		letter-spacing: 0;
+	}
+
+	.properties-filters a[aria-current="page"] {
+		color: var(--bg-primary);
+	}
+
+	.properties-filters a[aria-current="page"]::after {
+		transform: scaleX(1);
+	}
+
+	.properties-filters a[aria-current="page"] strong {
+		background: var(--accent-primary);
+		border-color: var(--accent-primary);
+		color: var(--bg-primary);
+	}
+
+	.properties-filters a:hover,
+	.properties-filters a:focus-visible {
+		color: var(--bg-primary);
+		outline: none;
+	}
+
+	.properties-filters a:hover strong,
+	.properties-filters a:focus-visible strong {
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+	}
+
+	.properties-grid {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(1.2rem, 2vw, 1.7rem);
+	}
+
+	.properties-grid li {
+		min-width: 0;
+	}
+
+	.properties-empty {
+		display: grid;
+		gap: 1rem;
+		max-width: 42rem;
+		padding: clamp(1.8rem, 4vw, 2.8rem);
+		border: 1px solid rgba(35, 38, 43, 0.12);
+		background: rgba(255, 255, 255, 0.66);
+	}
+
+	.properties-empty h2 {
+		margin: 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+		line-height: 1.08;
+		letter-spacing: -0.025em;
+	}
+
+	.properties-empty p {
+		margin: 0;
+		font-size: 1rem;
+		line-height: 1.7;
+		color: rgba(15, 17, 21, 0.62);
+	}
+
+	.properties-empty a {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: fit-content;
+		min-height: 2.9rem;
+		padding: 0.55rem 1.05rem;
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+		text-decoration: none;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		transition:
+			background-color 180ms var(--ease-premium),
+			transform 180ms var(--ease-premium);
+	}
+
+	.properties-empty a:hover,
+	.properties-empty a:focus-visible {
+		background: var(--accent-hover);
+		transform: translateY(-2px);
+		outline: none;
+	}
+
+	@media (max-width: 980px) {
+		.properties-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 720px) {
+		.properties-catalog__hero {
+			padding-bottom: 1.6rem;
+		}
+
+		.properties-catalog__controls {
+			padding-top: 0.8rem;
+		}
+
+		.properties-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.properties-filters {
+			margin-inline: calc(clamp(1.5rem, 4vw, 3rem) * -1);
+			padding-inline: clamp(1.5rem, 4vw, 3rem);
+		}
+
+		.properties-utility__results {
+			flex-wrap: wrap;
+		}
+	}
+</style>

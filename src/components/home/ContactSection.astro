@@ -1,0 +1,356 @@
+---
+import ContactForm from "./ContactForm.jsx";
+---
+
+<section class="contact-section" aria-labelledby="contact-section-title">
+	<div class="contact-section__container">
+		<div class="contact-section__layout">
+			<div class="contact-section__content">
+				<p class="contact-section__eyebrow fade-in">Pieteikties</p>
+				<h2 id="contact-section-title" class="contact-section__title fade-in" data-reveal-delay="70">
+					Interesē dzīvoklis? Sazinieties ar mums!
+				</h2>
+				<p class="contact-section__lead fade-in" data-reveal-delay="130">
+					Pastāstiet, kas jūs interesē, un sagatavosim atbilstošu piedāvājumu, apskates laiku vai
+					atbildi par pieejamajiem plānojumiem.
+				</p>
+
+					<ul class="contact-section__benefits" role="list">
+						<li class="contact-section__benefit fade-in" data-reveal-delay="190">
+							<span class="contact-section__check" aria-hidden="true">
+								<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+							</span>
+							<span>Bezmaksas apskate bez saistībām</span>
+						</li>
+						<li class="contact-section__benefit fade-in" data-reveal-delay="250">
+							<span class="contact-section__check" aria-hidden="true">
+								<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+							</span>
+							<span>Atbildam 24 stundu laikā</span>
+						</li>
+						<li class="contact-section__benefit fade-in" data-reveal-delay="310">
+							<span class="contact-section__check" aria-hidden="true">
+								<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+							</span>
+							<span>Jūsu dati tiek aizsargāti</span>
+						</li>
+					</ul>
+			</div>
+
+			<div class="contact-section__form-wrap fade-in" data-reveal-delay="180">
+				<div class="contact-section__card">
+					<ContactForm client:idle />
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style is:global>
+	.contact-section {
+		position: relative;
+		overflow: clip;
+		background:
+			radial-gradient(circle at top left, rgba(199, 150, 67, 0.14), transparent 34%),
+			linear-gradient(180deg, #0f1115 0%, #131821 100%);
+		color: var(--surface-light);
+		padding: clamp(5rem, 10vw, 8rem) 0;
+	}
+
+	.contact-section::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(199, 150, 67, 0.1) 0%, transparent 18%),
+			repeating-linear-gradient(
+				90deg,
+				rgba(138, 144, 152, 0.04) 0,
+				rgba(138, 144, 152, 0.04) 1px,
+				transparent 1px,
+				transparent 120px
+			);
+		opacity: 0.35;
+		pointer-events: none;
+	}
+
+	.contact-section__container {
+		position: relative;
+		z-index: 1;
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding: 0 clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.contact-section__layout {
+		display: grid;
+		grid-template-columns: minmax(0, 0.95fr) minmax(20rem, 0.9fr);
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: center;
+	}
+
+	.contact-section__content {
+		max-width: 34rem;
+	}
+
+	.contact-section__eyebrow {
+		margin: 0;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--accent-primary);
+	}
+
+	.contact-section__title {
+		margin: 1rem 0 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(2.15rem, 4.2vw, 4rem);
+		line-height: 1.06;
+		letter-spacing: -0.02em;
+		max-width: 13ch;
+		text-wrap: balance;
+	}
+
+	.contact-section__lead {
+		margin: 1.25rem 0 0;
+		max-width: 43ch;
+		font-size: clamp(1rem, 1.3vw, 1.1rem);
+		line-height: 1.75;
+		color: rgba(245, 243, 238, 0.72);
+	}
+
+	.contact-section__benefits {
+		list-style: none;
+		margin: 2rem 0 0;
+		padding: 0;
+		display: grid;
+		gap: 0.95rem;
+	}
+
+	.contact-section__benefit {
+		display: flex;
+		align-items: center;
+		gap: 0.9rem;
+		font-size: 0.96rem;
+		line-height: 1.55;
+		color: rgba(245, 243, 238, 0.92);
+	}
+
+	.contact-section__check {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 0.95rem;
+		height: 0.95rem;
+	}
+
+	.contact-section__check img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	.contact-section__form-wrap {
+		min-width: 0;
+	}
+
+	.contact-section__card {
+		background: var(--surface-light);
+		color: var(--bg-primary);
+		border: 1px solid rgba(138, 144, 152, 0.18);
+		border-radius: 0;
+		padding: clamp(1.5rem, 3vw, 2.4rem);
+		box-shadow: 0 14px 34px rgba(4, 8, 14, 0.08);
+	}
+
+	.contact-form {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.contact-form__header {
+		display: grid;
+		gap: 0.55rem;
+		margin-bottom: 0.15rem;
+	}
+
+	.contact-form__title {
+		margin: 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(1.65rem, 2.4vw, 2.15rem);
+		line-height: 1.08;
+		letter-spacing: -0.02em;
+	}
+
+	.contact-form__intro {
+		margin: 0;
+		font-size: 0.96rem;
+		line-height: 1.7;
+		color: rgba(15, 17, 21, 0.62);
+	}
+
+	.contact-form__grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.2rem 1rem;
+	}
+
+	.contact-form__field {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.contact-form__field--full {
+		grid-column: 1 / -1;
+	}
+
+	.contact-form__label {
+		font-size: 0.68rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: rgba(15, 17, 21, 0.58);
+	}
+
+	.contact-form__control,
+	.contact-form__select {
+		width: 100%;
+		min-height: 3.35rem;
+		padding: 0.92rem 1rem;
+		border: 1px solid rgba(35, 38, 43, 0.18);
+		border-radius: 0;
+		background: rgba(255, 255, 255, 0.72);
+		color: var(--bg-primary);
+		font: inherit;
+		transition:
+			border-color 180ms var(--ease-premium),
+			background-color 180ms var(--ease-premium);
+	}
+
+	.contact-form__control::placeholder {
+		color: rgba(15, 17, 21, 0.34);
+	}
+
+	.contact-form__control:focus,
+	.contact-form__select:focus {
+		outline: none;
+		border-color: var(--accent-primary);
+		background: #fff;
+	}
+
+	.contact-form__control[aria-invalid="true"],
+	.contact-form__select[aria-invalid="true"] {
+		border-color: #b14b4b;
+	}
+
+	.contact-form__hint,
+	.contact-form__error {
+		font-size: 0.82rem;
+		line-height: 1.45;
+	}
+
+	.contact-form__hint {
+		color: rgba(15, 17, 21, 0.5);
+	}
+
+	.contact-form__error {
+		color: #9c2f2f;
+	}
+
+	.contact-form__checkbox {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		padding-top: 0.15rem;
+	}
+
+	.contact-form__checkbox input {
+		width: 1rem;
+		height: 1rem;
+		margin-top: 0.1rem;
+		accent-color: var(--accent-primary);
+	}
+
+	.contact-form__checkbox label {
+		font-size: 0.92rem;
+		line-height: 1.6;
+		color: rgba(15, 17, 21, 0.78);
+	}
+
+	.contact-form__submit {
+		width: 100%;
+		min-height: 3.5rem;
+		border: 0;
+		border-radius: 0;
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+		font-size: 0.76rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition:
+			transform 180ms var(--ease-premium),
+			background-color 180ms var(--ease-premium),
+			opacity 180ms var(--ease-premium);
+	}
+
+	.contact-form__submit:hover,
+	.contact-form__submit:focus-visible {
+		background: var(--accent-hover);
+		transform: translateY(-2px);
+		outline: none;
+	}
+
+	.contact-form__submit:disabled {
+		opacity: 0.75;
+		cursor: wait;
+		transform: none;
+	}
+
+	.contact-form__status {
+		padding: 0.9rem 1rem;
+		border-radius: 0;
+		border: 1px solid transparent;
+		font-size: 0.92rem;
+		line-height: 1.55;
+	}
+
+	.contact-form__status--success {
+		background: rgba(38, 112, 76, 0.06);
+		border-color: rgba(38, 112, 76, 0.18);
+		color: #1f6a48;
+	}
+
+	.contact-form__status--error {
+		background: rgba(177, 75, 75, 0.04);
+		border-color: rgba(177, 75, 75, 0.18);
+		color: #8f2e2e;
+	}
+
+	@media (max-width: 900px) {
+		.contact-section__layout {
+			grid-template-columns: 1fr;
+		}
+
+		.contact-section__content {
+			max-width: none;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.contact-section {
+			padding: 4.5rem 0;
+		}
+
+		.contact-section__card {
+			padding: 1.3rem;
+		}
+
+		.contact-form__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
