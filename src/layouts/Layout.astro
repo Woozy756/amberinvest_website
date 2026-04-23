@@ -2,7 +2,8 @@
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import { getMessages, type Locale } from "../i18n/translations";
+import type { Locale } from "../i18n/translations";
+import { loadSiteSettings } from "../sanity/siteSettings";
 
 interface Props {
 	title?: string;
@@ -11,8 +12,19 @@ interface Props {
 }
 
 const { locale = "lv", title, overlayHeader = false } = Astro.props;
-const messages = getMessages(locale);
-const pageTitle = title ?? messages.site.defaultTitle;
+const siteSettings = await loadSiteSettings();
+
+if (!siteSettings) {
+	throw new Error("Site Settings content is missing in Sanity.");
+}
+
+const defaultSeo = siteSettings?.defaultSeo;
+const siteTitle = siteSettings.siteTitle ?? "";
+const sourceTitle = title ?? defaultSeo?.metaTitle ?? siteTitle;
+const pageTitle = sourceTitle.replace(/Amberinvest/gi, siteTitle);
+const metaDescription = defaultSeo?.metaDescription;
+const ogImage = defaultSeo?.ogImage;
+const shouldNoIndex = defaultSeo?.noIndex === true;
 ---
 
 <!doctype html>
@@ -35,11 +47,17 @@ const pageTitle = title ?? messages.site.defaultTitle;
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
+		{metaDescription ? <meta name="description" content={metaDescription} /> : null}
+		{shouldNoIndex ? <meta name="robots" content="noindex,nofollow" /> : null}
+		<meta property="og:title" content={pageTitle} />
+		{metaDescription ? <meta property="og:description" content={metaDescription} /> : null}
+		{ogImage?.url ? <meta property="og:image" content={ogImage.url} /> : null}
+		{ogImage?.alt ? <meta property="og:image:alt" content={ogImage.alt} /> : null}
 	</head>
 	<body>
-		<Header overlay={overlayHeader} locale={locale} />
+		<Header overlay={overlayHeader} locale={locale} siteSettings={siteSettings} />
 		<slot />
-		<Footer />
+		<Footer siteSettings={siteSettings} />
 		<script is:inline>
 			const revealElements = Array.from(document.querySelectorAll('.fade-in'));
 

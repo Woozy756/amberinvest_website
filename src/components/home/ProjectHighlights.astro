@@ -1,16 +1,95 @@
 ---
-import { getMessages, type Locale } from "../../i18n/translations";
+import type { HomepageHighlightsContent } from "../../sanity/homepage";
 
 interface Props {
-	locale?: Locale;
+	content?: HomepageHighlightsContent | null;
 }
 
-const { locale = "lv" } = Astro.props;
-const messages = getMessages(locale);
-const section = messages.home.projectHighlights;
+const { content } = Astro.props;
 const galleryId = `project-gallery-${Math.random().toString(36).slice(2, 9)}`;
+
+function thumbnailUrl(url: string) {
+	if (!url) return "";
+
+	return url.includes("?") ? `${url}&w=320&h=240&fit=crop&q=80` : `${url}?w=320&h=240&fit=crop&q=80`;
+}
+
+async function fetchInlineSvg(url: string) {
+	if (!url) return "";
+
+	try {
+		const response = await fetch(url);
+		if (!response.ok) return "";
+
+		return normalizeInlineSvg(await response.text());
+	} catch {
+		return "";
+	}
+}
+
+function normalizeInlineSvg(svg: string) {
+	return svg
+		.replace(/<\?xml[\s\S]*?\?>/gi, "")
+		.replace(/<!doctype[\s\S]*?>/gi, "")
+		.replace(/<svg\b([^>]*)>/i, (_match, attrs: string) => {
+			const cleanedAttrs = attrs
+				.replace(/\swidth="[^"]*"/gi, "")
+				.replace(/\sheight="[^"]*"/gi, "")
+				.replace(/\sstyle="[^"]*"/gi, "")
+				.replace(/\sfill="(?!none)[^"]*"/gi, "")
+				.replace(/\sstroke="(?!none)[^"]*"/gi, "");
+
+			return `<svg${cleanedAttrs} class="project-highlights__feature-svg__inline" fill="currentColor" stroke="currentColor" style="width:100%;height:100%;display:block;color:currentColor">`;
+		})
+		.replace(/\sfill="(?!none)[^"]*"/gi, ' fill="currentColor"')
+		.replace(/\sstroke="(?!none)[^"]*"/gi, ' stroke="currentColor"');
+}
+
+const section = content
+	? {
+			eyebrow: content.projectHighlightsEyebrow ?? "",
+			title: content.projectHighlightsTitle ?? "",
+			galleryAriaLabel: content.projectHighlightsGalleryAriaLabel ?? "",
+			gallery: content.projectGallery?.map((item) => {
+				const image = item.image?.asset?.url ?? "";
+				const alt = item.alt ?? "";
+
+				return {
+					image,
+					thumb: thumbnailUrl(image),
+					alt
+				};
+			}) ?? []
+		}
+	: null;
+
+const features = content?.projectFeatures?.length
+	? await Promise.all(
+			content.projectFeatures.map(async (feature) => {
+				if (feature.iconSvg?.asset?.url) {
+					return {
+						iconMarkup: await fetchInlineSvg(feature.iconSvg.asset.url),
+						title: feature.title ?? "",
+						body: feature.body ?? ""
+					};
+				}
+
+				return {
+					iconMarkup: "",
+					title: feature.title ?? "",
+					body: feature.body ?? ""
+				};
+			})
+		)
+	: [];
+
+const gallery = section?.gallery.map((item) => ({
+	...item,
+	thumb: item.thumb || thumbnailUrl(item.image)
+})).filter((item) => item.image && item.alt) ?? [];
 ---
 
+{section && gallery.length > 0 ? (
 <section class="project-highlights" aria-labelledby={`${galleryId}-title`}>
 	<div class="project-highlights__container">
 		<header class="project-highlights__header fade-in">
@@ -22,41 +101,43 @@ const galleryId = `project-gallery-${Math.random().toString(36).slice(2, 9)}`;
 			<div class="project-highlights__content">
 				<ul class="project-highlights__features" role="list">
 					{
-						section.features.map((feature, index) => (
+						features.map((feature, index) => (
 							<li class="project-highlights__feature-item fade-in" data-reveal-delay={String(90 + index * 80)}>
 								<article class="project-highlights__feature-card">
 									<div class="project-highlights__feature-icon" aria-hidden="true">
-										{feature.icon === "structure" && (
+										{feature.iconMarkup ? (
+											<span class="project-highlights__feature-svg" set:html={feature.iconMarkup} />
+										) : feature.icon === "structure" && (
 											<svg viewBox="0 0 24 24" focusable="false">
 												<path d="M4.75 5.75h14.5v12.5H4.75z" fill="none" stroke="currentColor" stroke-width="1.5"/>
 												<path d="M9 5.75v12.5M15 5.75v12.5M4.75 10.5h14.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
 											</svg>
 										)}
-										{feature.icon === "energy" && (
+										{!feature.iconMarkup && feature.icon === "energy" && (
 											<svg viewBox="0 0 24 24" focusable="false">
 												<path d="M12 4.25a2.75 2.75 0 0 0-2.75 2.75v6.58a4.5 4.5 0 1 0 5.5 0V7A2.75 2.75 0 0 0 12 4.25Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
 												<path d="M12 9v6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
 											</svg>
 										)}
-										{feature.icon === "finish" && (
+										{!feature.iconMarkup && feature.icon === "finish" && (
 											<svg viewBox="0 0 24 24" focusable="false">
 												<path d="M6.75 18.25h10.5v-8.5l-5.25-4-5.25 4z" fill="none" stroke="currentColor" stroke-width="1.5"/>
 												<path d="M10 18.25v-5.5h4v5.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
 											</svg>
 										)}
-										{feature.icon === "parking" && (
+										{!feature.iconMarkup && feature.icon === "parking" && (
 											<svg viewBox="0 0 24 24" focusable="false">
 												<path d="M7 18.25V6.5h5.5a3.75 3.75 0 0 1 0 7.5H7" fill="none" stroke="currentColor" stroke-width="1.5"/>
 												<path d="M16.25 16.25h1.5a1.5 1.5 0 0 1 1.5 1.5v.5h-5v-.5a1.5 1.5 0 0 1 1.5-1.5Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
 											</svg>
 										)}
-										{feature.icon === "lift" && (
+										{!feature.iconMarkup && feature.icon === "lift" && (
 											<svg viewBox="0 0 24 24" focusable="false">
 												<path d="M8 4.75h8a2 2 0 0 1 2 2v10.5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6.75a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
 												<path d="M10 9.5h4M10 13h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
 											</svg>
 										)}
-										{feature.icon === "location" && (
+										{!feature.iconMarkup && feature.icon === "location" && (
 											<svg viewBox="0 0 24 24" focusable="false">
 												<path d="M12 20.25s5-5.1 5-9.1a5 5 0 1 0-10 0c0 4 5 9.1 5 9.1Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
 												<circle cx="12" cy="11.25" r="1.75" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -78,8 +159,8 @@ const galleryId = `project-gallery-${Math.random().toString(36).slice(2, 9)}`;
 				<figure class="project-highlights__figure fade-in" data-reveal-delay="140">
 					<img
 						class="project-highlights__main-image"
-						src={section.gallery[0].image}
-						alt={section.gallery[0].alt}
+						src={gallery[0].image}
+						alt={gallery[0].alt}
 						width="960"
 						height="720"
 						loading="lazy"
@@ -89,7 +170,7 @@ const galleryId = `project-gallery-${Math.random().toString(36).slice(2, 9)}`;
 
 				<div class="project-highlights__thumbs" role="tablist" aria-label={section.galleryAriaLabel}>
 					{
-						section.gallery.map((item, index) => (
+						gallery.map((item, index) => (
 							<button
 								type="button"
 								class:list={{
@@ -114,6 +195,7 @@ const galleryId = `project-gallery-${Math.random().toString(36).slice(2, 9)}`;
 		</div>
 	</div>
 </section>
+) : null}
 
 <script is:inline>
 	document.querySelectorAll('[data-project-gallery]').forEach((gallery) => {
@@ -255,6 +337,19 @@ const galleryId = `project-gallery-${Math.random().toString(36).slice(2, 9)}`;
 	.project-highlights__feature-icon svg {
 		width: 100%;
 		height: 100%;
+	}
+
+	.project-highlights__feature-svg {
+		width: 100%;
+		height: 100%;
+		display: block;
+		color: currentColor;
+	}
+
+	.project-highlights__feature-svg__inline {
+		width: 100%;
+		height: 100%;
+		display: block;
 	}
 
 	.project-highlights__feature-copy {

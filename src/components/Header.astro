@@ -1,48 +1,65 @@
 ---
 import { getMessages, type Locale } from "../i18n/translations";
-import { getPropertyCategories } from "../data/properties";
+import { getPropertyCategories, getPropertyCategoryHref } from "../sanity/properties";
+import type { SiteLink, SiteSettings } from "../sanity/siteSettings";
 
 interface Props {
 	overlay?: boolean;
 	locale?: Locale;
+	siteSettings?: SiteSettings | null;
 }
 
-const { overlay = false, locale = "lv" } = Astro.props;
+const { overlay = false, locale = "lv", siteSettings = null } = Astro.props;
 const messages = getMessages(locale);
-const propertyCategories = getPropertyCategories();
+const propertyCategories = await getPropertyCategories();
+
+const isPropertiesLink = (item: SiteLink) => {
+	const href = item.href.trim().toLowerCase();
+	return href === "/properties" || href.startsWith("/properties?");
+};
+
+const isFaqLink = (item: SiteLink) => item.href.trim().toLowerCase() === "/faq";
+
+const configuredNavItems = siteSettings?.headerNavigation ?? [];
+
+const visibleNavItems = configuredNavItems.filter((item) => !isFaqLink(item));
+const firstPropertiesItem = visibleNavItems.find(isPropertiesLink);
+const propertiesLabel = firstPropertiesItem?.label || messages.header.properties;
+const mainNavItems = visibleNavItems.filter((item) => !isPropertiesLink(item));
+const leadingNavItems = mainNavItems.slice(0, 1);
+const trailingNavItems = mainNavItems.slice(1);
+
+const homeAriaLabel = siteSettings?.siteTitle ?? "Sākumlapa";
+const logo = siteSettings?.logo;
+const logoAlt = logo?.alt || siteSettings?.siteTitle || "";
+const headerCtaLabel = "Sazinies ar mums";
 
 const propertiesItems = [
 	{ href: "/properties", label: messages.header.propertiesListing },
 	...propertyCategories.map((category) => ({
-		href: `/properties/type/${category.slug}`,
+		href: getPropertyCategoryHref(category),
 		label: category.label
 	}))
-];
-
-const navItems = [
-	{ href: "/", label: messages.header.home },
-	{ href: "/about-us", label: messages.header.aboutUs },
-	{ href: "/how-to-buy", label: messages.header.howToBuy },
-	{ href: "/faq", label: messages.header.faq },
-	{ href: "/contact", label: messages.header.contact }
 ];
 ---
 
 <header class="site-header" data-header data-overlay={overlay} data-scrolled="false" data-menu-open="false" data-properties-open="false">
 	<div class="site-header__shell">
 		<div class="site-header__inner">
-			<a class="brand" href="/" aria-label={messages.brand.homeAriaLabel}>
-				<span class="brand__mark" aria-hidden="true">AI</span>
-				<span class="brand__copy">
-					<span class="brand__name">{messages.brand.name}</span>
-					<span class="brand__project">{messages.brand.project}</span>
+			<a class:list={["brand", { "brand--with-image": Boolean(logo?.url) }]} href="/" aria-label={homeAriaLabel}>
+				<span class:list={["brand__mark", { "brand__mark--image": Boolean(logo?.url) }]} aria-hidden={logo?.url ? "false" : "true"}>
+					{logo?.url ? (
+						<img class="brand__mark-image" src={logo.url} alt={logoAlt} loading="eager" decoding="async" />
+					) : (
+						"AI"
+					)}
 				</span>
 			</a>
 
 			<nav class="nav nav--desktop" aria-label={messages.header.navAriaLabel}>
 				<ul class="nav__list">
 					{
-						navItems.slice(0, 1).map((item) => (
+						leadingNavItems.map((item) => (
 							<li>
 								<a class="nav__link" href={item.href}>{item.label}</a>
 							</li>
@@ -55,7 +72,7 @@ const navItems = [
 							aria-expanded="false"
 							aria-controls="properties-menu-desktop"
 						>
-							{messages.header.properties}
+							{propertiesLabel}
 							<span class="nav__caret" aria-hidden="true"></span>
 						</button>
 						<div class="dropdown" id="properties-menu-desktop">
@@ -71,7 +88,7 @@ const navItems = [
 						</div>
 					</li>
 					{
-						navItems.slice(1).map((item) => (
+						trailingNavItems.map((item) => (
 							<li>
 								<a class="nav__link" href={item.href}>{item.label}</a>
 							</li>
@@ -81,7 +98,7 @@ const navItems = [
 			</nav>
 
 			<div class="site-header__actions">
-				<a class="header-cta" href="/contact">{messages.header.cta}</a>
+				<a class="header-cta" href="/contact">{headerCtaLabel}</a>
 				<button
 					class="menu-toggle"
 					type="button"
@@ -100,9 +117,13 @@ const navItems = [
 		<div class="mobile-menu" id="mobile-menu" data-mobile-menu>
 			<nav aria-label={messages.header.mobileNavAriaLabel}>
 				<ul class="mobile-nav">
-					<li>
-						<a class="mobile-nav__link" href="/">{messages.header.home}</a>
-					</li>
+					{
+						leadingNavItems.map((item) => (
+							<li>
+								<a class="mobile-nav__link" href={item.href}>{item.label}</a>
+							</li>
+						))
+					}
 					<li class="mobile-nav__item mobile-nav__item--expandable">
 						<button
 							class="mobile-nav__toggle"
@@ -111,7 +132,7 @@ const navItems = [
 							aria-expanded="false"
 							aria-controls="mobile-properties-menu"
 						>
-							<span>{messages.header.properties}</span>
+							<span>{propertiesLabel}</span>
 							<span class="nav__caret" aria-hidden="true"></span>
 						</button>
 						<ul class="mobile-subnav" id="mobile-properties-menu">
@@ -124,21 +145,16 @@ const navItems = [
 							}
 						</ul>
 					</li>
-					<li>
-						<a class="mobile-nav__link" href="/about-us">{messages.header.aboutUs}</a>
-					</li>
-					<li>
-						<a class="mobile-nav__link" href="/how-to-buy">{messages.header.howToBuy}</a>
-					</li>
-					<li>
-						<a class="mobile-nav__link" href="/faq">{messages.header.faq}</a>
-					</li>
-					<li>
-						<a class="mobile-nav__link" href="/contact">{messages.header.contact}</a>
-					</li>
+					{
+						trailingNavItems.map((item) => (
+							<li>
+								<a class="mobile-nav__link" href={item.href}>{item.label}</a>
+							</li>
+						))
+					}
 				</ul>
 			</nav>
-			<a class="header-cta header-cta--mobile" href="/contact">{messages.header.cta}</a>
+			<a class="header-cta header-cta--mobile" href="/contact">{headerCtaLabel}</a>
 		</div>
 	</div>
 </header>
@@ -259,22 +275,21 @@ const navItems = [
 		text-transform: uppercase;
 	}
 
-	.brand__copy {
-		display: grid;
+	.brand__mark--image {
+		width: clamp(6.5rem, 12vw, 9rem);
+		height: clamp(2.4rem, 4vw, 3rem);
+		min-width: 0;
+		padding: 0;
+		background: transparent;
+		border: 0;
 	}
 
-	.brand__name {
-		font-size: 0.92rem;
-		font-weight: 600;
-		letter-spacing: 0.02em;
-	}
-
-	.brand__project {
-		font-size: 0.62rem;
-		font-weight: 600;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		color: var(--text-secondary);
+	.brand__mark-image {
+		width: 100%;
+		height: 100%;
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
 	}
 
 	.nav {

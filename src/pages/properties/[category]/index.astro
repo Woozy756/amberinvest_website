@@ -1,0 +1,41 @@
+---
+import PropertiesCatalogView from "../../../components/properties/PropertiesCatalogView.astro";
+import {
+	getPropertiesByCategory,
+	getPropertyCategories,
+	type PropertyCategory
+} from "../../../sanity/properties";
+import Layout from "../../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+	const categories = await getPropertyCategories();
+
+	return categories.map((category) => ({
+		params: { category: category.slug },
+		props: { category }
+	}));
+}
+
+interface Props {
+	category: PropertyCategory;
+}
+
+const locale = "lv";
+const { category } = Astro.props as Props;
+
+const [properties, categories] = await Promise.all([
+	getPropertiesByCategory(category.slug),
+	getPropertyCategories()
+]);
+---
+
+<Layout title={`Amberinvest | ${category.label}`} locale={locale}>
+	<PropertiesCatalogView
+		eyebrow="Dzīvokļu filtrs"
+		title={category.label}
+		lead={category.description}
+		properties={properties}
+		categories={categories}
+		activeCategory={category.slug}
+	/>
+</Layout>

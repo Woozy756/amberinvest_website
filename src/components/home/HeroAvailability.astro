@@ -1,46 +1,58 @@
 ---
-import { getMessages, type Locale } from "../../i18n/translations";
+import type { HomepageHeroContent } from "../../sanity/homepage";
 
 interface Props {
-	locale?: Locale;
+	content?: HomepageHeroContent | null;
 }
 
-const { locale = "lv" } = Astro.props;
-const messages = getMessages(locale);
-const availabilityMetrics = messages.home.metrics;
+const { content } = Astro.props;
+const heroImage = content?.heroBackgroundImage?.asset?.url ?? "";
+const availabilityMetrics = content?.metrics ?? [];
+const primaryCtaLabel = "Skatīt dzīvokļus";
+const primaryCtaHref = "/properties";
+const secondaryCtaLabel = "Pieteikt apskati";
+const secondaryCtaHref = "/contact";
 ---
 
-<section class="hero" aria-labelledby="hero-title">
-	<div class="hero__container">
-		<div class="hero__body">
-			<div class="hero__content fade-in">
-				<p class="hero__eyebrow">{messages.home.heroEyebrow}</p>
-				<h1 id="hero-title">{messages.home.heroTitle}</h1>
-				<p class="hero__lead">{messages.home.heroLead}</p>
-				<div class="hero__actions">
-					<a class="button button--primary" href="/properties">{messages.home.primaryCta}</a>
-					<a class="button button--secondary" href="/contact">{messages.home.secondaryCta}</a>
+{
+	content ? (
+		<section class="hero" aria-labelledby="hero-title" style={`--hero-background-image: url("${heroImage}")`}>
+			<div class="hero__container">
+				<div class="hero__body">
+					<div class="hero__content fade-in">
+						<p class="hero__eyebrow">{content.heroEyebrow}</p>
+						<h1 id="hero-title">{content.heroTitle}</h1>
+						<p class="hero__lead">{content.heroLead}</p>
+						<div class="hero__actions">
+							<a class="button button--primary" href={primaryCtaHref}>
+								{primaryCtaLabel}
+							</a>
+							<a class="button button--secondary" href={secondaryCtaHref}>
+								{secondaryCtaLabel}
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="availability" aria-labelledby="availability-title">
+					<h2 id="availability-title" class="sr-only">{content.availabilityTitle}</h2>
+					<div class="availability__container fade-in" data-reveal-delay="160">
+						<dl class="availability__grid">
+							{
+								availabilityMetrics.map((metric, index) => (
+									<div class="availability__item fade-in" data-reveal-delay={String(220 + index * 70)}>
+										<dt>{metric.label}</dt>
+										<dd>{metric.value}</dd>
+									</div>
+								))
+							}
+						</dl>
+					</div>
 				</div>
 			</div>
-		</div>
-
-		<div class="availability" aria-labelledby="availability-title">
-			<h2 id="availability-title" class="sr-only">{messages.home.availabilityTitle}</h2>
-			<div class="availability__container fade-in" data-reveal-delay="160">
-				<dl class="availability__grid">
-					{
-						availabilityMetrics.map((metric, index) => (
-							<div class="availability__item fade-in" data-reveal-delay={String(220 + index * 70)}>
-								<dt>{metric.label}</dt>
-								<dd>{metric.value}</dd>
-							</div>
-						))
-					}
-				</dl>
-			</div>
-		</div>
-	</div>
-</section>
+		</section>
+	) : null
+}
 
 <style>
 	.hero {
@@ -55,7 +67,7 @@ const availabilityMetrics = messages.home.metrics;
 		content: "";
 		position: absolute;
 		inset: 0;
-		background-image: url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=2200&q=80");
+		background-image: var(--hero-background-image);
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;

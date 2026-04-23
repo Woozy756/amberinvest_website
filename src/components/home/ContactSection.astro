@@ -1,44 +1,51 @@
 ---
 import ContactForm from "./ContactForm.jsx";
+import type { HomepageContactContent } from "../../sanity/homepage";
+
+interface Props {
+	content?: HomepageContactContent | null;
+}
+
+const { content } = Astro.props;
+
+const fallbackEyebrow = "Sazinies ar mums";
+const fallbackTitle = "Piesakiet konsultāciju";
+const fallbackLead =
+	"Aizpildiet formu, un mēs sazināsimies, lai vienotos par nākamo soli.";
+const eyebrow = content?.contactEyebrow?.trim() || fallbackEyebrow;
+const title = content?.contactTitle?.trim() || fallbackTitle;
+const lead = content?.contactLead?.trim() || fallbackLead;
+const benefits = content?.contactBenefits?.map((benefit) => benefit.trim()).filter(Boolean) ?? [];
 ---
 
 <section class="contact-section" aria-labelledby="contact-section-title">
 	<div class="contact-section__container">
 		<div class="contact-section__layout">
 			<div class="contact-section__content">
-				<p class="contact-section__eyebrow fade-in">Pieteikties</p>
+				<p class="contact-section__eyebrow fade-in">{eyebrow}</p>
 				<h2 id="contact-section-title" class="contact-section__title fade-in" data-reveal-delay="70">
-					Interesē dzīvoklis? Sazinieties ar mums!
+					{title}
 				</h2>
 				<p class="contact-section__lead fade-in" data-reveal-delay="130">
-					Pastāstiet, kas jūs interesē, un sagatavosim atbilstošu piedāvājumu, apskates laiku vai
-					atbildi par pieejamajiem plānojumiem.
+					{lead}
 				</p>
 
+				{benefits.length > 0 && (
 					<ul class="contact-section__benefits" role="list">
-						<li class="contact-section__benefit fade-in" data-reveal-delay="190">
-							<span class="contact-section__check" aria-hidden="true">
-								<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-							</span>
-							<span>Bezmaksas apskate bez saistībām</span>
-						</li>
-						<li class="contact-section__benefit fade-in" data-reveal-delay="250">
-							<span class="contact-section__check" aria-hidden="true">
-								<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-							</span>
-							<span>Atbildam 24 stundu laikā</span>
-						</li>
-						<li class="contact-section__benefit fade-in" data-reveal-delay="310">
-							<span class="contact-section__check" aria-hidden="true">
-								<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-							</span>
-							<span>Jūsu dati tiek aizsargāti</span>
-						</li>
+						{benefits.map((benefit, index) => (
+							<li class="contact-section__benefit fade-in" data-reveal-delay={String(190 + index * 60)}>
+								<span class="contact-section__check" aria-hidden="true">
+									<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+								</span>
+								<span>{benefit}</span>
+							</li>
+						))}
 					</ul>
+				)}
 			</div>
 
 			<div class="contact-section__form-wrap fade-in" data-reveal-delay="180">
-				<div class="contact-section__card">
+				<div class="contact-section__card contact-form-card">
 					<ContactForm client:idle />
 				</div>
 			</div>
@@ -156,187 +163,9 @@ import ContactForm from "./ContactForm.jsx";
 		min-width: 0;
 	}
 
-	.contact-section__card {
-		background: var(--surface-light);
-		color: var(--bg-primary);
-		border: 1px solid rgba(138, 144, 152, 0.18);
-		border-radius: 0;
-		padding: clamp(1.5rem, 3vw, 2.4rem);
-		box-shadow: 0 14px 34px rgba(4, 8, 14, 0.08);
-	}
-
-	.contact-form {
-		display: grid;
-		gap: 1.25rem;
-	}
-
-	.contact-form__header {
-		display: grid;
-		gap: 0.55rem;
-		margin-bottom: 0.15rem;
-	}
-
-	.contact-form__title {
-		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
-		font-size: clamp(1.65rem, 2.4vw, 2.15rem);
-		line-height: 1.08;
-		letter-spacing: -0.02em;
-	}
-
-	.contact-form__intro {
-		margin: 0;
-		font-size: 0.96rem;
-		line-height: 1.7;
-		color: rgba(15, 17, 21, 0.62);
-	}
-
-	.contact-form__grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 1.2rem 1rem;
-	}
-
-	.contact-form__field {
-		display: grid;
-		gap: 0.4rem;
-	}
-
-	.contact-form__field--full {
-		grid-column: 1 / -1;
-	}
-
-	.contact-form__label {
-		font-size: 0.68rem;
-		font-weight: 600;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		color: rgba(15, 17, 21, 0.58);
-	}
-
-	.contact-form__control,
-	.contact-form__select {
-		width: 100%;
-		min-height: 3.35rem;
-		padding: 0.92rem 1rem;
-		border: 1px solid rgba(35, 38, 43, 0.18);
-		border-radius: 0;
-		background: rgba(255, 255, 255, 0.72);
-		color: var(--bg-primary);
-		font: inherit;
-		transition:
-			border-color 180ms var(--ease-premium),
-			background-color 180ms var(--ease-premium);
-	}
-
-	.contact-form__control::placeholder {
-		color: rgba(15, 17, 21, 0.34);
-	}
-
-	.contact-form__control:focus,
-	.contact-form__select:focus {
-		outline: none;
-		border-color: var(--accent-primary);
-		background: #fff;
-	}
-
-	.contact-form__control[aria-invalid="true"],
-	.contact-form__select[aria-invalid="true"] {
-		border-color: #b14b4b;
-	}
-
-	.contact-form__hint,
-	.contact-form__error {
-		font-size: 0.82rem;
-		line-height: 1.45;
-	}
-
-	.contact-form__hint {
-		color: rgba(15, 17, 21, 0.5);
-	}
-
-	.contact-form__error {
-		color: #9c2f2f;
-	}
-
-	.contact-form__checkbox {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.75rem;
-		padding-top: 0.15rem;
-	}
-
-	.contact-form__checkbox input {
-		width: 1rem;
-		height: 1rem;
-		margin-top: 0.1rem;
-		accent-color: var(--accent-primary);
-	}
-
-	.contact-form__checkbox label {
-		font-size: 0.92rem;
-		line-height: 1.6;
-		color: rgba(15, 17, 21, 0.78);
-	}
-
-	.contact-form__submit {
-		width: 100%;
-		min-height: 3.5rem;
-		border: 0;
-		border-radius: 0;
-		background: var(--accent-primary);
-		color: var(--bg-primary);
-		font-size: 0.76rem;
-		font-weight: 700;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		cursor: pointer;
-		transition:
-			transform 180ms var(--ease-premium),
-			background-color 180ms var(--ease-premium),
-			opacity 180ms var(--ease-premium);
-	}
-
-	.contact-form__submit:hover,
-	.contact-form__submit:focus-visible {
-		background: var(--accent-hover);
-		transform: translateY(-2px);
-		outline: none;
-	}
-
-	.contact-form__submit:disabled {
-		opacity: 0.75;
-		cursor: wait;
-		transform: none;
-	}
-
-	.contact-form__status {
-		padding: 0.9rem 1rem;
-		border-radius: 0;
-		border: 1px solid transparent;
-		font-size: 0.92rem;
-		line-height: 1.55;
-	}
-
-	.contact-form__status--success {
-		background: rgba(38, 112, 76, 0.06);
-		border-color: rgba(38, 112, 76, 0.18);
-		color: #1f6a48;
-	}
-
-	.contact-form__status--error {
-		background: rgba(177, 75, 75, 0.04);
-		border-color: rgba(177, 75, 75, 0.18);
-		color: #8f2e2e;
-	}
-
 	@media (max-width: 900px) {
 		.contact-section__layout {
 			grid-template-columns: 1fr;
-		}
-
-		.contact-section__content {
-			max-width: none;
 		}
 	}
 
@@ -346,11 +175,7 @@ import ContactForm from "./ContactForm.jsx";
 		}
 
 		.contact-section__card {
-			padding: 1.3rem;
-		}
-
-		.contact-form__grid {
-			grid-template-columns: 1fr;
+			padding: 1.2rem;
 		}
 	}
 </style>

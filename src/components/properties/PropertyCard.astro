@@ -1,9 +1,6 @@
 ---
-import {
-	getCategoryBySlug,
-	propertyStatusMeta,
-	type Property
-} from "../../data/properties";
+import { getPropertyHref, propertyStatusMeta, type Property } from "../../sanity/properties";
+import { formatCurrency } from "../../lib/formatting";
 
 interface Props {
 	property: Property;
@@ -11,21 +8,21 @@ interface Props {
 }
 
 const { property, index = 0 } = Astro.props as Props;
-const category = getCategoryBySlug(property.category);
 const status = propertyStatusMeta[property.status];
-const priceFormatter = new Intl.NumberFormat("lv-LV");
+const priceLabel = formatCurrency(property.price, property.currency);
+const propertyHref = getPropertyHref(property);
 ---
 
 <article class="property-card fade-in" data-reveal-delay={String(80 + index * 45)}>
-	<a class="property-card__media" href={`/properties/${property.slug}`} aria-label={`Skatīt ${property.title} detaļas`}>
+	<a class="property-card__media" href={propertyHref} aria-label={`Skatīt ${property.title} detaļas`}>
 		<img src={property.image} alt={property.title} loading="lazy" width="1400" height="1040" />
 		<span class="property-card__status" data-tone={status.tone}>{status.label}</span>
 	</a>
 
 	<div class="property-card__body">
-		<p class="property-card__category">{category?.shortLabel ?? "Dzīvoklis"}</p>
+		<p class="property-card__category">{property.category.shortLabel || "Dzīvoklis"}</p>
 		<h2 class="property-card__title">
-			<a href={`/properties/${property.slug}`}>{property.title}</a>
+			<a href={propertyHref}>{property.title}</a>
 		</h2>
 		<p class="property-card__description">{property.shortDescription}</p>
 
@@ -45,8 +42,8 @@ const priceFormatter = new Intl.NumberFormat("lv-LV");
 		</dl>
 
 		<div class="property-card__footer">
-			<p class="property-card__price">€{priceFormatter.format(property.price)}</p>
-			<a class="property-card__cta" href={`/properties/${property.slug}`}>Skatīt detaļas</a>
+			<p class="property-card__price">{priceLabel}</p>
+			<a class="property-card__cta" href={propertyHref}>Skatīt detaļas</a>
 		</div>
 	</div>
 </article>

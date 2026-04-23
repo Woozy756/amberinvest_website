@@ -5,17 +5,9 @@ const initialValues = {
 	lastName: "",
 	phone: "+371",
 	email: "",
-	interest: "",
+	information: "",
 	consent: false
 };
-
-const interestOptions = [
-	{ value: "", label: "Izvēlieties" },
-	{ value: "2-istabu", label: "2 istabu dzīvoklis" },
-	{ value: "3-istabu", label: "3 istabu dzīvoklis" },
-	{ value: "apskate", label: "Pieteikt apskati" },
-	{ value: "cits", label: "Cits jautājums" }
-];
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -28,7 +20,9 @@ function validate(values) {
 		errors.phone = "Lūdzu, ievadiet telefona numuru.";
 	}
 
-	if (values.email.trim() && !emailPattern.test(values.email.trim())) {
+	if (!values.email.trim()) {
+		errors.email = "Lūdzu, ievadiet e-pasta adresi.";
+	} else if (!emailPattern.test(values.email.trim())) {
 		errors.email = "Lūdzu, ievadiet korektu e-pasta adresi.";
 	}
 
@@ -40,13 +34,13 @@ function validate(values) {
 export default function ContactForm({
 	title = "Piesakiet konsultāciju",
 	intro = "Aizpildiet formu, un mēs sazināsimies, lai vienotos par nākamo soli.",
-	defaultInterest = "",
+	defaultInformation = "",
 	submitLabel = "Nosūtīt pieprasījumu"
 }) {
 	const id = useId();
 	const [values, setValues] = useState(() => ({
 		...initialValues,
-		interest: defaultInterest
+		information: defaultInformation
 	}));
 	const [errors, setErrors] = useState({});
 	const [status, setStatus] = useState(null);
@@ -92,7 +86,7 @@ export default function ContactForm({
 					lastName: values.lastName.trim(),
 					phone: values.phone.trim(),
 					email: values.email.trim(),
-					interest: values.interest,
+					information: values.information.trim(),
 					consent: values.consent
 				})
 			});
@@ -109,7 +103,7 @@ export default function ContactForm({
 			});
 			setValues({
 				...initialValues,
-				interest: defaultInterest
+				information: defaultInformation
 			});
 			setErrors({});
 		} catch (error) {
@@ -125,13 +119,15 @@ export default function ContactForm({
 	return (
 		<form className="contact-form" onSubmit={handleSubmit} noValidate>
 			<div className="contact-form__header">
-				<h3 className="contact-form__title">{title}</h3>
-				<p className="contact-form__intro">{intro}</p>
+				<h3 className="contact-form__title text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+					{title}
+				</h3>
+				<p className="contact-form__intro text-base leading-relaxed">{intro}</p>
 			</div>
 
 			<div className="contact-form__grid">
 				<div className="contact-form__field">
-					<label className="contact-form__label" htmlFor={`${id}-firstName`}>
+					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-firstName`}>
 						Vārds
 					</label>
 					<input
@@ -141,20 +137,21 @@ export default function ContactForm({
 						type="text"
 						value={values.firstName}
 						onChange={handleChange}
+						placeholder="Vārds"
 						aria-invalid={errors.firstName ? "true" : "false"}
 						aria-describedby={errors.firstName ? `${id}-firstName-error` : undefined}
 						autoComplete="given-name"
 						required
 					/>
 					{errors.firstName ? (
-						<p className="contact-form__error" id={`${id}-firstName-error`}>
+						<p className="contact-form__error text-sm" id={`${id}-firstName-error`}>
 							{errors.firstName}
 						</p>
 					) : null}
 				</div>
 
 				<div className="contact-form__field">
-					<label className="contact-form__label" htmlFor={`${id}-lastName`}>
+					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-lastName`}>
 						Uzvārds
 					</label>
 					<input
@@ -164,20 +161,21 @@ export default function ContactForm({
 						type="text"
 						value={values.lastName}
 						onChange={handleChange}
+						placeholder="Uzvārds"
 						aria-invalid={errors.lastName ? "true" : "false"}
 						aria-describedby={errors.lastName ? `${id}-lastName-error` : undefined}
 						autoComplete="family-name"
 						required
 					/>
 					{errors.lastName ? (
-						<p className="contact-form__error" id={`${id}-lastName-error`}>
+						<p className="contact-form__error text-sm" id={`${id}-lastName-error`}>
 							{errors.lastName}
 						</p>
 					) : null}
 				</div>
 
 				<div className="contact-form__field">
-					<label className="contact-form__label" htmlFor={`${id}-phone`}>
+					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-phone`}>
 						Telefona numurs
 					</label>
 					<input
@@ -187,20 +185,21 @@ export default function ContactForm({
 						type="text"
 						value={values.phone}
 						onChange={handleChange}
+						placeholder="+371"
 						aria-invalid={errors.phone ? "true" : "false"}
 						aria-describedby={errors.phone ? `${id}-phone-error` : undefined}
 						autoComplete="tel"
 						required
 					/>
 					{errors.phone ? (
-						<p className="contact-form__error" id={`${id}-phone-error`}>
+						<p className="contact-form__error text-sm" id={`${id}-phone-error`}>
 							{errors.phone}
 						</p>
 					) : null}
 				</div>
 
 				<div className="contact-form__field">
-					<label className="contact-form__label" htmlFor={`${id}-email`}>
+					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-email`}>
 						E-pasts
 					</label>
 					<input
@@ -210,34 +209,32 @@ export default function ContactForm({
 						type="email"
 						value={values.email}
 						onChange={handleChange}
+						placeholder="E-pasts"
 						aria-invalid={errors.email ? "true" : "false"}
 						aria-describedby={errors.email ? `${id}-email-error` : undefined}
 						autoComplete="email"
+						required
 					/>
 					{errors.email ? (
-						<p className="contact-form__error" id={`${id}-email-error`}>
+						<p className="contact-form__error text-sm" id={`${id}-email-error`}>
 							{errors.email}
 						</p>
 					) : null}
 				</div>
 
 				<div className="contact-form__field contact-form__field--full">
-					<label className="contact-form__label" htmlFor={`${id}-interest`}>
-						Interese
+					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-information`}>
+						Papildu informācija
 					</label>
-					<select
-						className="contact-form__select"
-						id={`${id}-interest`}
-						name="interest"
-						value={values.interest}
+					<textarea
+						className="contact-form__control contact-form__control--textarea"
+						id={`${id}-information`}
+						name="information"
+						value={values.information}
 						onChange={handleChange}
-					>
-						{interestOptions.map((option) => (
-							<option key={option.value || "placeholder"} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</select>
+						placeholder="Pastāstiet, ko vēlaties noskaidrot"
+						rows="4"
+					/>
 				</div>
 
 				<div className="contact-form__field contact-form__field--full">
@@ -252,10 +249,12 @@ export default function ContactForm({
 							aria-describedby={errors.consent ? `${id}-consent-error` : undefined}
 							required
 						/>
-						<label htmlFor={`${id}-consent`}>Piekrītu personas datu apstrādei</label>
+						<label className="text-sm leading-relaxed" htmlFor={`${id}-consent`}>
+							Piekrītu personas datu apstrādei
+						</label>
 					</div>
 					{errors.consent ? (
-						<p className="contact-form__error" id={`${id}-consent-error`}>
+						<p className="contact-form__error text-sm" id={`${id}-consent-error`}>
 							{errors.consent}
 						</p>
 					) : null}
@@ -264,14 +263,14 @@ export default function ContactForm({
 
 			{status ? (
 				<p
-					className={`contact-form__status contact-form__status--${status.type}`}
+					className={`contact-form__status contact-form__status--${status.type} text-sm leading-relaxed`}
 					role={status.type === "error" ? "alert" : "status"}
 				>
 					{status.message}
 				</p>
 			) : null}
 
-			<button className="contact-form__submit" type="submit" disabled={isSubmitting}>
+			<button className="contact-form__submit text-xs font-bold uppercase tracking-widest" type="submit" disabled={isSubmitting}>
 				{isSubmitting ? "Nosūtām..." : submitLabel}
 			</button>
 		</form>

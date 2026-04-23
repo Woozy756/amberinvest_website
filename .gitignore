@@ -31,3 +31,9 @@ tmp/
 .idea/
 .DS_Store
 Thumbs.db
+
+# local tooling and runtime artifacts
+.codex*
+.runtime/
+.dist-build/
+.dist-backup/

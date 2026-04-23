@@ -1,9 +1,335 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getMessages } from "../i18n/translations";
+import ContactForm from "../components/home/ContactForm.jsx";
+import { loadContactPage } from "../sanity/contactPage";
+import { loadSiteSettings } from "../sanity/siteSettings";
+import { splitLines, toPhoneHref } from "../lib/formatting";
 
 const locale = "lv";
-const messages = getMessages(locale);
+const content = await loadContactPage();
+const siteSettings = await loadSiteSettings();
+
+if (!content) {
+	throw new Error("Contact Page content is missing in Sanity.");
+}
+
+if (!siteSettings) {
+	throw new Error("Site Settings content is missing in Sanity.");
+}
+
+const phone = siteSettings.phone?.trim();
+const phoneHref = toPhoneHref(phone);
+const email = siteSettings.contactEmail?.trim();
+const addressLines = splitLines(siteSettings.address);
+const businessHours = siteSettings.businessHours?.trim();
+const socialLinks = siteSettings.socialLinks ?? [];
+
+const directContacts = [
+	{
+		label: "Telefons",
+		value: phone,
+		href: phoneHref
+	},
+	{
+		label: "E-pasts",
+		value: email,
+		href: email ? `mailto:${email}` : undefined
+	},
+	{
+		label: "Darba laiks",
+		value: businessHours,
+		href: undefined
+	}
+].filter((item) => item.value);
 ---
 
-<Layout title={messages.pages.contact} locale={locale} />
+<Layout title={content.title} locale={locale}>
+	<main class="contact-page">
+		<section class="contact-section contact-section--light contact-section--first" id="contact-details">
+			<div class="contact-shell">
+				<div class="contact-details">
+					<div class="contact-details__intro">
+						<p class="fade-in text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-primary)]">
+							{content.contactEyebrow}
+						</p>
+						<h2
+							class="fade-in text-3xl font-semibold leading-tight tracking-tight text-[var(--bg-primary)] sm:text-4xl lg:text-5xl"
+							data-reveal-delay="70"
+						>
+							{content.contactTitle}
+						</h2>
+						<p
+							class="fade-in text-base leading-relaxed text-[rgba(15,17,21,0.74)] sm:text-lg"
+							data-reveal-delay="140"
+						>
+							{content.contactLead}
+						</p>
+
+						{content.contactHighlights.length > 0 ? (
+							<ul class="contact-details__highlights" role="list">
+								{content.contactHighlights.map((item, index) => (
+									<li class="fade-in" data-reveal-delay={String(210 + index * 60)}>
+										<span class="text-base leading-relaxed text-[rgba(15,17,21,0.84)] sm:text-lg">{item}</span>
+									</li>
+								))}
+							</ul>
+						) : null}
+					</div>
+
+					<div class="contact-details__panel">
+						<div class="contact-details__rows">
+							{directContacts.map((item, index) => (
+								<div class="contact-details__row fade-in" data-reveal-delay={String(70 + index * 50)}>
+									<p class="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">{item.label}</p>
+									{item.href ? (
+										<a class="text-lg font-medium leading-relaxed text-[var(--bg-primary)] sm:text-xl" href={item.href}>
+											{item.value}
+										</a>
+									) : (
+										<p class="text-lg font-medium leading-relaxed text-[var(--bg-primary)] sm:text-xl">{item.value}</p>
+									)}
+								</div>
+							))}
+
+							{addressLines.length > 0 ? (
+								<div class="contact-details__row fade-in" data-reveal-delay="220">
+									<p class="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">Adrese</p>
+									<address class="contact-details__address text-lg font-medium leading-relaxed text-[var(--bg-primary)] not-italic sm:text-xl">
+										{addressLines.map((line) => (
+											<span>{line}</span>
+										))}
+									</address>
+								</div>
+							) : null}
+
+							{socialLinks.length > 0 ? (
+								<div class="contact-details__row fade-in" data-reveal-delay="270">
+									<p class="text-xs font-bold uppercase tracking-[0.2em] text-[var(--accent-primary)]">Sociālie tīkli</p>
+									<div class="contact-details__socials">
+										{socialLinks.map((link) => (
+											<a
+												class="text-sm font-medium uppercase tracking-[0.14em] text-[var(--bg-primary)]"
+												href={link.url}
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												{link.platform}
+											</a>
+										))}
+									</div>
+								</div>
+							) : null}
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="contact-section contact-section--light contact-section--consultation" id="contact-form">
+			<div class="contact-shell">
+				<div class="contact-consultation">
+					<div class="contact-consultation__copy">
+						<p class="fade-in text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-primary)]">
+							{content.formEyebrow}
+						</p>
+						<h2
+							class="fade-in text-3xl font-semibold leading-tight tracking-tight text-[var(--bg-primary)] sm:text-4xl lg:text-5xl"
+							data-reveal-delay="70"
+						>
+							{content.formTitle}
+						</h2>
+						<p
+							class="fade-in text-base leading-relaxed text-[rgba(15,17,21,0.74)] sm:text-lg"
+							data-reveal-delay="140"
+						>
+							{content.formLead}
+						</p>
+					</div>
+
+					<div class="contact-consultation__form fade-in" data-reveal-delay="180">
+						<div class="contact-consultation__card contact-form-card">
+							<ContactForm
+								client:idle
+								title={content.formCardTitle}
+								intro={content.formCardIntro}
+								defaultInformation={content.defaultInformation}
+								submitLabel={content.submitLabel}
+							/>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.contact-page {
+		background: #f7f4ee;
+		color: var(--bg-primary);
+	}
+
+	.contact-shell {
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding: 0 clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.contact-section {
+		padding: clamp(4.5rem, 8vw, 7rem) 0;
+	}
+
+	.contact-section--light {
+		background: #f7f4ee;
+	}
+
+	.contact-section--first {
+		padding-top: calc(var(--header-height, 5.25rem) + clamp(2.5rem, 5vw, 4rem));
+	}
+
+	.contact-details,
+	.contact-consultation {
+		display: grid;
+		gap: clamp(1.8rem, 4vw, 3rem);
+	}
+
+	.contact-details {
+		grid-template-columns: minmax(0, 0.95fr) minmax(18rem, 1.05fr);
+		align-items: start;
+	}
+
+	.contact-details__intro,
+	.contact-consultation__copy {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.contact-details__intro h2,
+	.contact-consultation__copy h2 {
+		font-family: "Playfair Display", Georgia, serif;
+		margin: 0;
+		max-width: 14ch;
+		text-wrap: balance;
+	}
+
+	.contact-details__intro p,
+	.contact-consultation__copy p {
+		margin: 0;
+		max-width: 40rem;
+	}
+
+	.contact-details__highlights {
+		list-style: none;
+		margin: 0.5rem 0 0;
+		padding: 0;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.contact-details__highlights li {
+		padding-left: 1.1rem;
+		position: relative;
+	}
+
+	.contact-details__highlights li::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0.7rem;
+		width: 0.35rem;
+		height: 0.35rem;
+		background: var(--accent-primary);
+	}
+
+	.contact-details__panel {
+		padding-top: 0.35rem;
+	}
+
+	.contact-details__rows {
+		border-top: 1px solid rgba(35, 38, 43, 0.14);
+	}
+
+	.contact-details__row {
+		display: grid;
+		grid-template-columns: minmax(7rem, 8.5rem) minmax(0, 1fr);
+		gap: 1rem;
+		align-items: start;
+		padding: 1.35rem 0;
+		border-bottom: 1px solid rgba(35, 38, 43, 0.14);
+	}
+
+	.contact-details__row p,
+	.contact-details__row a,
+	.contact-details__address {
+		margin: 0;
+		text-decoration: none;
+	}
+
+	.contact-details__row a {
+		transition: color 180ms var(--ease-premium);
+	}
+
+	.contact-details__row a:hover,
+	.contact-details__row a:focus-visible {
+		color: var(--accent-primary);
+		outline: none;
+	}
+
+	.contact-details__address {
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	.contact-details__socials {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.9rem 1.1rem;
+	}
+
+	.contact-details__socials a {
+		text-decoration: none;
+		padding-bottom: 0.25rem;
+		border-bottom: 1px solid rgba(35, 38, 43, 0.18);
+		transition:
+			color 180ms var(--ease-premium),
+			border-color 180ms var(--ease-premium);
+	}
+
+	.contact-details__socials a:hover,
+	.contact-details__socials a:focus-visible {
+		color: var(--accent-primary);
+		border-color: rgba(199, 150, 67, 0.45);
+		outline: none;
+	}
+
+	.contact-section--consultation {
+		padding-top: 0;
+	}
+
+	.contact-consultation {
+		grid-template-columns: minmax(0, 0.72fr) minmax(20rem, 1fr);
+		align-items: start;
+		padding-top: clamp(4.5rem, 8vw, 7rem);
+		border-top: 1px solid rgba(35, 38, 43, 0.14);
+	}
+
+	@media (max-width: 1080px) {
+		.contact-details,
+		.contact-consultation {
+			grid-template-columns: 1fr;
+		}
+
+		.contact-details__intro h2,
+		.contact-consultation__copy h2 {
+			max-width: 16ch;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.contact-details__row {
+			grid-template-columns: 1fr;
+		}
+
+	}
+</style>

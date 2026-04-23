@@ -1,23 +1,18 @@
 ---
 import PropertyCard from "./PropertyCard.astro";
-import {
-	getPropertyCategories,
-	getPropertyCountByCategory,
-	type Property,
-	type PropertyCategorySlug
-} from "../../data/properties";
+import { getPropertyCategoryHref, type Property, type PropertyCategory } from "../../sanity/properties";
 
 interface Props {
 	eyebrow: string;
 	title: string;
 	lead: string;
 	properties: Property[];
-	activeCategory?: PropertyCategorySlug | "all";
+	categories: PropertyCategory[];
+	activeCategory?: string | "all";
 }
 
-const { eyebrow, title, lead, properties, activeCategory = "all" } = Astro.props as Props;
-const categories = getPropertyCategories();
-const catalogTotalCount = categories.reduce((sum, category) => sum + getPropertyCountByCategory(category.slug), 0);
+const { eyebrow, title, lead, properties, categories, activeCategory = "all" } = Astro.props as Props;
+const catalogTotalCount = categories.reduce((sum, category) => sum + category.propertyCount, 0);
 
 const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 ---
@@ -44,11 +39,11 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 					{
 						categories.map((category) => (
 							<a
-								href={`/properties/type/${category.slug}`}
+								href={getPropertyCategoryHref(category)}
 								aria-current={activeCategory === category.slug ? "page" : undefined}
 							>
 								<span>{category.shortLabel}</span>
-								<strong>{getPropertyCountByCategory(category.slug)}</strong>
+								<strong>{category.propertyCount}</strong>
 							</a>
 						))
 					}

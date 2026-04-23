@@ -17,7 +17,7 @@ export interface FloorPlanTab {
 }
 
 interface Props {
-	eyebrow: string;
+	eyebrow?: string;
 	title: string;
 	lead: string;
 	tabsAriaLabel: string;
@@ -28,6 +28,7 @@ interface Props {
 }
 
 const { eyebrow, title, lead, tabsAriaLabel, specsAriaLabel, plans, initialTabId, showTabs = true } = Astro.props as Props;
+const hasEyebrow = Boolean(eyebrow?.trim());
 const sectionId = `apartment-plans-${Math.random().toString(36).slice(2, 9)}`;
 const initialIndex = Math.max(
 	0,
@@ -41,7 +42,7 @@ const initialIndex = Math.max(
 			<div class="apartment-plans__container">
 				<div class:list={{ "apartment-plans__top-row": true, "apartment-plans__top-row--single": !showTabs }}>
 					<header class="apartment-plans__header">
-						<p class="apartment-plans__eyebrow fade-in">{eyebrow}</p>
+						{hasEyebrow ? <p class="apartment-plans__eyebrow fade-in">{eyebrow}</p> : null}
 						<h2 id={`${sectionId}-title`} class="apartment-plans__title fade-in" data-reveal-delay="70">
 							{title}
 						</h2>

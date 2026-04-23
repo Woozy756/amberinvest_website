@@ -18,7 +18,7 @@ export default function PropertyGallery({ images = [], title }) {
 					width="1600"
 					height="1120"
 				/>
-				<div className="property-gallery__meta" aria-live="polite">
+				<div className="property-gallery__meta text-xs font-bold tracking-[0.14em] uppercase" aria-live="polite">
 					<span>Foto galerija</span>
 					<strong>
 						{activeIndex + 1} / {images.length}

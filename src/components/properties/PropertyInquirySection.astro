@@ -1,12 +1,18 @@
 ---
 import ContactForm from "../home/ContactForm.jsx";
-import type { Property } from "../../data/properties";
+import type { Property } from "../../sanity/properties";
+import { loadSiteSettings } from "../../sanity/siteSettings";
+import { toPhoneHref } from "../../lib/formatting";
 
 interface Props {
 	property: Property;
 }
 
 const { property } = Astro.props as Props;
+const siteSettings = await loadSiteSettings();
+const inquiryPhone = siteSettings?.phone?.trim();
+const inquiryPhoneHref = toPhoneHref(inquiryPhone);
+const inquiryEmail = siteSettings?.contactEmail?.trim();
 ---
 
 <section class="property-inquiry" id="property-inquiry" aria-labelledby="property-inquiry-title">
@@ -37,19 +43,21 @@ const { property } = Astro.props as Props;
 					</li>
 				</ul>
 
-				<div class="property-inquiry__contacts fade-in" data-reveal-delay="320">
-					<a href="tel:+37120001234">+371 20 001 234</a>
-					<a href="mailto:info@amberinvest.lv">info@amberinvest.lv</a>
-				</div>
+				{inquiryPhone || inquiryEmail ? (
+					<div class="property-inquiry__contacts fade-in" data-reveal-delay="320">
+						{inquiryPhone && inquiryPhoneHref ? <a href={inquiryPhoneHref}>{inquiryPhone}</a> : null}
+						{inquiryEmail ? <a href={`mailto:${inquiryEmail}`}>{inquiryEmail}</a> : null}
+					</div>
+				) : null}
 			</div>
 
 			<div class="property-inquiry__form-wrap fade-in" data-reveal-delay="170">
-				<div class="property-inquiry__card">
+				<div class="property-inquiry__card contact-form-card">
 					<ContactForm
 						client:idle
 						title="Pieteikt apskati"
 						intro={`Aizpildiet formu, un mēs sazināsimies par izvēlēto dzīvokli: ${property.title}.`}
-						defaultInterest="apskate"
+						defaultInformation="Apskate"
 						submitLabel="Pieteikt apskati"
 					/>
 				</div>
@@ -185,172 +193,8 @@ const { property } = Astro.props as Props;
 		outline: none;
 	}
 
-	.property-inquiry__card {
-		background: var(--surface-light);
-		color: var(--bg-primary);
-		border: 1px solid rgba(138, 144, 152, 0.18);
-		padding: clamp(1.5rem, 3vw, 2.4rem);
-		box-shadow: 0 14px 34px rgba(4, 8, 14, 0.08);
-	}
-
-	.contact-form {
-		display: grid;
-		gap: 1.25rem;
-	}
-
-	.contact-form__header {
-		display: grid;
-		gap: 0.55rem;
-		margin-bottom: 0.15rem;
-	}
-
-	.contact-form__title {
-		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
-		font-size: clamp(1.65rem, 2.4vw, 2.15rem);
-		line-height: 1.08;
-		letter-spacing: -0.02em;
-	}
-
-	.contact-form__intro {
-		margin: 0;
-		font-size: 0.96rem;
-		line-height: 1.7;
-		color: rgba(15, 17, 21, 0.62);
-	}
-
-	.contact-form__grid {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 1.2rem 1rem;
-	}
-
-	.contact-form__field {
-		display: grid;
-		gap: 0.4rem;
-	}
-
-	.contact-form__field--full {
-		grid-column: 1 / -1;
-	}
-
-	.contact-form__label {
-		font-size: 0.68rem;
-		font-weight: 600;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		color: rgba(15, 17, 21, 0.58);
-	}
-
-	.contact-form__control,
-	.contact-form__select {
-		width: 100%;
-		min-height: 3.35rem;
-		padding: 0.92rem 1rem;
-		border: 1px solid rgba(35, 38, 43, 0.18);
-		background: rgba(255, 255, 255, 0.72);
-		color: var(--bg-primary);
-		font: inherit;
-		transition:
-			border-color 180ms var(--ease-premium),
-			background-color 180ms var(--ease-premium);
-	}
-
-	.contact-form__control::placeholder {
-		color: rgba(15, 17, 21, 0.34);
-	}
-
-	.contact-form__control:focus,
-	.contact-form__select:focus {
-		outline: none;
-		border-color: var(--accent-primary);
-		background: #fff;
-	}
-
-	.contact-form__control[aria-invalid="true"],
-	.contact-form__select[aria-invalid="true"] {
-		border-color: #b14b4b;
-	}
-
-	.contact-form__hint,
-	.contact-form__error,
-	.contact-form__status {
-		font-size: 0.82rem;
-		line-height: 1.45;
-	}
-
-	.contact-form__hint {
-		color: rgba(15, 17, 21, 0.5);
-	}
-
-	.contact-form__error,
-	.contact-form__status--error {
-		color: #9c2f2f;
-	}
-
-	.contact-form__status--success {
-		color: #3f6d4b;
-	}
-
-	.contact-form__checkbox {
-		display: flex;
-		align-items: flex-start;
-		gap: 0.75rem;
-		padding-top: 0.15rem;
-	}
-
-	.contact-form__checkbox input {
-		width: 1rem;
-		height: 1rem;
-		margin-top: 0.1rem;
-		accent-color: var(--accent-primary);
-	}
-
-	.contact-form__checkbox label {
-		font-size: 0.92rem;
-		line-height: 1.6;
-		color: rgba(15, 17, 21, 0.78);
-	}
-
-	.contact-form__submit {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		min-height: 3rem;
-		padding: 0.65rem 1rem;
-		border: 0;
-		background: var(--accent-primary);
-		color: var(--bg-primary);
-		font: inherit;
-		font-size: 0.72rem;
-		font-weight: 700;
-		letter-spacing: 0.15em;
-		text-transform: uppercase;
-		cursor: pointer;
-		transition:
-			background-color 180ms var(--ease-premium),
-			transform 180ms var(--ease-premium);
-	}
-
-	.contact-form__submit:hover,
-	.contact-form__submit:focus-visible {
-		background: var(--accent-hover);
-		transform: translateY(-2px);
-		outline: none;
-	}
-
-	.contact-form__submit:disabled {
-		cursor: wait;
-		opacity: 0.8;
-	}
-
 	@media (max-width: 840px) {
 		.property-inquiry__layout {
-			grid-template-columns: 1fr;
-		}
-
-		.contact-form__grid {
 			grid-template-columns: 1fr;
 		}
 	}

@@ -1,9 +1,873 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import ContactForm from "../components/home/ContactForm.jsx";
 import { getMessages } from "../i18n/translations";
+import Layout from "../layouts/Layout.astro";
+import { loadHowToBuyPage } from "../sanity/howToBuy";
 
 const locale = "lv";
 const messages = getMessages(locale);
+const content = await loadHowToBuyPage();
+if (!content) {
+	throw new Error("How To Buy Page content is missing in Sanity.");
+}
+const sectionNav = [
+	{ href: "#process", label: "Soli pa solim" },
+	{ href: "#financing", label: "Finansējums" },
+	{ href: "#documents", label: "Dokumenti" },
+	{ href: "#faq", label: "Biežākie jautājumi" },
+	{ href: "#consultation", label: "Konsultācija" },
+];
 ---
 
-<Layout title={messages.pages.howToBuy} locale={locale} />
+<Layout title={content.title || messages.pages.howToBuy} locale={locale} overlayHeader>
+	<main class="how-to-buy-page">
+		<section
+			class="how-to-buy-hero"
+			style={`--how-to-buy-hero-image: ${content.heroImage ? `url("${content.heroImage.src}")` : 'none'};`}
+		>
+			<div class="how-to-buy-shell how-to-buy-hero__layout">
+				<div class="how-to-buy-hero__content">
+					<p class="how-to-buy-eyebrow fade-in text-xs font-bold uppercase tracking-widest">
+						{content.heroEyebrow}
+					</p>
+					<h1
+						class="how-to-buy-hero__title fade-in text-5xl font-semibold leading-none tracking-tight sm:text-6xl xl:text-7xl"
+						data-reveal-delay="50"
+					>
+						{content.heroTitle}
+					</h1>
+
+					<div class="how-to-buy-hero__lead fade-in text-base leading-relaxed sm:text-lg" data-reveal-delay="110">
+						{content.heroLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+					</div>
+
+				</div>
+
+				<nav class="how-to-buy-hero__nav fade-in" data-reveal-delay="140" aria-label="Kā iet uz sadaļām">
+					<p class="how-to-buy-hero__nav-label text-xs font-bold uppercase tracking-widest">Sadaļas</p>
+					<ul class="how-to-buy-hero__nav-list" role="list">
+						{sectionNav.map((item, index) => (
+							<li>
+								<a href={item.href} class="text-sm leading-relaxed">
+									<span class="how-to-buy-hero__nav-index text-xs font-bold uppercase tracking-widest">
+										{String(index + 1).padStart(2, "0")}
+									</span>
+									<span>{item.label}</span>
+									<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+										<path
+											d="M1.75 8h9.5"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.25"
+											stroke-linecap="square"
+										></path>
+										<path
+											d="M7.75 3.75 12 8l-4.25 4.25"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.25"
+											stroke-linecap="square"
+											stroke-linejoin="miter"
+										></path>
+									</svg>
+								</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</div>
+		</section>
+
+		<section class="how-to-buy-process" id="process">
+			<div class="how-to-buy-shell how-to-buy-process__layout">
+				<div class="how-to-buy-process__intro">
+						<div class="how-to-buy-process__intro-inner fade-in">
+						<p class="how-to-buy-eyebrow text-xs font-bold uppercase tracking-widest">{content.stepsEyebrow}</p>
+						<h2 class="how-to-buy-section-title text-4xl font-semibold leading-none tracking-tight sm:text-5xl lg:text-6xl">
+							{content.stepsTitle}
+						</h2>
+						<div class="how-to-buy-copy text-base leading-relaxed">
+							{content.stepsLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+						</div>
+					</div>
+				</div>
+
+				<div class="how-to-buy-process__list">
+					{content.steps.map((step, index) => (
+						<article
+							class:list={["how-to-buy-step fade-in", { "how-to-buy-step--with-image": Boolean(step.image) }]}
+							data-reveal-delay={80 + index * 70}
+						>
+							<div class="how-to-buy-step__meta">
+								<p class="how-to-buy-step__number text-xs font-bold uppercase tracking-widest">
+									{String(index + 1).padStart(2, "0")}
+								</p>
+								<div class="how-to-buy-step__content">
+									<h3 class="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">{step.title}</h3>
+									<div class="how-to-buy-copy text-base leading-relaxed">
+										{step.bodyParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+									</div>
+									{step.supportingNote ? (
+										<p class="how-to-buy-step__note text-sm leading-relaxed">{step.supportingNote}</p>
+									) : null}
+								</div>
+							</div>
+
+							{step.image ? (
+								<figure class="how-to-buy-step__media">
+									<img
+										src={step.image.src}
+										alt={step.image.alt}
+										loading="lazy"
+										decoding="async"
+									/>
+									{step.image.label ? (
+										<figcaption class="text-xs font-bold uppercase tracking-widest">{step.image.label}</figcaption>
+									) : null}
+								</figure>
+							) : null}
+						</article>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="how-to-buy-split how-to-buy-split--light" id="financing">
+			<div class="how-to-buy-shell how-to-buy-split__layout">
+				<div class="how-to-buy-split__media fade-in">
+					{content.financingImage ? (
+						<figure class="how-to-buy-split__frame gold-frame">
+							<img
+								src={content.financingImage.src}
+								alt={content.financingImage.alt}
+								loading="lazy"
+								decoding="async"
+							/>
+						</figure>
+					) : null}
+				</div>
+
+					<div class="how-to-buy-split__content fade-in" data-reveal-delay="80">
+					<p class="how-to-buy-eyebrow text-xs font-bold uppercase tracking-widest">{content.financingEyebrow}</p>
+					<h2 class="how-to-buy-section-title mb-6 text-4xl font-semibold leading-none tracking-tight sm:mb-8 sm:text-5xl lg:text-6xl">
+						{content.financingTitle}
+					</h2>
+					<div class="how-to-buy-copy mt-6 text-base leading-relaxed sm:mt-8">
+						{content.financingLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+					</div>
+
+					<div class="how-to-buy-specs how-to-buy-specs--light">
+						{content.financingHighlights.map((item) => (
+							<div class="how-to-buy-specs__row">
+								<p class="text-sm leading-relaxed">{item.label}</p>
+								<p class="text-base leading-relaxed">{item.value}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="how-to-buy-split how-to-buy-split--light" id="documents">
+			<div class="how-to-buy-shell how-to-buy-split__layout how-to-buy-split__layout--reverse">
+				<div class="how-to-buy-split__content fade-in">
+					<p class="how-to-buy-eyebrow text-xs font-bold uppercase tracking-widest">{content.documentsEyebrow}</p>
+					<h2 class="how-to-buy-section-title mb-6 text-4xl font-semibold leading-none tracking-tight sm:mb-8 sm:text-5xl lg:text-6xl">
+						{content.documentsTitle}
+					</h2>
+					<div class="how-to-buy-copy mt-6 text-base leading-relaxed sm:mt-8">
+						{content.documentsLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+					</div>
+
+					<div class="how-to-buy-specs how-to-buy-specs--light">
+						{content.documentItems.map((item) => (
+							<div class="how-to-buy-specs__row">
+								<p class="text-sm leading-relaxed">{item.label}</p>
+								<p class="text-base leading-relaxed">{item.value}</p>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<div class="how-to-buy-split__media fade-in" data-reveal-delay="80">
+					{content.documentsImage ? (
+						<figure class="how-to-buy-split__frame how-to-buy-split__frame--light gold-frame gold-frame--light">
+							<img
+								src={content.documentsImage.src}
+								alt={content.documentsImage.alt}
+								loading="lazy"
+								decoding="async"
+							/>
+						</figure>
+					) : null}
+				</div>
+			</div>
+		</section>
+
+		<section class="how-to-buy-faq" id="faq">
+			<div class="how-to-buy-shell">
+				<div class="how-to-buy-faq__intro">
+					<div class="fade-in">
+						<p class="how-to-buy-eyebrow text-xs font-bold uppercase tracking-widest">{content.faqEyebrow}</p>
+						<h2 class="how-to-buy-section-title text-4xl font-semibold leading-none tracking-tight sm:text-5xl lg:text-6xl">
+							{content.faqTitle}
+						</h2>
+					</div>
+
+					<div class="how-to-buy-copy fade-in text-base leading-relaxed" data-reveal-delay="70">
+						{content.faqLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+					</div>
+				</div>
+
+				<div class="how-to-buy-faq__list">
+					{content.faqItems.map((item, index) => (
+						<details class="how-to-buy-faq__item fade-in" data-reveal-delay={110 + index * 55}>
+							<summary class="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+									<span>{item.question}</span>
+									<span class="how-to-buy-faq__icon" aria-hidden="true"></span>
+								</summary>
+							<div class="how-to-buy-faq__answer how-to-buy-copy text-base leading-relaxed">
+								{item.answerParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+							</div>
+						</details>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="contact-section" aria-labelledby="contact-section-title" id="consultation">
+			<div class="contact-section__container">
+				<div class="contact-section__layout">
+					<div class="contact-section__content">
+						<p class="contact-section__eyebrow fade-in">{content.contactEyebrow}</p>
+						<h2 id="contact-section-title" class="contact-section__title fade-in" data-reveal-delay="70">
+							{content.contactTitle}
+						</h2>
+						<div class="contact-section__lead fade-in" data-reveal-delay="130">
+							{content.contactLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+						</div>
+
+						{content.contactBenefits.length > 0 ? (
+							<ul class="contact-section__benefits" role="list">
+								{content.contactBenefits.map((benefit, index) => (
+									<li class="contact-section__benefit fade-in" data-reveal-delay={String(190 + index * 60)}>
+										<span class="contact-section__check" aria-hidden="true">
+											<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+										</span>
+										<span>{benefit}</span>
+									</li>
+								))}
+							</ul>
+						) : null}
+					</div>
+
+					<div class="contact-section__form-wrap fade-in" data-reveal-delay="180">
+						<div class="contact-section__card contact-form-card">
+							<ContactForm
+								client:idle
+								title={content.contactFormTitle}
+								intro={content.contactFormIntro}
+								defaultInformation={content.contactDefaultInformation}
+								submitLabel={content.contactSubmitLabel}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style is:global>
+	.how-to-buy-page {
+		background: var(--bg-primary);
+		color: var(--surface-light);
+	}
+
+	.how-to-buy-shell {
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding-inline: clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.how-to-buy-eyebrow {
+		margin: 0;
+		color: var(--accent-primary);
+	}
+
+	.how-to-buy-section-title,
+	.how-to-buy-hero__title {
+		font-family: "Playfair Display", Georgia, serif;
+		text-wrap: balance;
+	}
+
+	.how-to-buy-hero__title {
+		margin: 0.9rem 0 0;
+	}
+
+	.how-to-buy-section-title {
+		margin: 0;
+	}
+
+	.how-to-buy-section-title {
+		max-width: 13ch;
+	}
+
+	.how-to-buy-hero {
+		position: relative;
+		overflow: clip;
+		display: flex;
+		align-items: center;
+		min-height: 100svh;
+		padding: clamp(8.5rem, 12vw, 10rem) 0 clamp(4.5rem, 7vw, 6rem);
+		background:
+			linear-gradient(180deg, rgba(15, 17, 21, 0.4) 0%, rgba(15, 17, 21, 0.86) 100%),
+			var(--how-to-buy-hero-image, none);
+		background-position: center;
+		background-size: cover;
+		background-repeat: no-repeat;
+	}
+
+	.how-to-buy-hero::before,
+	.contact-section::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(199, 150, 67, 0.08) 0%, transparent 20%),
+			repeating-linear-gradient(
+				90deg,
+				rgba(138, 144, 152, 0.04) 0,
+				rgba(138, 144, 152, 0.04) 1px,
+				transparent 1px,
+				transparent 120px
+			);
+		opacity: 0.34;
+		pointer-events: none;
+	}
+
+	.how-to-buy-hero__layout,
+	.how-to-buy-split__layout,
+	.contact-section__layout {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 1.06fr) minmax(18rem, 0.52fr);
+		gap: clamp(2.5rem, 5vw, 5rem);
+		align-items: center;
+	}
+
+	.how-to-buy-hero__content {
+		max-width: 39rem;
+		padding-top: clamp(1rem, 2vw, 2rem);
+	}
+
+	.how-to-buy-hero__title {
+		max-width: 10ch;
+	}
+
+	.how-to-buy-copy {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.how-to-buy-copy p,
+	.how-to-buy-step__note,
+	.how-to-buy-specs__row p,
+	.how-to-buy-faq__answer p,
+	.contact-section__benefit span {
+		margin: 0;
+		color: var(--text-secondary);
+	}
+
+	.how-to-buy-hero__lead {
+		margin-top: 1.5rem;
+		max-width: 42rem;
+	}
+
+	.how-to-buy-hero__lead p {
+		color: rgba(245, 243, 238, 0.78);
+	}
+
+	.how-to-buy-hero__nav {
+		align-self: center;
+		justify-self: end;
+		width: min(100%, 21rem);
+		padding: 0.25rem 0 0.25rem 1.25rem;
+		border-left: 1px solid rgba(199, 150, 67, 0.5);
+		background: transparent;
+		backdrop-filter: none;
+	}
+
+	.how-to-buy-hero__nav-label {
+		margin: 0;
+		color: var(--accent-primary);
+	}
+
+	.how-to-buy-hero__nav-list {
+		list-style: none;
+		margin: 0.9rem 0 0;
+		padding: 0;
+		display: grid;
+		gap: 0;
+	}
+
+	.how-to-buy-hero__nav-list li {
+		border-top: 1px solid rgba(138, 144, 152, 0.14);
+	}
+
+	.how-to-buy-hero__nav-list li:first-child {
+		border-top: 0;
+	}
+
+	.how-to-buy-hero__nav-list a {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		padding: 0.92rem 0;
+		color: rgba(245, 243, 238, 0.88);
+		text-decoration: none;
+		position: relative;
+		transition:
+			color 180ms var(--ease-premium),
+			transform 180ms var(--ease-premium);
+	}
+
+	.how-to-buy-hero__nav-list a:hover,
+	.how-to-buy-hero__nav-list a:focus-visible {
+		color: var(--accent-primary);
+		outline: none;
+		transform: translateX(3px);
+	}
+
+	.how-to-buy-hero__nav-index {
+		flex: 0 0 auto;
+		color: var(--accent-primary);
+		min-width: 1.8rem;
+	}
+
+	.how-to-buy-hero__nav-list svg {
+		width: 0.85rem;
+		height: 0.85rem;
+		margin-left: auto;
+		color: rgba(199, 150, 67, 0.8);
+	}
+
+	.how-to-buy-split__frame {
+		position: relative;
+		margin: 0;
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		min-height: 0;
+	}
+
+	.how-to-buy-split__frame img,
+	.how-to-buy-step__media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.how-to-buy-split__frame figcaption,
+	.how-to-buy-step__media figcaption {
+		position: absolute;
+		left: 1.1rem;
+		bottom: 1rem;
+		margin: 0;
+		padding: 0.35rem 0.55rem;
+		background: rgba(15, 17, 21, 0.72);
+		color: rgba(245, 243, 238, 0.88);
+	}
+
+	.how-to-buy-step__number {
+		color: var(--accent-primary);
+	}
+
+	.how-to-buy-faq__intro {
+		display: grid;
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.9fr);
+		gap: clamp(1.6rem, 4vw, 4.5rem);
+		align-items: end;
+	}
+
+	.how-to-buy-faq__intro .how-to-buy-copy p,
+	.how-to-buy-split--light .how-to-buy-copy p,
+	.how-to-buy-process .how-to-buy-copy p {
+		color: rgba(15, 17, 21, 0.68);
+	}
+
+	.how-to-buy-step__content h3 {
+		margin: 0.75rem 0 0.6rem;
+		font-family: "Playfair Display", Georgia, serif;
+		color: inherit;
+	}
+
+	.how-to-buy-process {
+		padding: clamp(5rem, 8vw, 7rem) 0;
+		background: linear-gradient(180deg, #141921 0%, #101318 100%);
+	}
+
+	.how-to-buy-process__layout {
+		display: grid;
+		grid-template-columns: minmax(17rem, 0.58fr) minmax(0, 1fr);
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: start;
+	}
+
+	.how-to-buy-process__intro {
+		position: sticky;
+		top: 7rem;
+		align-self: start;
+		height: fit-content;
+	}
+
+	.how-to-buy-process__intro-inner {
+		display: grid;
+		gap: 1rem;
+		color: var(--bg-primary);
+	}
+
+	.how-to-buy-process__list {
+		display: grid;
+		gap: 1.6rem;
+	}
+
+	.how-to-buy-step {
+		display: grid;
+		gap: 1.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-step--with-image {
+		grid-template-columns: minmax(0, 0.9fr) minmax(16rem, 0.62fr);
+		gap: clamp(1.5rem, 3vw, 2.4rem);
+		align-items: center;
+	}
+
+	.how-to-buy-step__meta {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: 1.2rem;
+		align-items: start;
+	}
+
+	.how-to-buy-step__content {
+		display: grid;
+		gap: 0.7rem;
+	}
+
+	.how-to-buy-step__content .how-to-buy-copy p,
+	.how-to-buy-step__note,
+	.how-to-buy-specs__row p:first-child {
+		color: rgba(15, 17, 21, 0.68);
+	}
+
+	.how-to-buy-step__note {
+		padding-top: 0.95rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-step__media {
+		position: relative;
+		margin: 0;
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		min-height: 0;
+		overflow: hidden;
+		border: 1px solid rgba(199, 150, 67, 0.24);
+		background: rgba(255, 255, 255, 0.04);
+	}
+
+	.how-to-buy-split {
+		padding: clamp(4.85rem, 8vw, 6.75rem) 0;
+	}
+
+	.how-to-buy-split--dark {
+		background: linear-gradient(180deg, #0f1115 0%, #141920 100%);
+	}
+
+	.how-to-buy-split--light,
+	.how-to-buy-faq,
+	.how-to-buy-process {
+		background: var(--surface-light);
+		color: var(--bg-primary);
+	}
+
+	.how-to-buy-split__layout--reverse {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+
+	.how-to-buy-split__layout {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+
+	.how-to-buy-split__content {
+		max-width: 36rem;
+	}
+
+	.how-to-buy-specs {
+		margin-top: 2rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+		border-bottom: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-specs--light {
+		border-top-color: rgba(35, 38, 43, 0.12);
+		border-bottom-color: rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-specs__row {
+		display: grid;
+		grid-template-columns: minmax(0, 0.36fr) minmax(0, 1fr);
+		gap: 1.25rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-specs--light .how-to-buy-specs__row {
+		border-bottom-color: rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-specs__row:last-child {
+		border-bottom: 0;
+	}
+
+	.how-to-buy-specs__row p:last-child {
+		color: rgba(245, 243, 238, 0.92);
+	}
+
+	.how-to-buy-specs--light .how-to-buy-specs__row p:first-child {
+		color: rgba(15, 17, 21, 0.54);
+	}
+
+	.how-to-buy-specs--light .how-to-buy-specs__row p:last-child {
+		color: rgba(15, 17, 21, 0.9);
+	}
+
+	.how-to-buy-faq {
+		padding: clamp(4.75rem, 8vw, 6.5rem) 0;
+	}
+
+	.how-to-buy-faq__list {
+		display: grid;
+		margin-top: clamp(2rem, 4vw, 3rem);
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-faq__item {
+		border-bottom: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.how-to-buy-faq__item summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1.2rem 0;
+		cursor: pointer;
+		list-style: none;
+		font-family: "Playfair Display", Georgia, serif;
+	}
+
+	.how-to-buy-faq__item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.how-to-buy-faq__icon {
+		position: relative;
+		flex: 0 0 auto;
+		width: 1rem;
+		height: 1rem;
+	}
+
+	.how-to-buy-faq__icon::before,
+	.how-to-buy-faq__icon::after {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 100%;
+		height: 1px;
+		background: rgba(15, 17, 21, 0.65);
+		transform: translate(-50%, -50%);
+		transition: transform 200ms var(--ease-premium);
+	}
+
+	.how-to-buy-faq__icon::after {
+		transform: translate(-50%, -50%) rotate(90deg);
+	}
+
+	.how-to-buy-faq__item[open] .how-to-buy-faq__icon::after {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+
+	.how-to-buy-faq__answer {
+		padding: 0 0 1.4rem;
+		max-width: 48rem;
+	}
+
+	.how-to-buy-faq__answer p {
+		color: rgba(15, 17, 21, 0.68);
+	}
+
+	.contact-section {
+		position: relative;
+		overflow: clip;
+		background:
+			radial-gradient(circle at top left, rgba(199, 150, 67, 0.14), transparent 34%),
+			linear-gradient(180deg, #0f1115 0%, #131821 100%);
+		color: var(--surface-light);
+		padding: clamp(5rem, 10vw, 8rem) 0;
+	}
+
+	.contact-section::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(199, 150, 67, 0.1) 0%, transparent 18%),
+			repeating-linear-gradient(
+				90deg,
+				rgba(138, 144, 152, 0.04) 0,
+				rgba(138, 144, 152, 0.04) 1px,
+				transparent 1px,
+				transparent 120px
+			);
+		opacity: 0.35;
+		pointer-events: none;
+	}
+
+	.contact-section__container {
+		position: relative;
+		z-index: 1;
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding: 0 clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.contact-section__layout {
+		display: grid;
+		grid-template-columns: minmax(0, 0.95fr) minmax(20rem, 0.9fr);
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: center;
+	}
+
+	.contact-section__content {
+		max-width: 34rem;
+	}
+
+	.contact-section__eyebrow {
+		margin: 0;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--accent-primary);
+	}
+
+	.contact-section__title {
+		margin: 1rem 0 0;
+		font-family: "Playfair Display", Georgia, serif;
+		font-size: clamp(2.15rem, 4.2vw, 4rem);
+		line-height: 1.06;
+		letter-spacing: -0.02em;
+		max-width: 13ch;
+		text-wrap: balance;
+	}
+
+	.contact-section__lead {
+		margin: 1.25rem 0 0;
+		max-width: 43ch;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.contact-section__lead p {
+		margin: 0;
+		font-size: clamp(1rem, 1.3vw, 1.1rem);
+		line-height: 1.75;
+		color: rgba(245, 243, 238, 0.72);
+	}
+
+	.contact-section__benefits {
+		list-style: none;
+		margin: 2rem 0 0;
+		padding: 0;
+		display: grid;
+		gap: 0.95rem;
+	}
+
+	.contact-section__benefit {
+		display: flex;
+		align-items: center;
+		gap: 0.9rem;
+		font-size: 0.96rem;
+		line-height: 1.55;
+		color: rgba(245, 243, 238, 0.92);
+	}
+
+	.contact-section__check {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 0.95rem;
+		height: 0.95rem;
+	}
+
+	.contact-section__check img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	.contact-section__form-wrap {
+		min-width: 0;
+	}
+
+	@media (max-width: 1080px) {
+		.how-to-buy-hero__layout,
+		.how-to-buy-split__layout,
+		.contact-section__layout,
+		.how-to-buy-process__layout,
+		.how-to-buy-faq__intro {
+			grid-template-columns: 1fr;
+		}
+
+		.how-to-buy-process__intro-inner {
+			position: static;
+		}
+
+		.how-to-buy-step--with-image {
+			grid-template-columns: 1fr;
+		}
+
+		.how-to-buy-hero__nav {
+			justify-self: start;
+			width: 100%;
+			max-width: 24rem;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.how-to-buy-hero {
+			min-height: auto;
+			padding-top: 6.7rem;
+			padding-bottom: 4.75rem;
+		}
+
+		.how-to-buy-hero__nav {
+			max-width: none;
+		}
+
+		.how-to-buy-specs__row,
+		.how-to-buy-step__meta {
+			grid-template-columns: 1fr;
+		}
+
+		.how-to-buy-step--with-image {
+			align-items: start;
+		}
+	}
+</style>

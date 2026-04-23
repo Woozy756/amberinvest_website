@@ -1,70 +1,104 @@
 ---
-import { getMessages, type Locale } from "../../i18n/translations";
+import type { HomepageEditorialContent } from "../../sanity/homepage";
 
 interface Props {
-	locale?: Locale;
+	content?: HomepageEditorialContent | null;
 }
 
-const { locale = "lv" } = Astro.props;
-const messages = getMessages(locale);
-const section = messages.home.editorialGallery;
+const { content } = Astro.props;
+
+if (!content) {
+	return null;
+}
+
+const images = content.editorialImages
+	?.map((item) => {
+		const image = item.image?.asset?.url;
+		const alt = item.alt?.trim();
+
+		if (!image || !alt) {
+			return null;
+		}
+
+		return {
+			image,
+			alt,
+			label: item.label?.trim() ?? "",
+			orientation: item.orientation === "portrait" ? "portrait" : "landscape"
+		};
+	})
+	.filter((item): item is { image: string; alt: string; label: string; orientation: "landscape" | "portrait" } => item !== null) ?? [];
+
+const hasEditorialContent = Boolean(
+	content.editorialEyebrow?.trim() ||
+		content.editorialTitle?.trim() ||
+		content.editorialLead?.trim() ||
+		content.editorialRowAriaLabel?.trim() ||
+		images.length
+);
+
+if (!hasEditorialContent) {
+	return null;
+}
 
 const rows = [
-	section.images.slice(0, 2),
-	section.images.slice(2, 4),
-	section.images.slice(4, 6)
+	images.slice(0, 2),
+	images.slice(2, 4),
+	images.slice(4, 6)
 ];
 ---
 
 <section class="editorial-gallery" aria-labelledby="editorial-gallery-title">
 	<div class="editorial-gallery__container">
 		<header class="editorial-gallery__header fade-in">
-			<p class="editorial-gallery__eyebrow">{section.eyebrow}</p>
-			<h2 id="editorial-gallery-title" class="editorial-gallery__title">{section.title}</h2>
-			<p class="editorial-gallery__lead">{section.lead}</p>
+			<p class="editorial-gallery__eyebrow">{content.editorialEyebrow}</p>
+			<h2 id="editorial-gallery-title" class="editorial-gallery__title">{content.editorialTitle}</h2>
+			<p class="editorial-gallery__lead">{content.editorialLead}</p>
 		</header>
 
-		<div class="editorial-gallery__rows" aria-label={section.rowAriaLabel}>
-			{
-				rows.map((row, rowIndex) => (
-					<div
-						class:list={{
-							"editorial-gallery__row": true,
-							"is-reversed": rowIndex % 2 === 1,
-							"fade-in": true
-						}}
-						data-gallery-row
-						data-reveal-delay={String(120 + rowIndex * 110)}
-					>
-						{
-							row.map((item, itemIndex) => (
-								<a
-									class:list={{
-										"editorial-gallery__item": true,
-										"is-landscape": item.orientation === "landscape",
-										"is-portrait": item.orientation === "portrait"
-									}}
-									data-gallery-item
-									data-item-index={String(itemIndex)}
-									href="/properties"
-									aria-label={item.alt}
-								>
-									<figure class="editorial-gallery__figure">
-										<img
-											src={item.image}
-											alt={item.alt}
-											width={item.orientation === "landscape" ? "1400" : "1000"}
-											height={item.orientation === "landscape" ? "920" : "1320"}
-											loading="lazy"
-										/>
-									</figure>
-								</a>
-							))
-						}
-					</div>
-				))
-			}
-		</div>
+		{images.length > 0 && (
+			<div class="editorial-gallery__rows" aria-label={content.editorialRowAriaLabel?.trim() || undefined}>
+				{
+					rows.map((row, rowIndex) => (
+						<div
+							class:list={{
+								"editorial-gallery__row": true,
+								"is-reversed": rowIndex % 2 === 1,
+								"fade-in": true
+							}}
+							data-gallery-row
+							data-reveal-delay={String(120 + rowIndex * 110)}
+						>
+							{
+								row.map((item, itemIndex) => (
+									<a
+										class:list={{
+											"editorial-gallery__item": true,
+											"is-landscape": item.orientation === "landscape",
+											"is-portrait": item.orientation === "portrait"
+										}}
+										data-gallery-item
+										data-item-index={String(itemIndex)}
+										href="/properties"
+										aria-label={item.alt}
+									>
+										<figure class="editorial-gallery__figure">
+											<img
+												src={item.image}
+												alt={item.alt}
+												width={item.orientation === "landscape" ? "1400" : "1000"}
+												height={item.orientation === "landscape" ? "920" : "1320"}
+												loading="lazy"
+											/>
+										</figure>
+									</a>
+								))
+							}
+						</div>
+					))
+				}
+			</div>
+		)}
 	</div>
 </section>
 

@@ -2,21 +2,21 @@
 import HeroAvailability from "../components/home/HeroAvailability.astro";
 import ProjectHighlights from "../components/home/ProjectHighlights.astro";
 import EditorialGallery from "../components/home/EditorialGallery.astro";
-import ApartmentPlans from "../components/home/ApartmentPlans.astro";
 import ContactSection from "../components/home/ContactSection.astro";
 import Layout from '../layouts/Layout.astro';
 import { getMessages } from "../i18n/translations";
+import { loadHomepage } from "../sanity/homepage";
 
 const locale = "lv";
 const messages = getMessages(locale);
+const homepage = await loadHomepage();
 ---
 
 <Layout title={messages.home.title} overlayHeader={true} locale={locale}>
 	<main>
-		<HeroAvailability locale={locale} />
-		<ProjectHighlights locale={locale} />
-		<EditorialGallery locale={locale} />
-		<ApartmentPlans locale={locale} />
-		<ContactSection />
+		<HeroAvailability content={homepage?.hero} />
+		<ProjectHighlights locale={locale} content={homepage?.highlights} />
+		<EditorialGallery content={homepage?.editorial} />
+		<ContactSection content={homepage?.contact} />
 	</main>
 </Layout>

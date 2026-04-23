@@ -22,7 +22,6 @@ type Messages = {
 		propertyDetail: string;
 		aboutUs: string;
 		howToBuy: string;
-		faq: string;
 		contact: string;
 	};
 	home: {
@@ -53,18 +52,6 @@ type Messages = {
 				alt: string;
 			}>;
 		};
-		editorialGallery: {
-			eyebrow: string;
-			title: string;
-			lead: string;
-			rowAriaLabel: string;
-			images: Array<{
-				image: string;
-				alt: string;
-				label: string;
-				orientation: "landscape" | "portrait";
-			}>;
-		};
 		apartmentPlans: {
 			eyebrow: string;
 			title: string;
@@ -91,7 +78,6 @@ type Messages = {
 		propertyDetail: string;
 		aboutUs: string;
 		howToBuy: string;
-		faq: string;
 		contact: string;
 	};
 };
@@ -117,7 +103,6 @@ const translations: Record<Locale, Messages> = {
 			propertyDetail: "Dzīvokļa detaļas",
 			aboutUs: "Par mums",
 			howToBuy: "Kā iegādāties",
-			faq: "BUJ",
 			contact: "Kontakti"
 		},
 		home: {
@@ -205,51 +190,6 @@ const translations: Record<Locale, Messages> = {
 					}
 				]
 			},
-			editorialGallery: {
-				eyebrow: "Interjers",
-				title: "Telpas, kurās gribas atgriezties",
-				lead:
-					"Katrs dzīvoklis veidots ar uzmanību detaļām — marmora grīda, LED apgaismojums, moderna vannas istaba.",
-				rowAriaLabel: "Projekta attēlu galerija",
-				images: [
-					{
-						image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80",
-						alt: "Gaišs dzīvojamās zonas interjers ar logiem un neitrālu apdari",
-						label: "Dzīvojamā zona",
-						orientation: "landscape"
-					},
-					{
-						image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
-						alt: "Guļamistabas interjers ar koka grīdu un siltu dienasgaismu",
-						label: "Guļamistaba",
-						orientation: "portrait"
-					},
-					{
-						image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
-						alt: "Dzīvojamā istaba ar augstiem logiem un mierīgu materiālu paleti",
-						label: "Interjera perspektīva",
-						orientation: "portrait"
-					},
-					{
-						image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1600&q=80",
-						alt: "Virtuves un dzīvojamās zonas skats ar gaišām virsmām",
-						label: "Virtuve un dzīvojamā zona",
-						orientation: "landscape"
-					},
-					{
-						image: "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1600&q=80",
-						alt: "Vannas istabas apdare ar gaišiem materiāliem un tīrām līnijām",
-						label: "Apdares detaļas",
-						orientation: "landscape"
-					},
-					{
-						image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80&sat=-12",
-						alt: "Koplietošanas telpas fragments ar atjaunotu apdari un dienasgaismu",
-						label: "Koplietošanas telpa",
-						orientation: "portrait"
-					}
-				]
-			},
 			apartmentPlans: {
 				eyebrow: "Dzīvokļu plāni",
 				title: "Izvēlieties sev piemērotāko plānojumu",
@@ -300,7 +240,6 @@ const translations: Record<Locale, Messages> = {
 			propertyDetail: "Amberinvest | Dzīvokļa detaļas",
 			aboutUs: "Amberinvest | Par mums",
 			howToBuy: "Amberinvest | Kā iegādāties",
-			faq: "Amberinvest | BUJ",
 			contact: "Amberinvest | Kontakti"
 		}
 	}

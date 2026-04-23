@@ -1,9 +1,164 @@
 ---
-import Layout from '../layouts/Layout.astro';
 import { getMessages } from "../i18n/translations";
+import Layout from "../layouts/Layout.astro";
+import { loadAboutPage } from "../sanity/aboutPage";
 
 const locale = "lv";
 const messages = getMessages(locale);
+const content = await loadAboutPage();
+if (!content) {
+	throw new Error("About Us Page content is missing in Sanity.");
+}
 ---
 
-<Layout title={messages.pages.aboutUs} locale={locale} />
+<Layout title={content.title || messages.pages.aboutUs} locale={locale}>
+	<main class="about-page">
+		<section class="about-section about-section--intro">
+			<div class="about-shell">
+				<div class="about-header fade-in">
+					<p class="text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-primary)]">{content.introEyebrow}</p>
+					<h1 class="text-4xl font-semibold leading-tight tracking-tight text-[var(--bg-primary)] sm:text-5xl lg:text-6xl">
+						{content.introTitle}
+					</h1>
+				</div>
+
+				<div class="about-copy fade-in" data-reveal-delay="80">
+					{content.introParagraphs.map((paragraph) => (
+						<p class="text-base leading-relaxed text-[rgba(15,17,21,0.78)] sm:text-lg">{paragraph}</p>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="about-section about-section--values">
+			<div class="about-shell">
+				<div class="about-section-head fade-in">
+					<p class="text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-primary)]">
+						{content.valuesEyebrow}
+					</p>
+					<h2 class="text-3xl font-semibold leading-tight tracking-tight text-[var(--bg-primary)] sm:text-4xl lg:text-5xl">
+						{content.valuesTitle}
+					</h2>
+				</div>
+
+				<ul class="about-values-list" role="list">
+					{
+						content.values.map((value, index) => (
+							<li class="about-value fade-in" data-reveal-delay={String(70 + index * 45)}>
+								<span class="text-xl font-semibold leading-tight tracking-tight text-[var(--bg-primary)] sm:text-2xl">
+									{value}
+								</span>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+		</section>
+
+		<section class="about-section about-section--vision">
+			<div class="about-shell about-panels">
+				<article class="about-panel fade-in">
+					<p class="text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-primary)]">{content.missionEyebrow}</p>
+					<p class="text-lg leading-relaxed text-[rgba(15,17,21,0.78)] sm:text-xl">
+						{content.missionText}
+					</p>
+				</article>
+
+				<article class="about-panel fade-in" data-reveal-delay="80">
+					<p class="text-xs font-bold uppercase tracking-[0.22em] text-[var(--accent-primary)]">
+						{content.visionEyebrow}
+					</p>
+					<p class="text-lg leading-relaxed text-[rgba(15,17,21,0.78)] sm:text-xl">
+						{content.visionText}
+					</p>
+				</article>
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.about-page {
+		background: #f7f4ee;
+		color: var(--bg-primary);
+	}
+
+	.about-shell {
+		width: min(100%, 1200px);
+		margin: 0 auto;
+		padding: 0 clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.about-section {
+		padding: clamp(4rem, 7vw, 6rem) 0;
+		background: #f7f4ee;
+	}
+
+	.about-section--intro {
+		padding-top: calc(var(--header-height, 5.25rem) + clamp(2.75rem, 6vw, 4rem));
+	}
+
+	.about-header {
+		display: grid;
+		gap: 1rem;
+		max-width: 56rem;
+	}
+
+	.about-header h1,
+	.about-section-head h2 {
+		font-family: "Playfair Display", Georgia, serif;
+		margin: 0;
+		text-wrap: balance;
+	}
+
+	.about-copy {
+		margin-top: clamp(1.5rem, 3vw, 2.25rem);
+		display: grid;
+		gap: 1.1rem;
+		max-width: 60rem;
+	}
+
+	.about-copy p,
+	.about-panel p {
+		margin: 0;
+	}
+
+	.about-section-head {
+		display: grid;
+		gap: 0.9rem;
+		max-width: 48rem;
+	}
+
+	.about-values-list {
+		list-style: none;
+		margin: clamp(1.8rem, 4vw, 2.5rem) 0 0;
+		padding: 0;
+		border-top: 1px solid rgba(35, 38, 43, 0.14);
+	}
+
+	.about-value {
+		padding: 1.2rem 0;
+		border-bottom: 1px solid rgba(35, 38, 43, 0.14);
+	}
+
+	.about-panels {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: clamp(1.4rem, 3vw, 2rem);
+	}
+
+	.about-panel {
+		display: grid;
+		gap: 1rem;
+		padding: clamp(1.6rem, 3.4vw, 2rem);
+		background: #fdfbf7;
+		border: 1px solid rgba(199, 150, 67, 0.45);
+		box-shadow: 0 0 0 1px rgba(199, 150, 67, 0.16) inset;
+	}
+
+	@media (max-width: 900px) {
+		.about-panels {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
