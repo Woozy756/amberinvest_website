@@ -13,8 +13,6 @@ export default defineConfig({
       dataset: process.env.PUBLIC_SANITY_DATASET ?? "production",
       apiVersion: "2026-04-16",
       useCdn: false,
-      studioBasePath: "/admin",
-      studioRouterHistory: "hash",
     }),
   ],
   vite: {

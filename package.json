@@ -7,8 +7,11 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "dev:studio": "sanity dev",
     "build": "npm run build:site",
     "build:site": "astro build",
+    "build:studio": "sanity build",
+    "deploy:studio": "sanity deploy",
     "preview": "astro preview",
     "start": "node server.js",
     "astro": "astro"
@@ -17,7 +20,6 @@
     "@astrojs/react": "^5.0.3",
     "@sanity/astro": "^3.3.1",
     "@sanity/client": "^7.21.0",
-    "@sanity/vision": "^4.22.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
