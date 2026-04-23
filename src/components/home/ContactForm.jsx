@@ -10,6 +10,7 @@ const initialValues = {
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const asTrimmedString = (value) => (typeof value === "string" ? value.trim() : "");
 
 function validate(values) {
 	const errors = {};
@@ -35,9 +36,17 @@ export default function ContactForm({
 	title = "Piesakiet konsultāciju",
 	intro = "Aizpildiet formu, un mēs sazināsimies, lai vienotos par nākamo soli.",
 	defaultInformation = "",
-	submitLabel = "Nosūtīt pieprasījumu"
+	submitLabel = "Nosūtīt pieprasījumu",
+	sourceProject = "",
+	sourceProperty = "",
+	sourcePropertyCode = "",
+	sourceUrl = ""
 }) {
 	const id = useId();
+	const normalizedSourceProject = asTrimmedString(sourceProject);
+	const normalizedSourceProperty = asTrimmedString(sourceProperty);
+	const normalizedSourcePropertyCode = asTrimmedString(sourcePropertyCode);
+	const normalizedSourceUrl = asTrimmedString(sourceUrl);
 	const [values, setValues] = useState(() => ({
 		...initialValues,
 		information: defaultInformation
@@ -87,7 +96,11 @@ export default function ContactForm({
 					phone: values.phone.trim(),
 					email: values.email.trim(),
 					information: values.information.trim(),
-					consent: values.consent
+					consent: values.consent,
+					sourceProject: normalizedSourceProject,
+					sourceProperty: normalizedSourceProperty,
+					sourcePropertyCode: normalizedSourcePropertyCode,
+					sourceUrl: normalizedSourceUrl
 				})
 			});
 

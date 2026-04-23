@@ -17,6 +17,10 @@ function normalizeContactPayload(body) {
 		phone: typeof input.phone === "string" ? input.phone.trim() : "",
 		email: typeof input.email === "string" ? input.email.trim() : "",
 		information: typeof input.information === "string" ? input.information.trim() : "",
+		sourceProject: typeof input.sourceProject === "string" ? input.sourceProject.trim() : "",
+		sourceProperty: typeof input.sourceProperty === "string" ? input.sourceProperty.trim() : "",
+		sourcePropertyCode: typeof input.sourcePropertyCode === "string" ? input.sourcePropertyCode.trim() : "",
+		sourceUrl: typeof input.sourceUrl === "string" ? input.sourceUrl.trim() : "",
 		consent: input.consent === true
 	};
 }
@@ -101,6 +105,10 @@ export async function sendContactEmail(payload) {
 			`Uzvārds: ${payload.lastName}`,
 			`Telefons: ${payload.phone}`,
 			`E-pasts: ${payload.email}`,
+			`Projekts: ${payload.sourceProject || "-"}`,
+			`Dzīvoklis: ${payload.sourceProperty || "-"}`,
+			`Dzīvokļa kods: ${payload.sourcePropertyCode || "-"}`,
+			`Objekta saite: ${payload.sourceUrl || "-"}`,
 			`Papildu informācija: ${payload.information || "-"}`
 		].join("\n")
 	});

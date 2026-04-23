@@ -1,6 +1,6 @@
 ---
 import ContactForm from "../home/ContactForm.jsx";
-import type { Property } from "../../sanity/properties";
+import { getPropertyHref, type Property } from "../../sanity/properties";
 import { loadSiteSettings } from "../../sanity/siteSettings";
 import { toPhoneHref } from "../../lib/formatting";
 
@@ -13,6 +13,7 @@ const siteSettings = await loadSiteSettings();
 const inquiryPhone = siteSettings?.phone?.trim();
 const inquiryPhoneHref = toPhoneHref(inquiryPhone);
 const inquiryEmail = siteSettings?.contactEmail?.trim();
+const propertyHref = getPropertyHref(property);
 ---
 
 <section class="property-inquiry" id="property-inquiry" aria-labelledby="property-inquiry-title">
@@ -58,6 +59,10 @@ const inquiryEmail = siteSettings?.contactEmail?.trim();
 						title="Pieteikt apskati"
 						intro={`Aizpildiet formu, un mēs sazināsimies par izvēlēto dzīvokli: ${property.title}.`}
 						defaultInformation="Apskate"
+						sourceProject={property.project?.title}
+						sourceProperty={property.title}
+						sourcePropertyCode={property.propertyCode}
+						sourceUrl={propertyHref}
 						submitLabel="Pieteikt apskati"
 					/>
 				</div>
