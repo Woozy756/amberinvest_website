@@ -4,7 +4,6 @@ import { createReadStream, existsSync } from "node:fs";
 import { access, mkdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { sendContactEmail, validateContactPayload } from "./src/lib/contact.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +16,14 @@ const rebuildStatusFile = path.join(rebuildStateDir, "rebuild-status.json");
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
 const rebuildToken = process.env.REBUILD_WEBHOOK_TOKEN || "";
+const rebuildDebounceMs = normalizeNonNegativeInteger(process.env.REBUILD_DEBOUNCE_MS, 60_000);
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const defaultSmtpPort = 465;
+let nodemailerModule = null;
+let rebuildTimer = null;
+let scheduledBuildAt = null;
+let lastWebhookAt = null;
+let queuedAfterCurrentBuild = false;
 
 let rebuildState = {
 	running: false,
@@ -45,6 +52,16 @@ const mimeTypes = {
 	".xml": "application/xml; charset=utf-8"
 };
 
+function normalizeNonNegativeInteger(value, fallback) {
+	const normalized = Number(value);
+
+	if (!Number.isFinite(normalized) || normalized < 0) {
+		return fallback;
+	}
+
+	return Math.round(normalized);
+}
+
 function jsonResponse(status, payload) {
 	return new Response(JSON.stringify(payload), {
 		status,
@@ -53,6 +70,11 @@ function jsonResponse(status, payload) {
 			"Cache-Control": "no-store"
 		}
 	});
+}
+
+function logServerError(scope, error) {
+	const message = error instanceof Error ? error.stack || error.message : String(error);
+	console.error(`[server:${scope}] ${message}`);
 }
 
 function sendNodeResponse(nodeResponse, response) {
@@ -85,6 +107,118 @@ async function readJsonBody(nodeRequest) {
 	return JSON.parse(Buffer.concat(chunks).toString("utf-8"));
 }
 
+const asBoolean = (value, fallback) => {
+	if (value === undefined) return fallback;
+	return value.toLowerCase() === "true";
+};
+
+function normalizeContactPayload(body) {
+	const input = typeof body === "object" && body !== null ? body : {};
+
+	return {
+		firstName: typeof input.firstName === "string" ? input.firstName.trim() : "",
+		lastName: typeof input.lastName === "string" ? input.lastName.trim() : "",
+		phone: typeof input.phone === "string" ? input.phone.trim() : "",
+		email: typeof input.email === "string" ? input.email.trim() : "",
+		information: typeof input.information === "string" ? input.information.trim() : "",
+		consent: input.consent === true
+	};
+}
+
+function validateContactPayload(body) {
+	const payload = normalizeContactPayload(body);
+
+	if (!payload.firstName || !payload.lastName || !payload.phone || payload.phone === "+371") {
+		return {
+			ok: false,
+			message: "Lūdzu, aizpildiet obligātos laukus."
+		};
+	}
+
+	if (!payload.email) {
+		return {
+			ok: false,
+			message: "E-pasta adrese ir obligāta."
+		};
+	}
+
+	if (!emailPattern.test(payload.email)) {
+		return {
+			ok: false,
+			message: "E-pasta adrese nav derīga."
+		};
+	}
+
+	if (!payload.consent) {
+		return {
+			ok: false,
+			message: "Nepieciešama piekrišana personas datu apstrādei."
+		};
+	}
+
+	return {
+		ok: true,
+		payload
+	};
+}
+
+async function createContactTransport() {
+	const smtpHost = process.env.CONTACT_SMTP_HOST;
+	const smtpPort = Number(process.env.CONTACT_SMTP_PORT ?? defaultSmtpPort);
+	const smtpSecure = asBoolean(process.env.CONTACT_SMTP_SECURE, true);
+	const smtpUser = process.env.CONTACT_SMTP_USER;
+	const smtpPass = process.env.CONTACT_SMTP_PASS;
+
+	if (!smtpHost || !smtpUser || !smtpPass) {
+		return null;
+	}
+
+	if (!nodemailerModule) {
+		try {
+			const imported = await import("nodemailer");
+			nodemailerModule = imported.default;
+		} catch {
+			return null;
+		}
+	}
+
+	return nodemailerModule.createTransport({
+		host: smtpHost,
+		port: Number.isNaN(smtpPort) ? defaultSmtpPort : smtpPort,
+		secure: smtpSecure,
+		auth: {
+			user: smtpUser,
+			pass: smtpPass
+		}
+	});
+}
+
+async function sendContactEmail(payload) {
+	const transporter = await createContactTransport();
+	const toEmail = process.env.CONTACT_TO_EMAIL;
+	const fromEmail = process.env.CONTACT_FROM_EMAIL ?? process.env.CONTACT_SMTP_USER;
+
+	if (!transporter || !toEmail || !fromEmail) {
+		throw new Error("Contact email is not configured.");
+	}
+
+	await transporter.sendMail({
+		from: fromEmail,
+		to: toEmail,
+		replyTo: payload.email,
+		subject: "Jauns pieprasījums no kontaktformas",
+		text: [
+			"Saņemts jauns pieprasījums no mājaslapas kontaktformas.",
+			"",
+			`Vārds: ${payload.firstName}`,
+			`Uzvārds: ${payload.lastName}`,
+			`Telefons: ${payload.phone}`,
+			`E-pasts: ${payload.email}`,
+			`Papildu informācija: ${payload.information || "-"}`
+		].join("\n")
+	});
+}
+
 function getWebhookToken(nodeRequest) {
 	const authorization = nodeRequest.headers.authorization;
 
@@ -103,11 +237,24 @@ async function persistRebuildState() {
 
 function runCommand(command, args, options = {}) {
 	return new Promise((resolve, reject) => {
+		const { env: envOverrides = {}, ...spawnOptions } = options;
+		const mergedEnv = { ...process.env, ...envOverrides };
+		const pathKey = Object.keys(mergedEnv).find((key) => key.toLowerCase() === "path") || "PATH";
+		const nodeBinDir = path.dirname(process.execPath);
+		const currentPath = typeof mergedEnv[pathKey] === "string" ? mergedEnv[pathKey] : "";
+		const pathParts = currentPath.split(path.delimiter).filter(Boolean);
+
+		if (!pathParts.includes(nodeBinDir)) {
+			mergedEnv[pathKey] = currentPath
+				? `${nodeBinDir}${path.delimiter}${currentPath}`
+				: nodeBinDir;
+		}
+
 		const child = spawn(command, args, {
 			cwd: rootDir,
-			env: process.env,
+			env: mergedEnv,
 			shell: false,
-			...options
+			...spawnOptions
 		});
 
 		let stdout = "";
@@ -131,6 +278,65 @@ function runCommand(command, args, options = {}) {
 			reject(new Error(stderr || stdout || `Command exited with code ${code}`));
 		});
 	});
+}
+
+function getNpmCliCandidates() {
+	const execDir = path.dirname(process.execPath);
+	const candidates = [
+		process.env.npm_execpath,
+		path.join(execDir, "..", "lib", "node_modules", "npm", "bin", "npm-cli.js"),
+		path.join(execDir, "..", "node_modules", "npm", "bin", "npm-cli.js"),
+		path.join(execDir, "node_modules", "npm", "bin", "npm-cli.js"),
+		"/usr/lib/node_modules/npm/bin/npm-cli.js",
+		"/usr/local/lib/node_modules/npm/bin/npm-cli.js"
+	].filter(Boolean);
+
+	const unique = [];
+
+	for (const candidate of candidates) {
+		if (typeof candidate === "string" && !unique.includes(candidate) && existsSync(candidate)) {
+			unique.push(candidate);
+		}
+	}
+
+	return unique;
+}
+
+function getBuildSiteArgs(outDir) {
+	return ["run", "build:site", "--", "--outDir", outDir];
+}
+
+async function runNpmBuild(outDir) {
+	const primaryCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+	const buildArgs = getBuildSiteArgs(outDir);
+	const fallbacks = getNpmCliCandidates();
+	let primaryError = null;
+
+	try {
+		return await runCommand(primaryCommand, buildArgs);
+	} catch (error) {
+		primaryError = error;
+		const message = error instanceof Error ? error.message : String(error);
+		const isEnoent = /\bENOENT\b/i.test(message);
+
+		if (!isEnoent || !fallbacks.length) {
+			throw error;
+		}
+	}
+
+	for (const npmCliPath of fallbacks) {
+		try {
+			return await runCommand(process.execPath, [npmCliPath, ...buildArgs]);
+		} catch (error) {
+			primaryError = error;
+		}
+	}
+
+	if (primaryError instanceof Error) {
+		throw primaryError;
+	}
+
+	throw new Error("Unable to execute npm build command.");
 }
 
 async function replaceDistDirectory() {
@@ -160,19 +366,11 @@ async function runBuild() {
 	};
 	await persistRebuildState();
 
-	const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-
 	try {
 		await mkdir(rebuildStateDir, { recursive: true });
 		await rm(buildTempDir, { recursive: true, force: true });
 
-		const result = await runCommand(npmCommand, [
-			"run",
-			"build:site",
-			"--",
-			"--outDir",
-			buildTempDir
-		]);
+		const result = await runNpmBuild(buildTempDir);
 
 		await writeFile(rebuildLogFile, [result.stdout, result.stderr].filter(Boolean).join("\n"), "utf-8");
 		await replaceDistDirectory();
@@ -202,6 +400,83 @@ async function runBuild() {
 		await persistRebuildState();
 		return false;
 	}
+}
+
+function getRebuildStatus() {
+	return {
+		...rebuildState,
+		debounceMs: rebuildDebounceMs,
+		queuedAfterCurrentBuild,
+		lastWebhookAt,
+		scheduledBuildAt
+	};
+}
+
+function getDelayUntilNextBuild(now = Date.now()) {
+	if (!lastWebhookAt) {
+		return rebuildDebounceMs;
+	}
+
+	const dueAt = Date.parse(lastWebhookAt) + rebuildDebounceMs;
+
+	if (Number.isNaN(dueAt)) {
+		return rebuildDebounceMs;
+	}
+
+	return Math.max(0, dueAt - now);
+}
+
+function clearScheduledRebuild() {
+	if (rebuildTimer) {
+		clearTimeout(rebuildTimer);
+		rebuildTimer = null;
+	}
+
+	scheduledBuildAt = null;
+}
+
+async function runBuildPipeline() {
+	if (rebuildState.running) {
+		queuedAfterCurrentBuild = true;
+		return;
+	}
+
+	await runBuild();
+
+	if (queuedAfterCurrentBuild) {
+		queuedAfterCurrentBuild = false;
+		scheduleRebuild();
+	}
+}
+
+function scheduleRebuild() {
+	if (rebuildState.running) {
+		queuedAfterCurrentBuild = true;
+		return {
+			scheduled: false,
+			queued: true,
+			delayMs: null
+		};
+	}
+
+	const delayMs = getDelayUntilNextBuild();
+	clearScheduledRebuild();
+
+	scheduledBuildAt = new Date(Date.now() + delayMs).toISOString();
+	rebuildTimer = setTimeout(() => {
+		clearScheduledRebuild();
+		void runBuildPipeline();
+	}, delayMs);
+
+	if (typeof rebuildTimer.unref === "function") {
+		rebuildTimer.unref();
+	}
+
+	return {
+		scheduled: true,
+		queued: false,
+		delayMs
+	};
 }
 
 function getAssetCacheControl(filePath) {
@@ -262,6 +537,7 @@ async function handleContact(nodeRequest, nodeResponse) {
 			})
 		);
 	} catch (error) {
+		logServerError("contact", error);
 		const message =
 			error instanceof Error && error.message === "Contact email is not configured."
 				? "Neizdevās nosūtīt pieprasījumu. Lūdzu, mēģiniet vēlreiz vēlāk."
@@ -285,30 +561,17 @@ async function handleRebuild(nodeRequest, nodeResponse) {
 		return;
 	}
 
-	if (rebuildState.running) {
-		sendNodeResponse(
-			nodeResponse,
-			jsonResponse(202, {
-				message: "Build is already running.",
-				status: rebuildState
-			})
-		);
-		return;
-	}
+	lastWebhookAt = new Date().toISOString();
+	const scheduleResult = scheduleRebuild();
+	const delaySeconds = Math.ceil((scheduleResult.delayMs ?? 0) / 1000);
+	const message =
+		scheduleResult.queued
+			? "Build is already running. One follow-up build has been queued."
+			: delaySeconds > 0
+				? `Build scheduled in ${delaySeconds}s.`
+				: "Build started.";
 
-	sendNodeResponse(
-		nodeResponse,
-		jsonResponse(202, {
-			message: "Build started.",
-			status: {
-				...rebuildState,
-				running: true,
-				lastStatus: "running"
-			}
-		})
-	);
-
-	void runBuild();
+	sendNodeResponse(nodeResponse, jsonResponse(202, { message, status: getRebuildStatus() }));
 }
 
 async function handleRebuildStatus(nodeRequest, nodeResponse) {
@@ -317,11 +580,14 @@ async function handleRebuildStatus(nodeRequest, nodeResponse) {
 		return;
 	}
 
-	sendNodeResponse(nodeResponse, jsonResponse(200, rebuildState));
+	sendNodeResponse(nodeResponse, jsonResponse(200, getRebuildStatus()));
 }
 
 const server = createServer(async (nodeRequest, nodeResponse) => {
-	const requestPath = new URL(nodeRequest.url || "/", `http://${nodeRequest.headers.host || "localhost"}`).pathname;
+	const requestPath = new URL(
+		nodeRequest.url || "/",
+		`http://${nodeRequest.headers.host || "localhost"}`
+	).pathname;
 
 	if (nodeRequest.method === "POST" && requestPath === "/api/contact") {
 		await handleContact(nodeRequest, nodeResponse);
@@ -361,14 +627,30 @@ const server = createServer(async (nodeRequest, nodeResponse) => {
 	createReadStream(filePath).pipe(nodeResponse);
 });
 
-await mkdir(rebuildStateDir, { recursive: true });
+process.on("uncaughtException", (error) => {
+	logServerError("uncaughtException", error);
+});
 
-try {
-	await access(rebuildStatusFile);
-} catch {
-	await persistRebuildState();
+process.on("unhandledRejection", (error) => {
+	logServerError("unhandledRejection", error);
+});
+
+async function startServer() {
+	try {
+		await mkdir(rebuildStateDir, { recursive: true });
+
+		try {
+			await access(rebuildStatusFile);
+		} catch {
+			await persistRebuildState();
+		}
+	} catch (error) {
+		logServerError("startup-init", error);
+	}
+
+	server.listen(port, host, () => {
+		console.log(`Static site server listening on http://${host}:${port}`);
+	});
 }
 
-server.listen(port, host, () => {
-	console.log(`Static site server listening on http://${host}:${port}`);
-});
+void startServer();
