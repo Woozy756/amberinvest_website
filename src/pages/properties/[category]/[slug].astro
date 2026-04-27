@@ -11,6 +11,8 @@ import {
 	getSimilarProperties,
 	type Property
 } from "../../../sanity/properties";
+import { loadSiteSettings } from "../../../sanity/siteSettings";
+import { toPhoneHref } from "../../../lib/formatting";
 import { createPropertyPageViewModel } from "../../../lib/propertyPage";
 
 export async function getStaticPaths() {
@@ -30,8 +32,14 @@ const { property } = Astro.props as { property: Property };
 
 const { status, priceLabel, descriptionParagraphs, locationLabel, aboutSectionTitle, keyFacts, floorPlans } =
 	createPropertyPageViewModel(property);
-const similarProperties = await getSimilarProperties(property.slug, property.category.slug, 3);
+const [similarProperties, siteSettings] = await Promise.all([
+	getSimilarProperties(property.slug, property.category.slug, 3),
+	loadSiteSettings()
+]);
 const gallery = property.gallery;
+const contactPhone = siteSettings?.phone?.trim();
+const contactPhoneHref = toPhoneHref(contactPhone);
+const contactEmail = siteSettings?.contactEmail?.trim();
 ---
 
 <Layout title={`Amberinvest | ${property.title}`} locale={locale}>
@@ -103,12 +111,22 @@ const gallery = property.gallery;
 							</p>
 						</div>
 
-						<div class="property-hero__contact-row" aria-label="Kontakti">
-							<a class="text-xs font-bold tracking-[0.14em] uppercase" href="tel:+37120001234">+371 20 001 234</a>
-							<a class="text-xs font-bold tracking-[0.14em] uppercase" href="mailto:info@amberinvest.lv">
-								info@amberinvest.lv
-							</a>
-						</div>
+						{
+							contactPhone || contactEmail ? (
+								<div class="property-hero__contact-row" aria-label="Kontakti">
+									{contactPhone && contactPhoneHref ? (
+										<a class="text-xs font-bold tracking-[0.14em] uppercase" href={contactPhoneHref}>
+											{contactPhone}
+										</a>
+									) : null}
+									{contactEmail ? (
+										<a class="text-xs font-bold tracking-[0.14em] uppercase" href={`mailto:${contactEmail}`}>
+											{contactEmail}
+										</a>
+									) : null}
+								</div>
+							) : null
+						}
 					</div>
 				</div>
 			</div>
