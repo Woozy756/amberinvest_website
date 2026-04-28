@@ -182,6 +182,32 @@ function mapCategory(rawCategory?: RawPropertyCategory): PropertyCategory {
   }
 }
 
+function getFirstNumberFromSlug(slug: string): number | null {
+  const match = slug.match(/\d+/)
+  return match ? Number(match[0]) : null
+}
+
+function sortCategoriesByFirstSlugNumber(categories: PropertyCategory[]): PropertyCategory[] {
+  return [...categories].sort((a, b) => {
+    const aNumber = getFirstNumberFromSlug(a.slug)
+    const bNumber = getFirstNumberFromSlug(b.slug)
+
+    if (aNumber !== null && bNumber !== null && aNumber !== bNumber) {
+      return aNumber - bNumber
+    }
+
+    if (aNumber !== null && bNumber === null) {
+      return -1
+    }
+
+    if (aNumber === null && bNumber !== null) {
+      return 1
+    }
+
+    return a.label.localeCompare(b.label, 'lv')
+  })
+}
+
 function getDescriptionParagraphs(blocks: RawPortableTextBlock[] = []): string[] {
   return blocks
     .filter((block) => block?._type === 'block')
@@ -266,12 +292,12 @@ function handleSanityQueryError(context: string, error: unknown): never {
 export async function getPropertyCategories(): Promise<PropertyCategory[]> {
   try {
     const rawCategories = await sanityClient.fetch<RawPropertyCategory[]>(
-      `*[_type == "propertyType" && defined(slug.current)] | order(title asc) {
+      `*[_type == "propertyType" && defined(slug.current)] {
         ${propertyCategorySelection}
       }`,
     )
 
-    return rawCategories.map(mapCategory)
+    return sortCategoriesByFirstSlugNumber(rawCategories.map(mapCategory))
   } catch (error) {
     handleSanityQueryError('property categories', error)
   }
