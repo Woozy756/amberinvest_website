@@ -8,6 +8,7 @@ import FloorPlansSection from "../../../components/shared/FloorPlansSection.astr
 import {
 	getAllProperties,
 	getPropertyCategoryHref,
+	getPropertyHref,
 	getSimilarProperties,
 	type Property
 } from "../../../sanity/properties";
@@ -40,9 +41,53 @@ const gallery = property.gallery;
 const contactPhone = siteSettings?.phone?.trim();
 const contactPhoneHref = toPhoneHref(contactPhone);
 const contactEmail = siteSettings?.contactEmail?.trim();
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL ?? "https://amberhome.lv").replace(/\/+$/, "");
+const propertyUrl = new URL(getPropertyHref(property), `${siteUrl}/`).toString();
+const propertyAvailability = {
+	available: "https://schema.org/InStock",
+	reserved: "https://schema.org/LimitedAvailability",
+	sold: "https://schema.org/SoldOut"
+}[property.status];
+const propertyStructuredData = {
+	"@context": "https://schema.org",
+	"@type": "Apartment",
+	name: property.title,
+	description: property.shortDescription,
+	url: propertyUrl,
+	image: gallery.length > 0 ? gallery.map((image) => image.src) : property.image ? [property.image] : undefined,
+	numberOfRooms: property.rooms,
+	floorSize: {
+		"@type": "QuantitativeValue",
+		value: property.area,
+		unitCode: "MTK"
+	},
+	address: property.project
+		? {
+				"@type": "PostalAddress",
+				addressLocality: property.project.city,
+				streetAddress: property.project.address
+			}
+		: undefined,
+	offers: {
+		"@type": "Offer",
+		price: property.price,
+		priceCurrency: property.currency,
+		availability: propertyAvailability,
+		url: propertyUrl
+	}
+};
 ---
 
-<Layout title={`Amberinvest | ${property.title}`} locale={locale}>
+<Layout
+	title={property.seo?.metaTitle || `Amberinvest | ${property.title}`}
+	description={property.seo?.metaDescription || property.shortDescription}
+	canonicalPath={getPropertyHref(property)}
+	ogImageUrl={property.seo?.ogImage?.src || property.image || gallery[0]?.src}
+	ogImageAlt={property.seo?.ogImage?.alt || property.title}
+	noIndex={property.seo?.noIndex}
+	structuredData={propertyStructuredData}
+	locale={locale}
+>
 	<main class="property-page">
 		<section class="property-hero">
 			<div class="property-page__container">

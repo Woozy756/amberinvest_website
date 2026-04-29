@@ -7,11 +7,15 @@ const locale = "lv";
 const [properties, categories] = await Promise.all([getAllProperties(), getPropertyCategories()]);
 ---
 
-<Layout title="Amberinvest | Dzīvokļi" locale={locale}>
+<Layout
+	title="Amberinvest | Dzīvokļi"
+	description='Apskati dzīvokļus no "AmberHome" projekta un atrodi savām vajadzībām piemērotāko mājokli.'
+	canonicalPath="/properties"
+	locale={locale}
+>
 	<PropertiesCatalogView
-		eyebrow="Dzīvokļu kolekcija"
-		title="Atlasīti dzīvokļi pārdomātai dzīvei un ieguldījumam"
-		lead="Pārskatiet pieejamos dzīvokļus vienuviet, salīdziniet plānojumus un izvēlieties sev atbilstošāko piedāvājumu ar skaidri redzamu cenu un statusu."
+		title="Visi dzīvokļi"
+		lead='Apskati dzīvokļus no "AmberHome" projekta un atrodi savām vajadzībām piemērotāko mājokli.'
 		properties={properties}
 		categories={categories}
 		activeCategory="all"

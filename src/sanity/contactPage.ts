@@ -1,5 +1,5 @@
 import { sanityClient } from "sanity:client";
-import { trimStringList, trimValueOrEmpty } from "./utils";
+import { mapSeo, trimStringList, trimValueOrEmpty, type RawSeoField, type SanitySeo } from "./utils";
 
 export interface ContactPageContent {
 	title: string;
@@ -14,6 +14,7 @@ export interface ContactPageContent {
 	formCardIntro: string;
 	defaultInformation: string;
 	submitLabel: string;
+	seo?: SanitySeo;
 }
 
 interface RawContactPage {
@@ -29,6 +30,7 @@ interface RawContactPage {
 	formCardIntro?: string;
 	defaultInformation?: string;
 	submitLabel?: string;
+	seo?: RawSeoField;
 }
 
 const contactPageQuery = `*[_id == "contactPage"][0]{
@@ -43,7 +45,18 @@ const contactPageQuery = `*[_id == "contactPage"][0]{
   formCardTitle,
   formCardIntro,
   defaultInformation,
-  submitLabel
+  submitLabel,
+  seo{
+    metaTitle,
+    metaDescription,
+    ogImage{
+      asset->{
+        url
+      },
+      alt
+    },
+    noIndex
+  }
 }`;
 
 export async function loadContactPage(): Promise<ContactPageContent | null> {
@@ -67,6 +80,7 @@ export async function loadContactPage(): Promise<ContactPageContent | null> {
 			formCardIntro: trimValueOrEmpty(page.formCardIntro),
 			defaultInformation: trimValueOrEmpty(page.defaultInformation),
 			submitLabel: trimValueOrEmpty(page.submitLabel),
+			seo: mapSeo(page.seo),
 		};
 	} catch {
 		return null;

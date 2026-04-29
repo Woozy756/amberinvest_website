@@ -1,6 +1,7 @@
 ---
 import PropertiesCatalogView from "../../../components/properties/PropertiesCatalogView.astro";
 import {
+	getPropertyCategoryHref,
 	getPropertiesByCategory,
 	getPropertyCategories,
 	type PropertyCategory
@@ -29,9 +30,16 @@ const [properties, categories] = await Promise.all([
 ]);
 ---
 
-<Layout title={`Amberinvest | ${category.label}`} locale={locale}>
+<Layout
+	title={category.seo?.metaTitle || `Amberinvest | ${category.label}`}
+	description={category.seo?.metaDescription || category.description}
+	canonicalPath={getPropertyCategoryHref(category)}
+	ogImageUrl={category.seo?.ogImage?.src}
+	ogImageAlt={category.seo?.ogImage?.alt}
+	noIndex={category.seo?.noIndex}
+	locale={locale}
+>
 	<PropertiesCatalogView
-		eyebrow="Dzīvokļu filtrs"
 		title={category.label}
 		lead={category.description}
 		properties={properties}

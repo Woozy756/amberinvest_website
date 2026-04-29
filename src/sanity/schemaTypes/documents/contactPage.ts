@@ -8,6 +8,7 @@ export const contactPageType = defineType({
   groups: [
     {name: 'contact', title: 'Kontaktu ievads', default: true},
     {name: 'form', title: 'Forma'},
+    {name: 'seo', title: 'SEO'},
   ],
   fields: [
     defineField({
@@ -97,6 +98,12 @@ export const contactPageType = defineType({
       type: 'string',
       group: 'form',
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+      group: 'seo',
     }),
   ],
   initialValue: contactPageDefaults,

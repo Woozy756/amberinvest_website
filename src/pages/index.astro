@@ -12,7 +12,16 @@ const messages = getMessages(locale);
 const homepage = await loadHomepage();
 ---
 
-<Layout title={messages.home.title} overlayHeader={true} locale={locale}>
+<Layout
+	title={homepage?.seo?.metaTitle || messages.home.title}
+	description={homepage?.seo?.metaDescription || homepage?.hero.heroLead || messages.home.heroLead}
+	canonicalPath="/"
+	ogImageUrl={homepage?.seo?.ogImage?.src || homepage?.hero.heroBackgroundImage?.asset?.url}
+	ogImageAlt={homepage?.seo?.ogImage?.alt || homepage?.hero.heroBackgroundImage?.alt || messages.home.heroTitle}
+	noIndex={homepage?.seo?.noIndex}
+	overlayHeader={true}
+	locale={locale}
+>
 	<main>
 		<HeroAvailability content={homepage?.hero} />
 		<ProjectHighlights locale={locale} content={homepage?.highlights} />

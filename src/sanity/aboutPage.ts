@@ -1,5 +1,5 @@
 import { sanityClient } from "sanity:client";
-import { trimStringList, trimValueOrEmpty } from "./utils";
+import { mapSeo, trimStringList, trimValueOrEmpty, type RawSeoField, type SanitySeo } from "./utils";
 
 export interface AboutPageContent {
 	title: string;
@@ -13,6 +13,7 @@ export interface AboutPageContent {
 	missionText: string;
 	visionEyebrow: string;
 	visionText: string;
+	seo?: SanitySeo;
 }
 
 interface RawAboutPage {
@@ -27,6 +28,7 @@ interface RawAboutPage {
 	missionText?: string;
 	visionEyebrow?: string;
 	visionText?: string;
+	seo?: RawSeoField;
 }
 
 interface RawAboutPageQueryResult {
@@ -45,7 +47,18 @@ const aboutPageQuery = `{
     missionEyebrow,
     missionText,
     visionEyebrow,
-    visionText
+    visionText,
+    seo{
+      metaTitle,
+      metaDescription,
+      ogImage{
+        asset->{
+          url
+        },
+        alt
+      },
+      noIndex
+    }
   }
 }`;
 
@@ -70,6 +83,7 @@ export async function loadAboutPage(): Promise<AboutPageContent | null> {
 			missionText: trimValueOrEmpty(page.missionText),
 			visionEyebrow: trimValueOrEmpty(page.visionEyebrow),
 			visionText: trimValueOrEmpty(page.visionText),
+			seo: mapSeo(page.seo),
 		};
 	} catch {
 		return null;

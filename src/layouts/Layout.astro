@@ -7,11 +7,29 @@ import { loadSiteSettings } from "../sanity/siteSettings";
 
 interface Props {
 	title?: string;
+	description?: string;
+	canonicalPath?: string;
+	canonicalUrl?: string;
+	ogImageUrl?: string;
+	ogImageAlt?: string;
+	noIndex?: boolean;
+	structuredData?: Record<string, unknown> | Array<Record<string, unknown>>;
 	overlayHeader?: boolean;
 	locale?: Locale;
 }
 
-const { locale = "lv", title, overlayHeader = false } = Astro.props;
+const {
+	locale = "lv",
+	title,
+	description,
+	canonicalPath,
+	canonicalUrl,
+	ogImageUrl,
+	ogImageAlt,
+	noIndex,
+	structuredData,
+	overlayHeader = false
+} = Astro.props;
 const siteSettings = await loadSiteSettings();
 
 if (!siteSettings) {
@@ -22,9 +40,38 @@ const defaultSeo = siteSettings?.defaultSeo;
 const siteTitle = siteSettings.siteTitle ?? "";
 const sourceTitle = title ?? defaultSeo?.metaTitle ?? siteTitle;
 const pageTitle = sourceTitle.replace(/Amberinvest/gi, siteTitle);
-const metaDescription = defaultSeo?.metaDescription;
-const ogImage = defaultSeo?.ogImage;
-const shouldNoIndex = defaultSeo?.noIndex === true;
+const metaDescription = description || defaultSeo?.metaDescription;
+const ogImage = {
+	url: ogImageUrl || defaultSeo?.ogImage?.url,
+	alt: ogImageAlt || defaultSeo?.ogImage?.alt
+};
+const shouldNoIndex = noIndex ?? defaultSeo?.noIndex === true;
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL ?? "https://amberhome.lv").replace(/\/+$/, "");
+const pageCanonicalUrl = canonicalUrl ?? new URL(canonicalPath ?? Astro.url.pathname, `${siteUrl}/`).toString();
+const organizationStructuredData = {
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	name: siteTitle || "AmberHome",
+	url: siteUrl,
+	logo: siteSettings.logo?.url,
+	email: siteSettings.contactEmail,
+	telephone: siteSettings.phone,
+	address: siteSettings.address
+		? {
+				"@type": "PostalAddress",
+				streetAddress: siteSettings.address
+			}
+		: undefined,
+	sameAs: siteSettings.socialLinks.map((link) => link.url)
+};
+const pageStructuredData = Array.isArray(structuredData)
+	? structuredData
+	: structuredData
+		? [structuredData]
+		: [];
+const structuredDataItems = [organizationStructuredData, ...pageStructuredData];
+const serializeStructuredData = (data: Record<string, unknown>) =>
+	JSON.stringify(data).replace(/</g, "\\u003c");
 ---
 
 <!doctype html>
@@ -48,11 +95,19 @@ const shouldNoIndex = defaultSeo?.noIndex === true;
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
 		{metaDescription ? <meta name="description" content={metaDescription} /> : null}
+		<link rel="canonical" href={pageCanonicalUrl} />
 		{shouldNoIndex ? <meta name="robots" content="noindex,nofollow" /> : null}
 		<meta property="og:title" content={pageTitle} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={pageCanonicalUrl} />
 		{metaDescription ? <meta property="og:description" content={metaDescription} /> : null}
 		{ogImage?.url ? <meta property="og:image" content={ogImage.url} /> : null}
 		{ogImage?.alt ? <meta property="og:image:alt" content={ogImage.alt} /> : null}
+		<meta name="twitter:card" content={ogImage?.url ? "summary_large_image" : "summary"} />
+		<meta name="twitter:title" content={pageTitle} />
+		{metaDescription ? <meta name="twitter:description" content={metaDescription} /> : null}
+		{ogImage?.url ? <meta name="twitter:image" content={ogImage.url} /> : null}
+		{structuredDataItems.map((item) => <script type="application/ld+json" set:html={serializeStructuredData(item)} />)}
 	</head>
 	<body>
 		<Header overlay={overlayHeader} locale={locale} siteSettings={siteSettings} />

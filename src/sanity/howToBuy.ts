@@ -1,5 +1,15 @@
 import { sanityClient } from "sanity:client";
-import { mapAssetImage, mapParagraphField, splitParagraphs, trimStringList, trimValue, trimValueOrEmpty } from "./utils";
+import {
+	mapAssetImage,
+	mapParagraphField,
+	mapSeo,
+	splitParagraphs,
+	trimStringList,
+	trimValue,
+	trimValueOrEmpty,
+	type RawSeoField,
+	type SanitySeo,
+} from "./utils";
 
 export interface HowToBuyImage {
 	src: string;
@@ -64,6 +74,7 @@ export interface HowToBuyPageContent {
 	contactFormIntro: string;
 	contactDefaultInformation: string;
 	contactSubmitLabel: string;
+	seo?: SanitySeo;
 }
 
 interface RawImage {
@@ -131,6 +142,7 @@ interface RawHowToBuyPage {
 	contactFormIntro?: string;
 	contactDefaultInformation?: string;
 	contactSubmitLabel?: string;
+	seo?: RawSeoField;
 }
 
 interface RawHowToBuyQueryResult {
@@ -211,7 +223,18 @@ const howToBuyQuery = `{
     contactFormTitle,
     contactFormIntro,
     contactDefaultInformation,
-    contactSubmitLabel
+    contactSubmitLabel,
+    seo{
+      metaTitle,
+      metaDescription,
+      ogImage{
+        asset->{
+          url
+        },
+        alt
+      },
+      noIndex
+    }
   }
 }`;
 
@@ -337,6 +360,7 @@ export async function loadHowToBuyPage(): Promise<HowToBuyPageContent | null> {
 			contactFormIntro: trimValueOrEmpty(page.contactFormIntro),
 			contactDefaultInformation: trimValueOrEmpty(page.contactDefaultInformation),
 			contactSubmitLabel: trimValueOrEmpty(page.contactSubmitLabel),
+			seo: mapSeo(page.seo),
 		};
 	} catch {
 		return null;

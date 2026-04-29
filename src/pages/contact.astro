@@ -43,7 +43,15 @@ const directContacts = [
 ].filter((item) => item.value);
 ---
 
-<Layout title={content.title} locale={locale}>
+<Layout
+	title={content.seo?.metaTitle || content.title}
+	description={content.seo?.metaDescription || content.contactLead}
+	canonicalPath="/contact"
+	ogImageUrl={content.seo?.ogImage?.src}
+	ogImageAlt={content.seo?.ogImage?.alt}
+	noIndex={content.seo?.noIndex}
+	locale={locale}
+>
 	<main class="contact-page">
 		<section class="contact-section contact-section--light contact-section--first" id="contact-details">
 			<div class="contact-shell">

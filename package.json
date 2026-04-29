@@ -10,8 +10,9 @@
     "dev:studio": "sanity dev",
     "build": "npm run build:site",
     "build:site": "astro build",
-    "build:studio": "sanity build",
+    "build:studio": "sanity build .sanity-dist && node scripts/copy-studio-htaccess.mjs",
     "deploy:studio": "sanity deploy",
+    "seed:seo-drafts": "node scripts/seed-seo-drafts.mjs",
     "preview": "astro preview",
     "start": "node server.js",
     "astro": "astro"

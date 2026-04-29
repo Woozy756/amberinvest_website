@@ -3,7 +3,6 @@ import PropertyCard from "./PropertyCard.astro";
 import { getPropertyCategoryHref, type Property, type PropertyCategory } from "../../sanity/properties";
 
 interface Props {
-	eyebrow: string;
 	title: string;
 	lead: string;
 	properties: Property[];
@@ -11,7 +10,7 @@ interface Props {
 	activeCategory?: string | "all";
 }
 
-const { eyebrow, title, lead, properties, categories, activeCategory = "all" } = Astro.props as Props;
+const { title, lead, properties, categories, activeCategory = "all" } = Astro.props as Props;
 const catalogTotalCount = categories.reduce((sum, category) => sum + category.propertyCount, 0);
 
 const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
@@ -21,7 +20,6 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 	<section class="properties-catalog__hero">
 		<div class="properties-catalog__container">
 			<header class="properties-catalog__header">
-				<p class="properties-catalog__eyebrow fade-in">{eyebrow}</p>
 				<h1 class="properties-catalog__title fade-in" data-reveal-delay="50">{title}</h1>
 				<p class="properties-catalog__lead fade-in" data-reveal-delay="110">{lead}</p>
 			</header>
@@ -99,7 +97,6 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 		max-width: 46rem;
 	}
 
-	.properties-catalog__eyebrow,
 	.properties-empty__eyebrow {
 		margin: 0;
 		font-size: 0.68rem;
@@ -108,7 +105,6 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 		text-transform: uppercase;
 	}
 
-	.properties-catalog__eyebrow,
 	.properties-empty__eyebrow {
 		color: var(--accent-primary);
 	}

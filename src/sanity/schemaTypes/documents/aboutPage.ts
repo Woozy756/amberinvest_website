@@ -14,6 +14,7 @@ export const aboutPageType = defineType({
     {name: 'intro', title: 'Par mums', default: true},
     {name: 'values', title: 'Vērtības'},
     {name: 'missionVision', title: 'Misija un redzējums'},
+    {name: 'seo', title: 'SEO'},
   ],
   fields: [
     defineField({
@@ -96,6 +97,12 @@ export const aboutPageType = defineType({
       rows: 4,
       group: 'missionVision',
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+      group: 'seo',
     }),
   ],
   initialValue: {

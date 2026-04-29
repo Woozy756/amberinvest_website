@@ -1,5 +1,5 @@
 import {sanityClient} from 'sanity:client'
-import { trimValue } from './utils'
+import { mapSeo, trimValue, type RawSeoField, type SanitySeo } from './utils'
 
 export type PropertyStatus = 'available' | 'reserved' | 'sold'
 
@@ -19,6 +19,7 @@ export interface PropertyCategory {
   shortLabel: string
   description: string
   propertyCount: number
+  seo?: SanitySeo
 }
 
 export interface PropertyProject {
@@ -51,6 +52,7 @@ export interface Property {
   details: PropertyDetailItem[]
   category: PropertyCategory
   project?: PropertyProject
+  seo?: SanitySeo
 }
 
 export function getPropertyCategoryHref(category: Pick<PropertyCategory, 'slug'> | string): string {
@@ -86,6 +88,7 @@ interface RawPropertyCategory {
   shortLabel?: string
   description?: string
   propertyCount?: number
+  seo?: RawSeoField
 }
 
 interface RawPropertyProject {
@@ -124,6 +127,7 @@ interface RawProperty {
   }>
   category?: RawPropertyCategory
   project?: RawPropertyProject
+  seo?: RawSeoField
 }
 
 const propertyCategorySelection = `
@@ -131,7 +135,18 @@ const propertyCategorySelection = `
   "label": title,
   shortLabel,
   description,
-  "propertyCount": count(*[_type == "property" && references(^._id)])
+  "propertyCount": count(*[_type == "property" && references(^._id)]),
+  seo{
+    metaTitle,
+    metaDescription,
+    ogImage{
+      asset->{
+        url
+      },
+      alt
+    },
+    noIndex
+  }
 `
 
 const propertySelection = `
@@ -169,6 +184,17 @@ const propertySelection = `
     title,
     city,
     address
+  },
+  seo{
+    metaTitle,
+    metaDescription,
+    ogImage{
+      asset->{
+        url
+      },
+      alt
+    },
+    noIndex
   }
 `
 
@@ -179,6 +205,7 @@ function mapCategory(rawCategory?: RawPropertyCategory): PropertyCategory {
     shortLabel: trimValue(rawCategory?.shortLabel) ?? trimValue(rawCategory?.label) ?? 'Dzīvoklis',
     description: trimValue(rawCategory?.description) ?? '',
     propertyCount: rawCategory?.propertyCount ?? 0,
+    seo: mapSeo(rawCategory?.seo),
   }
 }
 
@@ -281,6 +308,7 @@ function mapProperty(rawProperty: RawProperty): Property {
         .filter((detail) => detail.label && detail.value) ?? [],
     category,
     project: mapProject(rawProperty.project),
+    seo: mapSeo(rawProperty.seo),
   }
 }
 

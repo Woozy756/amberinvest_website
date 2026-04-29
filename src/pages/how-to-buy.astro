@@ -17,9 +17,34 @@ const sectionNav = [
 	{ href: "#faq", label: "Biežākie jautājumi" },
 	{ href: "#consultation", label: "Konsultācija" },
 ];
+const faqStructuredData =
+	content.faqItems.length > 0
+		? {
+				"@context": "https://schema.org",
+				"@type": "FAQPage",
+				mainEntity: content.faqItems.map((item) => ({
+					"@type": "Question",
+					name: item.question,
+					acceptedAnswer: {
+						"@type": "Answer",
+						text: item.answer,
+					},
+				})),
+			}
+		: null;
 ---
 
-<Layout title={content.title || messages.pages.howToBuy} locale={locale} overlayHeader>
+<Layout
+	title={content.seo?.metaTitle || content.title || messages.pages.howToBuy}
+	description={content.seo?.metaDescription || content.heroLead || content.faqLead}
+	canonicalPath="/how-to-buy"
+	ogImageUrl={content.seo?.ogImage?.src || content.heroImage?.src}
+	ogImageAlt={content.seo?.ogImage?.alt || content.heroImage?.alt || content.heroTitle}
+	noIndex={content.seo?.noIndex}
+	structuredData={faqStructuredData ? faqStructuredData : undefined}
+	locale={locale}
+	overlayHeader
+>
 	<main class="how-to-buy-page">
 		<section
 			class="how-to-buy-hero"

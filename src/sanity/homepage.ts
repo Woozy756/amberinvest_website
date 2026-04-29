@@ -1,5 +1,5 @@
 import { sanityClient } from "sanity:client";
-import { trimStringList, trimValueOrEmpty } from "./utils";
+import { mapSeo, trimStringList, trimValueOrEmpty, type RawSeoField, type SanitySeo } from "./utils";
 
 export interface HomepageHeroContent {
 	heroTitle?: string;
@@ -70,6 +70,7 @@ export interface HomepageContent {
 	highlights: HomepageHighlightsContent;
 	editorial: HomepageEditorialContent;
 	contact: HomepageContactContent;
+	seo?: SanitySeo;
 }
 
 interface RawHomepageImage {
@@ -119,6 +120,7 @@ interface RawHomepageContent {
 	contactTitle?: string;
 	contactLead?: string;
 	contactBenefits?: string[];
+	seo?: RawSeoField;
 }
 
 const homepageQuery = `*[_type == "homepage"][0]{
@@ -173,7 +175,18 @@ const homepageQuery = `*[_type == "homepage"][0]{
   contactEyebrow,
   contactTitle,
   contactLead,
-  contactBenefits[]
+  contactBenefits[],
+  seo{
+    metaTitle,
+    metaDescription,
+    ogImage{
+      asset->{
+        url
+      },
+      alt
+    },
+    noIndex
+  }
 }`;
 
 function mapHeroSection(page: RawHomepageContent | null): HomepageHeroContent {
@@ -243,6 +256,7 @@ export async function loadHomepage(): Promise<HomepageContent | null> {
 			highlights: mapHighlightsSection(page),
 			editorial: mapEditorialSection(page),
 			contact: mapContactSection(page),
+			seo: mapSeo(page?.seo),
 		};
 	} catch {
 		return null;

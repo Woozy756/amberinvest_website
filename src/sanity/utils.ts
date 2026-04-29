@@ -9,6 +9,23 @@ export interface SanityImageField extends SanityAssetImage {
 	label?: string;
 }
 
+export interface RawSeoField {
+	metaTitle?: string;
+	metaDescription?: string;
+	ogImage?: SanityImageField;
+	noIndex?: boolean;
+}
+
+export interface SanitySeo {
+	metaTitle?: string;
+	metaDescription?: string;
+	ogImage?: {
+		src: string;
+		alt: string;
+	};
+	noIndex: boolean;
+}
+
 export function trimValue(value?: string): string | undefined {
 	const nextValue = value?.trim();
 	return nextValue || undefined;
@@ -59,5 +76,18 @@ export function mapAssetImage(
 		src,
 		alt,
 		label,
+	};
+}
+
+export function mapSeo(seo?: RawSeoField): SanitySeo | undefined {
+	if (!seo) {
+		return undefined;
+	}
+
+	return {
+		metaTitle: trimValue(seo.metaTitle),
+		metaDescription: trimValue(seo.metaDescription),
+		ogImage: mapAssetImage(seo.ogImage, { alt: seo.ogImage?.alt }),
+		noIndex: seo.noIndex === true,
 	};
 }

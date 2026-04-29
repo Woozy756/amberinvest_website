@@ -11,6 +11,7 @@ export const howToBuyPageType = defineType({
     {name: 'documents', title: 'Dokumenti'},
     {name: 'faq', title: 'Biežākie jautājumi'},
     {name: 'contact', title: 'Kontakti'},
+    {name: 'seo', title: 'SEO'},
   ],
   fields: [
     defineField({
@@ -221,6 +222,12 @@ export const howToBuyPageType = defineType({
       title: 'Iesniegšanas pogas teksts',
       type: 'string',
       group: 'contact',
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+      group: 'seo',
     }),
   ],
   preview: {

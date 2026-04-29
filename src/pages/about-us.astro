@@ -11,7 +11,15 @@ if (!content) {
 }
 ---
 
-<Layout title={content.title || messages.pages.aboutUs} locale={locale}>
+<Layout
+	title={content.seo?.metaTitle || content.title || messages.pages.aboutUs}
+	description={content.seo?.metaDescription || content.introParagraphs[0]}
+	canonicalPath="/about-us"
+	ogImageUrl={content.seo?.ogImage?.src}
+	ogImageAlt={content.seo?.ogImage?.alt}
+	noIndex={content.seo?.noIndex}
+	locale={locale}
+>
 	<main class="about-page">
 		<section class="about-section about-section--intro">
 			<div class="about-shell">
