@@ -10,8 +10,6 @@ const heroImage = content?.heroBackgroundImage?.asset?.url ?? "";
 const availabilityMetrics = content?.metrics ?? [];
 const primaryCtaLabel = "Skatīt dzīvokļus";
 const primaryCtaHref = "/properties";
-const secondaryCtaLabel = "Pieteikt apskati";
-const secondaryCtaHref = "/contact";
 ---
 
 {
@@ -20,15 +18,11 @@ const secondaryCtaHref = "/contact";
 			<div class="hero__container">
 				<div class="hero__body">
 					<div class="hero__content fade-in">
-						<p class="hero__eyebrow">{content.heroEyebrow}</p>
 						<h1 id="hero-title">{content.heroTitle}</h1>
 						<p class="hero__lead">{content.heroLead}</p>
 						<div class="hero__actions">
 							<a class="button button--primary" href={primaryCtaHref}>
 								{primaryCtaLabel}
-							</a>
-							<a class="button button--secondary" href={secondaryCtaHref}>
-								{secondaryCtaLabel}
 							</a>
 						</div>
 					</div>
@@ -71,18 +65,26 @@ const secondaryCtaHref = "/contact";
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
+		opacity: 0.7;
 		transition: transform 1.2s var(--ease-premium);
 		will-change: transform;
 	}
 
-	.hero::after {
+	.hero::after,
+	.hero__container::before {
 		content: "";
 		position: absolute;
-		inset: 0;
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	.hero::after {
+		inset: auto 0 0;
+		height: clamp(13rem, 32svh, 23rem);
 		background:
 			linear-gradient(
 				to bottom,
-				rgba(15, 17, 21, 0.12) 0%,
+				rgba(15, 17, 21, 0) 0%,
 				rgba(15, 17, 21, 0.34) 32%,
 				rgba(15, 17, 21, 0.9) 62%,
 				rgba(15, 17, 21, 1) 100%
@@ -94,8 +96,21 @@ const secondaryCtaHref = "/contact";
 				rgba(15, 17, 21, 0.08) 62%,
 				rgba(15, 17, 21, 0.14) 100%
 			);
-		pointer-events: none;
-		z-index: 1;
+	}
+
+	.hero__container::before {
+		top: 0;
+		left: 50%;
+		width: 100vw;
+		height: clamp(5.5rem, 12svh, 8rem);
+		transform: translateX(-50%);
+		background: linear-gradient(
+			to bottom,
+			rgba(15, 17, 21, 0.68) 0%,
+			rgba(15, 17, 21, 0.42) 34%,
+			rgba(15, 17, 21, 0.08) 72%,
+			rgba(15, 17, 21, 0) 100%
+		);
 	}
 
 	.hero__container {
@@ -111,45 +126,58 @@ const secondaryCtaHref = "/contact";
 
 	.hero__body {
 		display: flex;
-		align-items: center;
-		padding: clamp(7rem, 10vw, 8.5rem) 0 clamp(3rem, 5vw, 4rem);
+		align-items: flex-start;
+		justify-content: center;
+		padding: clamp(8rem, 12vw, 10rem) 0 clamp(3rem, 5vw, 4rem);
+		text-align: center;
 	}
 
 	.hero__content {
-		max-width: 42rem;
-	}
-
-	.hero__eyebrow {
-		margin: 0;
-		font-size: 0.72rem;
-		font-weight: 600;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
-		color: var(--text-secondary);
+		position: relative;
+		display: grid;
+		justify-items: center;
+		max-width: min(100%, 42rem);
 	}
 
 	h1 {
-		margin: 1.05rem 0 0;
+		margin: 0;
 		font-family: "Playfair Display", Georgia, serif;
-		font-size: clamp(2rem, 4vw, 3.8rem);
-		line-height: 1.08;
+		font-size: clamp(2.45rem, 5.2vw, 5.35rem);
+		line-height: 0.98;
 		letter-spacing: -0.012em;
-		max-width: 17ch;
-		text-wrap: balance;
+		max-width: 18ch;
+		color: var(--surface-light);
+	}
+
+	h1::after {
+		content: "";
+		display: block;
+		width: clamp(4.5rem, 12vw, 8rem);
+		height: 2px;
+		margin: clamp(0.9rem, 1.6vw, 1.2rem) auto 0;
+		background: linear-gradient(
+			90deg,
+			rgba(199, 150, 67, 0),
+			var(--accent-primary) 24%,
+			var(--accent-primary) 76%,
+			rgba(199, 150, 67, 0)
+		);
+		box-shadow: 0 2px 12px rgba(4, 8, 14, 0.5);
 	}
 
 	.hero__lead {
-		margin: 1.15rem 0 0;
-		max-width: 44ch;
-		font-size: clamp(1rem, 1.3vw, 1.11rem);
-		line-height: 1.7;
-		color: var(--text-secondary);
+		margin: clamp(0.95rem, 1.7vw, 1.25rem) 0 0;
+		max-width: 38rem;
+		font-size: clamp(1.02rem, 1.35vw, 1.18rem);
+		line-height: 1.68;
+		color: rgba(245, 243, 238, 0.94);
 	}
 
 	.hero__actions {
-		margin-top: 2rem;
+		margin-top: 2.15rem;
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		gap: 0.75rem;
 	}
 
@@ -157,8 +185,8 @@ const secondaryCtaHref = "/contact";
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-height: 46px;
-		padding: 0.72rem 1.25rem;
+		min-height: 2.9rem;
+		padding: 0.72rem 1.2rem;
 		border: 1px solid transparent;
 		font-size: 0.72rem;
 		font-weight: 600;
@@ -166,15 +194,14 @@ const secondaryCtaHref = "/contact";
 		letter-spacing: 0.14em;
 		text-decoration: none;
 		transition:
-			transform 0.35s var(--ease-premium),
-			background-color 0.35s var(--ease-premium),
-			border-color 0.35s var(--ease-premium),
-			color 0.35s var(--ease-premium);
+			transform 220ms var(--ease-premium),
+			background-color 220ms var(--ease-premium);
 	}
 
 	.button--primary {
 		background-color: var(--accent-primary);
 		color: var(--bg-primary);
+		border-color: transparent;
 	}
 
 	.button--primary:hover {
@@ -183,14 +210,14 @@ const secondaryCtaHref = "/contact";
 	}
 
 	.button--secondary {
-		border-color: var(--border-subtle);
+		border-color: rgba(245, 243, 238, 0.46);
 		color: var(--surface-light);
-		background-color: rgba(15, 17, 21, 0.15);
+		background-color: rgba(15, 17, 21, 0.24);
 	}
 
 	.button--secondary:hover {
 		border-color: var(--accent-primary);
-		color: var(--accent-primary);
+		color: var(--text-secondary);
 		transform: translateY(-2px);
 	}
 
@@ -217,10 +244,8 @@ const secondaryCtaHref = "/contact";
 		position: relative;
 		margin: 0;
 		padding: 1.65rem 1.6rem 1.7rem;
-		border-left: 1px solid rgba(138, 144, 152, 0.16);
-		transition:
-			border-color 0.35s var(--ease-premium),
-			background-color 0.35s var(--ease-premium);
+		border-left: 1px solid rgba(138, 144, 152, 0.28);
+		text-align: center;
 	}
 
 	.availability__item::before {
@@ -233,16 +258,13 @@ const secondaryCtaHref = "/contact";
 		background: linear-gradient(
 			90deg,
 			rgba(199, 150, 67, 0) 0%,
-			rgba(199, 150, 67, 0.22) 20%,
-			rgba(138, 144, 152, 0.2) 50%,
-			rgba(199, 150, 67, 0.12) 80%,
+			rgba(199, 150, 67, 0.3) 20%,
+			rgba(138, 144, 152, 0.34) 50%,
+			rgba(199, 150, 67, 0.2) 80%,
 			rgba(199, 150, 67, 0) 100%
 		);
 		opacity: 0.72;
 		pointer-events: none;
-		transition:
-			opacity 0.35s var(--ease-premium),
-			opacity 0.35s var(--ease-premium);
 	}
 
 	.availability__item:first-child {
@@ -255,7 +277,6 @@ const secondaryCtaHref = "/contact";
 		font-weight: 600;
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
-		color: var(--text-secondary);
 	}
 
 	.availability__item dd {
@@ -264,15 +285,7 @@ const secondaryCtaHref = "/contact";
 		font-size: clamp(1.15rem, 1.7vw, 1.5rem);
 		line-height: 1.2;
 		letter-spacing: -0.01em;
-	}
-
-	.availability__item:hover {
-		background-color: rgba(255, 255, 255, 0.015);
-		border-color: rgba(199, 150, 67, 0.18);
-	}
-
-	.availability__item:hover::before {
-		opacity: 1;
+		color: var(--accent-primary);
 	}
 
 	.sr-only {
@@ -304,12 +317,31 @@ const secondaryCtaHref = "/contact";
 		}
 
 		.hero__content {
-			max-width: 34rem;
+			max-width: min(100%, 34rem);
 		}
 
 		.hero__body {
-			align-items: flex-end;
-			padding: clamp(6rem, 14vw, 7rem) 0 2rem;
+			align-items: flex-start;
+			justify-content: center;
+			padding: clamp(7rem, 22vw, 8.5rem) 0 2.25rem;
+		}
+
+		h1 {
+			font-size: clamp(2.45rem, 12vw, 4rem);
+			max-width: 13ch;
+		}
+
+		.hero__lead {
+			max-width: 31ch;
+			font-size: 1rem;
+		}
+
+		.hero__actions {
+			width: 100%;
+			max-width: 22rem;
+		}
+
+		.button {
 		}
 
 		.availability__container {
@@ -326,9 +358,7 @@ const secondaryCtaHref = "/contact";
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.button,
-		.availability__item,
-		.availability__item::before {
+		.button {
 			transition: none;
 		}
 

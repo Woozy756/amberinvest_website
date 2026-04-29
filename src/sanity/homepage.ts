@@ -2,7 +2,6 @@ import { sanityClient } from "sanity:client";
 import { trimStringList, trimValueOrEmpty } from "./utils";
 
 export interface HomepageHeroContent {
-	heroEyebrow?: string;
 	heroTitle?: string;
 	heroLead?: string;
 	heroBackgroundImage?: {
@@ -81,7 +80,6 @@ interface RawHomepageImage {
 }
 
 interface RawHomepageContent {
-	heroEyebrow?: string;
 	heroTitle?: string;
 	heroLead?: string;
 	heroBackgroundImage?: RawHomepageImage;
@@ -124,7 +122,6 @@ interface RawHomepageContent {
 }
 
 const homepageQuery = `*[_type == "homepage"][0]{
-  heroEyebrow,
   heroTitle,
   heroLead,
   heroBackgroundImage{
@@ -181,7 +178,6 @@ const homepageQuery = `*[_type == "homepage"][0]{
 
 function mapHeroSection(page: RawHomepageContent | null): HomepageHeroContent {
 	return {
-		heroEyebrow: trimValueOrEmpty(page?.heroEyebrow),
 		heroTitle: trimValueOrEmpty(page?.heroTitle),
 		heroLead: trimValueOrEmpty(page?.heroLead),
 		heroBackgroundImage: page?.heroBackgroundImage,

@@ -17,8 +17,11 @@ const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
 const rebuildToken = process.env.REBUILD_WEBHOOK_TOKEN || "";
 const rebuildDebounceMs = normalizeNonNegativeInteger(process.env.REBUILD_DEBOUNCE_MS, 60_000);
+const contactRateLimitWindowMs = 15 * 60_000;
+const contactRateLimitMax = 3;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const defaultSmtpPort = 465;
+const contactRateLimitBuckets = new Map();
 let nodemailerModule = null;
 let rebuildTimer = null;
 let scheduledBuildAt = null;
@@ -111,6 +114,49 @@ const asBoolean = (value, fallback) => {
 	if (value === undefined) return fallback;
 	return value.toLowerCase() === "true";
 };
+
+function getClientIp(nodeRequest) {
+	const forwardedFor = nodeRequest.headers["x-forwarded-for"];
+	const realIp = nodeRequest.headers["x-real-ip"];
+	const forwardedValue = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
+	const realIpValue = Array.isArray(realIp) ? realIp[0] : realIp;
+	const candidate = forwardedValue?.split(",")[0]?.trim() || realIpValue?.trim();
+
+	return candidate || nodeRequest.socket.remoteAddress || "unknown";
+}
+
+function pruneContactRateLimitBuckets(now = Date.now()) {
+	for (const [key, bucket] of contactRateLimitBuckets.entries()) {
+		if (bucket.resetAt <= now) {
+			contactRateLimitBuckets.delete(key);
+		}
+	}
+}
+
+function checkContactRateLimit(nodeRequest) {
+	const now = Date.now();
+	const key = getClientIp(nodeRequest);
+	const existingBucket = contactRateLimitBuckets.get(key);
+
+	if (!existingBucket || existingBucket.resetAt <= now) {
+		contactRateLimitBuckets.set(key, {
+			count: 1,
+			resetAt: now + contactRateLimitWindowMs
+		});
+		pruneContactRateLimitBuckets(now);
+		return { allowed: true, retryAfterSeconds: 0 };
+	}
+
+	if (existingBucket.count >= contactRateLimitMax) {
+		return {
+			allowed: false,
+			retryAfterSeconds: Math.max(1, Math.ceil((existingBucket.resetAt - now) / 1000))
+		};
+	}
+
+	existingBucket.count += 1;
+	return { allowed: true, retryAfterSeconds: 0 };
+}
 
 function normalizeContactPayload(body) {
 	const input = typeof body === "object" && body !== null ? body : {};
@@ -525,6 +571,28 @@ async function resolveStaticFile(requestPath) {
 
 async function handleContact(nodeRequest, nodeResponse) {
 	try {
+		const rateLimit = checkContactRateLimit(nodeRequest);
+
+		if (!rateLimit.allowed) {
+			sendNodeResponse(
+				nodeResponse,
+				new Response(
+					JSON.stringify({
+						message: `Pārāk daudz pieprasījumu. Lūdzu, mēģiniet vēlreiz pēc ${rateLimit.retryAfterSeconds} sekundēm.`
+					}),
+					{
+						status: 429,
+						headers: {
+							"Content-Type": "application/json; charset=utf-8",
+							"Cache-Control": "no-store",
+							"Retry-After": String(rateLimit.retryAfterSeconds)
+						}
+					}
+				)
+			);
+			return;
+		}
+
 		const body = await readJsonBody(nodeRequest);
 		const validation = validateContactPayload(body);
 

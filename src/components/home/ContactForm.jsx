@@ -10,7 +10,24 @@ const initialValues = {
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const contactCooldownMs = 60_000;
+const contactCooldownStorageKey = "amberinvest:last-contact-submit";
 const asTrimmedString = (value) => (typeof value === "string" ? value.trim() : "");
+
+function getContactCooldownRemainingMs() {
+	if (typeof window === "undefined") return 0;
+
+	const lastSubmitAt = Number(window.localStorage.getItem(contactCooldownStorageKey) || 0);
+	if (!Number.isFinite(lastSubmitAt) || lastSubmitAt <= 0) return 0;
+
+	return Math.max(0, contactCooldownMs - (Date.now() - lastSubmitAt));
+}
+
+function rememberContactSubmit() {
+	if (typeof window === "undefined") return;
+
+	window.localStorage.setItem(contactCooldownStorageKey, String(Date.now()));
+}
 
 function validate(values) {
 	const errors = {};
@@ -76,6 +93,15 @@ export default function ContactForm({
 		event.preventDefault();
 		setStatus(null);
 
+		const cooldownRemainingMs = getContactCooldownRemainingMs();
+		if (cooldownRemainingMs > 0) {
+			setStatus({
+				type: "error",
+				message: `Lūdzu, uzgaidiet ${Math.ceil(cooldownRemainingMs / 1000)} sekundes pirms atkārtotas nosūtīšanas.`
+			});
+			return;
+		}
+
 		const nextErrors = validate(values);
 		if (Object.keys(nextErrors).length) {
 			setErrors(nextErrors);
@@ -114,6 +140,7 @@ export default function ContactForm({
 				type: "success",
 				message: payload?.message || "Paldies. Sazināsimies ar jums tuvākajā laikā."
 			});
+			rememberContactSubmit();
 			setValues({
 				...initialValues,
 				information: defaultInformation

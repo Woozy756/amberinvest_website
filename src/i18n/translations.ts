@@ -26,7 +26,6 @@ type Messages = {
 	};
 	home: {
 		title: string;
-		heroEyebrow: string;
 		heroTitle: string;
 		heroLead: string;
 		primaryCta: string;
@@ -107,7 +106,6 @@ const translations: Record<Locale, Messages> = {
 		},
 		home: {
 			title: "Amberinvest | Dzīvokļi Ventspilī",
-			heroEyebrow: "V Residences • Ventspils",
 			heroTitle: "Mūsdienīgi dzīvokļi ar pilnu apdari un pārdomātiem plānojumiem",
 			heroLead:
 				"Vēsturiskās ēkas atjaunošanas projekts ar sakārtotu inženierinfrastruktūru, moderniem plānojumiem un pārdomātu koplietošanas telpu kvalitāti.",

@@ -21,13 +21,6 @@ export const homepageType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'heroEyebrow',
-      title: 'Ievada virsraksta rinda',
-      type: 'string',
-      group: 'hero',
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
       name: 'heroTitle',
       title: 'Ievada virsraksts',
       type: 'string',
