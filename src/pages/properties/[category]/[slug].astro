@@ -31,7 +31,16 @@ export async function getStaticPaths() {
 const locale = "lv";
 const { property } = Astro.props as { property: Property };
 
-const { status, priceLabel, descriptionParagraphs, locationLabel, aboutSectionTitle, keyFacts, floorPlans } =
+const {
+	status,
+	priceLabel,
+	pricePerSquareMeterLabel,
+	descriptionParagraphs,
+	locationLabel,
+	aboutSectionTitle,
+	keyFacts,
+	floorPlans
+} =
 	createPropertyPageViewModel(property);
 const [similarProperties, siteSettings] = await Promise.all([
 	getSimilarProperties(property.slug, property.category.slug, 3),
@@ -126,9 +135,14 @@ const propertyStructuredData = {
 						</h1>
 
 						<div class="property-hero__headline-row">
-							<p class="property-hero__price font-['Playfair_Display',Georgia,serif] text-4xl md:text-5xl leading-[1] tracking-[-0.03em]">
-								{priceLabel}
-							</p>
+							<div class="property-hero__price-group">
+								<p class="property-hero__price font-['Playfair_Display',Georgia,serif] text-4xl md:text-5xl leading-[1] tracking-[0em]">
+									{priceLabel}
+								</p>
+								<p class="property-hero__price-note text-sm font-medium leading-[1.4]">
+									<span>{pricePerSquareMeterLabel} / m²</span>
+								</p>
+							</div>
 							<p class="property-status-badge text-xs font-bold tracking-[0.14em] uppercase" data-tone={status.tone}>
 								{status.label}
 							</p>
@@ -339,22 +353,55 @@ const propertyStructuredData = {
 	}
 
 	.property-hero__headline-row {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: end;
 		justify-content: space-between;
 		gap: 0.9rem 1rem;
-		padding-bottom: 1.2rem;
+		padding-block: 0.55rem 1.2rem;
 		border-bottom: 1px solid rgba(35, 38, 43, 0.1);
+	}
+
+	.property-hero__price-group {
+		display: flex;
+		align-items: flex-end;
+		flex-wrap: wrap;
+		gap: 0.55rem 1rem;
+		min-width: 0;
 	}
 
 	.property-hero__price {
 		margin: 0;
+		font-variant-numeric: lining-nums tabular-nums;
+	}
+
+	.property-hero__price-note {
+		margin: 0;
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.15rem;
+		width: fit-content;
+		padding: 0.36rem 0.65rem;
+		border-left: 1px solid rgba(199, 150, 67, 0.42);
+		color: rgba(15, 17, 21, 0.52);
+		letter-spacing: 0;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.property-hero__price-note span {
+		display: block;
+		color: rgba(15, 17, 21, 0.68);
+		font-size: 0.92em;
+		font-weight: 600;
+		letter-spacing: 0;
+		white-space: nowrap;
 	}
 
 	.property-status-badge {
 		display: inline-flex;
 		align-items: center;
+		justify-self: end;
+		margin-bottom: 0.15rem;
 		min-height: 2rem;
 		padding: 0.35rem 0.72rem;
 		border: 1px solid transparent;
@@ -374,6 +421,17 @@ const propertyStructuredData = {
 	.property-status-badge[data-tone="sold"] {
 		border-color: rgba(118, 124, 134, 0.18);
 		color: #5c6169;
+	}
+
+	@media (max-width: 560px) {
+		.property-hero__headline-row {
+			grid-template-columns: 1fr;
+		}
+
+		.property-status-badge {
+			justify-self: start;
+			margin-bottom: 0;
+		}
 	}
 
 	.property-hero__lead {

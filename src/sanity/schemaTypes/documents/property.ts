@@ -155,6 +155,13 @@ export const propertyDocument = defineType({
       validation: (rule) => rule.required().min(0),
     }),
     defineField({
+      name: 'pricePerSquareMeter',
+      title: 'Cena kvadrātmetrā',
+      type: 'number',
+      group: 'details',
+      validation: (rule) => rule.required().min(0),
+    }),
+    defineField({
       name: 'currency',
       title: 'Valūta',
       type: 'string',

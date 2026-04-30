@@ -40,6 +40,7 @@ export interface Property {
   rooms: number
   area: number
   price: number
+  pricePerSquareMeter: number
   currency: string
   floor: number
   building?: string
@@ -109,6 +110,7 @@ interface RawProperty {
   rooms?: number
   area?: number
   price?: number
+  pricePerSquareMeter?: number
   currency?: string
   floor?: number
   building?: string
@@ -161,6 +163,7 @@ const propertySelection = `
   rooms,
   area,
   price,
+  pricePerSquareMeter,
   currency,
   floor,
   building,
@@ -290,6 +293,7 @@ function mapProperty(rawProperty: RawProperty): Property {
     rooms: rawProperty.rooms ?? 0,
     area: rawProperty.area ?? 0,
     price: rawProperty.price ?? 0,
+    pricePerSquareMeter: rawProperty.pricePerSquareMeter ?? 0,
     currency: trimValue(rawProperty.currency) ?? 'EUR',
     floor: rawProperty.floor ?? 0,
     building: trimValue(rawProperty.building),

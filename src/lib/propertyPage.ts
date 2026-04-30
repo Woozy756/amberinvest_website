@@ -10,6 +10,7 @@ export interface PropertyFact {
 export interface PropertyPageViewModel {
 	status: (typeof propertyStatusMeta)[keyof typeof propertyStatusMeta];
 	priceLabel: string;
+	pricePerSquareMeterLabel: string;
 	descriptionParagraphs: string[];
 	locationLabel: string;
 	aboutSectionTitle: string;
@@ -22,6 +23,10 @@ const factExclusionLabels = new Set(["Kopējā platība", "Istabu skaits", "Stā
 export function createPropertyPageViewModel(property: Property): PropertyPageViewModel {
 	const status = propertyStatusMeta[property.status];
 	const priceLabel = formatCurrency(property.price, property.currency);
+	const pricePerSquareMeterLabel = formatCurrency(
+		property.pricePerSquareMeter > 0 ? property.pricePerSquareMeter : Math.round(property.price / Math.max(property.area, 1)),
+		property.currency,
+	);
 	const descriptionParagraphs =
 		property.descriptionParagraphs.length > 0
 			? property.descriptionParagraphs
@@ -62,6 +67,7 @@ export function createPropertyPageViewModel(property: Property): PropertyPageVie
 	return {
 		status,
 		priceLabel,
+		pricePerSquareMeterLabel,
 		descriptionParagraphs,
 		locationLabel,
 		aboutSectionTitle,
