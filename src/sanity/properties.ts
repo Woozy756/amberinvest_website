@@ -1,11 +1,16 @@
 import {sanityClient} from 'sanity:client'
+import {getSanityImageSrcSet, getSanityImageUrl} from '../lib/sanityImage'
 import { mapSeo, trimValue, type RawSeoField, type SanitySeo } from './utils'
 
 export type PropertyStatus = 'available' | 'reserved' | 'sold'
 
 export interface PropertyImage {
   src: string
+  srcSet: string
+  thumbSrc: string
+  zoomSrc: string
   alt: string
+  label?: string
 }
 
 export interface PropertyDetailItem {
@@ -118,6 +123,7 @@ interface RawProperty {
   gallery?: Array<{
     src?: string
     alt?: string
+    label?: string
   }>
   floorPlanImage?: string
   floorPlanNote?: string
@@ -170,7 +176,8 @@ const propertySelection = `
   "heroImage": heroImage.asset->url,
   gallery[]{
     "src": image.asset->url,
-    alt
+    alt,
+    label
   },
   "floorPlanImage": floorPlanImage.asset->url,
   floorPlanNote,
@@ -276,8 +283,16 @@ function mapProperty(rawProperty: RawProperty): Property {
   const gallery =
     rawProperty.gallery
       ?.map((item) => ({
-        src: item.src ?? '',
+        src: getSanityImageUrl(item.src ?? '', {width: 1600, height: 1600, fit: 'crop', quality: 82}),
+        srcSet: getSanityImageSrcSet(item.src ?? '', [720, 1100, 1600, 2200], {
+          aspectRatio: 1,
+          fit: 'crop',
+          quality: 82,
+        }),
+        thumbSrc: getSanityImageUrl(item.src ?? '', {width: 360, height: 360, fit: 'crop', quality: 76}),
+        zoomSrc: getSanityImageUrl(item.src ?? '', {width: 2400, height: 2400, fit: 'crop', quality: 86}),
         alt: item.alt ?? rawProperty.title ?? '',
+        label: trimValue(item.label),
       }))
       .filter((item) => item.src) ?? []
 
@@ -298,7 +313,25 @@ function mapProperty(rawProperty: RawProperty): Property {
     floor: rawProperty.floor ?? 0,
     building: trimValue(rawProperty.building),
     image,
-    gallery: gallery.length > 0 ? gallery : image ? [{src: image, alt: rawProperty.title ?? ''}] : [],
+    gallery:
+      gallery.length > 0
+        ? gallery
+        : image
+          ? [
+              {
+                src: getSanityImageUrl(image, {width: 1600, height: 1600, fit: 'crop', quality: 82}),
+                srcSet: getSanityImageSrcSet(image, [720, 1100, 1600, 2200], {
+                  aspectRatio: 1,
+                  fit: 'crop',
+                  quality: 82,
+                }),
+                thumbSrc: getSanityImageUrl(image, {width: 360, height: 360, fit: 'crop', quality: 76}),
+                zoomSrc: getSanityImageUrl(image, {width: 2400, height: 2400, fit: 'crop', quality: 86}),
+                alt: rawProperty.title ?? '',
+                label: undefined,
+              },
+            ]
+          : [],
     floorPlanImage: trimValue(rawProperty.floorPlanImage),
     floorPlanNote: trimValue(rawProperty.floorPlanNote),
     floorPlanSectionTitle: trimValue(rawProperty.floorPlanSectionTitle),

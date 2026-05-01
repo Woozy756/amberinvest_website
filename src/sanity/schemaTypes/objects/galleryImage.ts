@@ -20,8 +20,9 @@ export const galleryImageType = defineType({
     }),
     defineField({
       name: 'label',
-      title: 'Etiķete',
+      title: 'Attēla etiķete',
       type: 'string',
+      description: 'Īss teksts, kas tiek rādīts galerijas attēla stūrī.',
     }),
     defineField({
       name: 'orientation',
