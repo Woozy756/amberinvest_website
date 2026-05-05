@@ -31,28 +31,72 @@ function Icon({ name }) {
 	);
 }
 
-export default function PropertyGalleryModal({ activeIndex, images = [], onClose, title }) {
+export default function PropertyGalleryModal({
+	activeIndex,
+	images = [],
+	onClose,
+	title,
+	labelFallback = "Foto galerija",
+	imageFit = "cover",
+	preserveAspectRatio = false,
+	enlargedZoom = ENLARGED_ZOOM,
+}) {
 	const [isMounted, setIsMounted] = useState(false);
 	const [modalIndex, setModalIndex] = useState(activeIndex);
 	const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
+	const [zoomOrigin, setZoomOrigin] = useState({ x: "50%", y: "50%" });
+	const [zoomPan, setZoomPan] = useState({ x: 0, y: 0 });
 	const [turnDirection, setTurnDirection] = useState("next");
+	const [loadedAspectRatios, setLoadedAspectRatios] = useState({});
+	const [isMobileViewport, setIsMobileViewport] = useState(false);
 	const modalRef = useRef(null);
 	const closeButtonRef = useRef(null);
 	const previousFocusRef = useRef(null);
 	const swipeStartRef = useRef(null);
+	const pointerDownPointRef = useRef(null);
+	const panStartRef = useRef(null);
 	const suppressImageClickRef = useRef(false);
 	const hasMultipleImages = images.length > 1;
 	const activeImage = images[modalIndex] ?? images[0];
 	const previousImage = hasMultipleImages ? images[modalIndex === 0 ? images.length - 1 : modalIndex - 1] : null;
 	const nextImage = hasMultipleImages ? images[modalIndex === images.length - 1 ? 0 : modalIndex + 1] : null;
-	const activeImageLabel = activeImage?.label || "Foto galerija";
+	const activeImageLabel = activeImage?.label || labelFallback;
+	const activeEnlargedZoom =
+		typeof enlargedZoom === "function" ? enlargedZoom(modalIndex, activeImage) : enlargedZoom;
+	const activeImageAspectRatio =
+		preserveAspectRatio && activeImage?.width && activeImage?.height
+			? activeImage.width / activeImage.height
+			: loadedAspectRatios[activeImage?.zoomSrc || activeImage?.src] || 1;
+	const canPanZoom = preserveAspectRatio && isMobileViewport && zoomLevel > DEFAULT_ZOOM;
 
 	useEffect(() => {
 		setIsMounted(true);
 	}, []);
 
+	useEffect(() => {
+		const mediaQuery = window.matchMedia("(max-width: 720px)");
+		const updateViewportMode = () => {
+			setIsMobileViewport(mediaQuery.matches);
+		};
+
+		updateViewportMode();
+		mediaQuery.addEventListener("change", updateViewportMode);
+
+		return () => {
+			mediaQuery.removeEventListener("change", updateViewportMode);
+		};
+	}, []);
+
 	const toggleZoom = () => {
-		setZoomLevel((currentLevel) => (currentLevel === DEFAULT_ZOOM ? ENLARGED_ZOOM : DEFAULT_ZOOM));
+		setZoomLevel((currentLevel) => {
+			const nextLevel = currentLevel === DEFAULT_ZOOM ? activeEnlargedZoom : DEFAULT_ZOOM;
+
+			if (nextLevel === DEFAULT_ZOOM) {
+				setZoomPan({ x: 0, y: 0 });
+			}
+
+			return nextLevel;
+		});
 	};
 
 	const closeModal = () => {
@@ -62,6 +106,8 @@ export default function PropertyGalleryModal({ activeIndex, images = [], onClose
 	const selectImage = (nextIndex, direction) => {
 		setTurnDirection(direction);
 		setZoomLevel(DEFAULT_ZOOM);
+		setZoomOrigin({ x: "50%", y: "50%" });
+		setZoomPan({ x: 0, y: 0 });
 		setModalIndex(nextIndex);
 	};
 
@@ -80,14 +126,56 @@ export default function PropertyGalleryModal({ activeIndex, images = [], onClose
 	const handleImagePointerDown = (event) => {
 		stopModalClose(event);
 		event.currentTarget.setPointerCapture?.(event.pointerId);
+		pointerDownPointRef.current = {
+			x: event.clientX,
+			y: event.clientY,
+		};
+
+		if (canPanZoom) {
+			panStartRef.current = {
+				x: event.clientX,
+				y: event.clientY,
+				panX: zoomPan.x,
+				panY: zoomPan.y,
+			};
+			swipeStartRef.current = null;
+			return;
+		}
+
 		swipeStartRef.current = {
 			x: event.clientX,
 			y: event.clientY,
 		};
 	};
 
+	const handleImagePointerMove = (event) => {
+		if (!panStartRef.current) {
+			return;
+		}
+
+		stopModalClose(event);
+
+		const deltaX = event.clientX - panStartRef.current.x;
+		const deltaY = event.clientY - panStartRef.current.y;
+
+		if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
+			suppressImageClickRef.current = true;
+		}
+
+		setZoomPan({
+			x: panStartRef.current.panX + deltaX,
+			y: panStartRef.current.panY + deltaY,
+		});
+	};
+
 	const handleImagePointerUp = (event) => {
 		stopModalClose(event);
+
+		if (panStartRef.current) {
+			panStartRef.current = null;
+			pointerDownPointRef.current = null;
+			return;
+		}
 
 		if (!swipeStartRef.current || !hasMultipleImages) {
 			swipeStartRef.current = null;
@@ -116,10 +204,53 @@ export default function PropertyGalleryModal({ activeIndex, images = [], onClose
 
 		if (suppressImageClickRef.current) {
 			suppressImageClickRef.current = false;
+			pointerDownPointRef.current = null;
 			return;
 		}
 
+		if (preserveAspectRatio && zoomLevel === DEFAULT_ZOOM) {
+			const bounds = event.currentTarget.getBoundingClientRect();
+			const pointerPoint = pointerDownPointRef.current ?? { x: event.clientX, y: event.clientY };
+			const imageElement = event.currentTarget.querySelector(".property-gallery-modal__image");
+			const clickAspectRatio =
+				imageElement?.naturalWidth && imageElement?.naturalHeight
+					? imageElement.naturalWidth / imageElement.naturalHeight
+					: activeImageAspectRatio;
+			const frameAspectRatio = bounds.width / bounds.height;
+			const isLetterboxed = clickAspectRatio > frameAspectRatio;
+			const renderedWidth = isLetterboxed ? bounds.width : bounds.height * clickAspectRatio;
+			const renderedHeight = isLetterboxed ? bounds.width / clickAspectRatio : bounds.height;
+			const renderedLeft = bounds.left + (bounds.width - renderedWidth) / 2;
+			const renderedTop = bounds.top + (bounds.height - renderedHeight) / 2;
+			const originX = ((pointerPoint.x - renderedLeft) / renderedWidth) * 100;
+			const originY = ((pointerPoint.y - renderedTop) / renderedHeight) * 100;
+
+			setZoomOrigin({
+				x: `${Math.max(0, Math.min(100, originX))}%`,
+				y: `${Math.max(0, Math.min(100, originY))}%`,
+			});
+		}
+
+		pointerDownPointRef.current = null;
 		toggleZoom();
+	};
+
+	const handleImageLoad = (event) => {
+		if (!preserveAspectRatio || !activeImage) {
+			return;
+		}
+
+		const { naturalWidth, naturalHeight } = event.currentTarget;
+
+		if (!naturalWidth || !naturalHeight) {
+			return;
+		}
+
+		const imageKey = activeImage.zoomSrc || activeImage.src;
+		setLoadedAspectRatios((currentRatios) => ({
+			...currentRatios,
+			[imageKey]: naturalWidth / naturalHeight,
+		}));
 	};
 
 	useEffect(() => {
@@ -183,7 +314,9 @@ export default function PropertyGalleryModal({ activeIndex, images = [], onClose
 	return createPortal(
 		<div
 			ref={modalRef}
-			className="property-gallery-modal"
+			className={`property-gallery-modal property-gallery-modal--${imageFit}${
+				preserveAspectRatio ? " property-gallery-modal--natural" : ""
+			}`}
 			role="dialog"
 			aria-modal="true"
 			aria-label={`${title} attēlu galerija`}
@@ -234,12 +367,18 @@ export default function PropertyGalleryModal({ activeIndex, images = [], onClose
 					<div
 						className="property-gallery-modal__image-frame"
 						data-zoomed={zoomLevel > DEFAULT_ZOOM}
-						onClick={stopModalClose}
+						onClick={handleImageClick}
 						onPointerCancel={() => {
+							pointerDownPointRef.current = null;
+							panStartRef.current = null;
 							swipeStartRef.current = null;
 						}}
 						onPointerDown={handleImagePointerDown}
+						onPointerMove={handleImagePointerMove}
 						onPointerUp={handleImagePointerUp}
+						style={{
+							"--gallery-modal-aspect-ratio": activeImageAspectRatio,
+						}}
 					>
 						{previousImage ? (
 							<button
@@ -274,7 +413,6 @@ export default function PropertyGalleryModal({ activeIndex, images = [], onClose
 						<button
 							className="property-gallery-modal__image-button"
 							type="button"
-							onClick={handleImageClick}
 							aria-label={zoomLevel > DEFAULT_ZOOM ? "Samazināt attēlu" : "Palielināt attēlu"}
 						>
 							<img
@@ -283,10 +421,15 @@ export default function PropertyGalleryModal({ activeIndex, images = [], onClose
 								data-turn-direction={turnDirection}
 								src={activeImage.zoomSrc || activeImage.src}
 								alt={activeImage.alt || title}
-								width="2400"
-								height="2400"
+								width={activeImage.width || 2400}
+								height={activeImage.height || 2400}
+								onLoad={handleImageLoad}
 								style={{
 									"--gallery-modal-zoom": zoomLevel,
+									"--gallery-modal-origin-x": zoomOrigin.x,
+									"--gallery-modal-origin-y": zoomOrigin.y,
+									"--gallery-modal-pan-x": `${zoomPan.x}px`,
+									"--gallery-modal-pan-y": `${zoomPan.y}px`,
 								}}
 							/>
 						</button>

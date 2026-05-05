@@ -92,10 +92,20 @@ export const propertyDocument = defineType({
     }),
     defineField({
       name: 'floorPlanImage',
-      title: 'Plānojuma attēls',
+      title: 'Īpašuma plānojuma attēls',
       type: 'image',
       group: 'media',
       options: {hotspot: true},
+      description: 'Galvenais īpašuma plānojuma attēls.',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'additionalFloorPlanImage',
+      title: 'Papildu plānojuma attēls',
+      type: 'image',
+      group: 'media',
+      options: {hotspot: true},
+      description: 'Nav obligāts. Ja aizpildīts, plānojuma sadaļā parādīsies attēla pārslēgšana.',
     }),
     defineField({
       name: 'floorPlanSectionTitle',

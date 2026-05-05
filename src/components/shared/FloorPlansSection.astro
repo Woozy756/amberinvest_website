@@ -1,4 +1,7 @@
 ---
+import PropertyPlanGallery from "../properties/PropertyPlanGallery.jsx";
+import type { PropertyImage } from "../../sanity/properties";
+
 export interface FloorPlanSpec {
 	label: string;
 	value: string;
@@ -10,6 +13,7 @@ export interface FloorPlanTab {
 	title: string;
 	price: string;
 	image: string;
+	images?: PropertyImage[];
 	imageAlt: string;
 	ctaText: string;
 	ctaLink: string;
@@ -92,11 +96,12 @@ const initialIndex = Math.max(
 								<div class="apartment-plans__grid">
 									<div class="apartment-plans__media fade-in" data-reveal-delay="220">
 										<div class="apartment-plans__frame">
-											<img
-												class="apartment-plans__image"
-												src={plan.image}
-												alt={plan.imageAlt}
-												loading="lazy"
+											<PropertyPlanGallery
+												client:idle
+												images={plan.images ?? []}
+												fallbackImage={plan.image}
+												fallbackAlt={plan.imageAlt}
+												title={plan.title}
 											/>
 										</div>
 									</div>
@@ -373,11 +378,96 @@ const initialIndex = Math.max(
 		border-bottom: 1px solid;
 	}
 
-	.apartment-plans__image {
+	:global(.apartment-plans__image) {
 		width: 100%;
 		height: auto;
 		max-height: min(72vh, 40rem);
 		object-fit: contain;
+	}
+
+	:global(.apartment-plans__viewer) {
+		position: relative;
+		display: grid;
+		place-items: center;
+		width: 100%;
+	}
+
+	:global(.apartment-plans__image-trigger) {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: zoom-in;
+	}
+
+	:global(.apartment-plans__image-trigger:focus-visible) {
+		outline: 2px solid var(--accent-primary);
+		outline-offset: 0.45rem;
+	}
+
+	:global(.apartment-plans__switches) {
+		position: absolute;
+		inset: 50% 0 auto;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		pointer-events: none;
+		transform: translateY(-50%);
+	}
+
+	:global(.apartment-plans__switch) {
+		border: 1px solid rgba(15, 17, 21, 0.08);
+		background: transparent;
+		color: var(--bg-primary);
+		backdrop-filter: blur(6px);
+		box-shadow: none;
+	}
+
+	:global(.apartment-plans__switch) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.35rem;
+		height: 2.35rem;
+		padding: 0;
+		cursor: pointer;
+		pointer-events: auto;
+		transition:
+			background-color 0.3s var(--ease-premium),
+			border-color 0.3s var(--ease-premium),
+			color 0.3s var(--ease-premium),
+			transform 0.3s var(--ease-premium);
+	}
+
+	:global(.apartment-plans__switch svg) {
+		width: 1.05rem;
+		height: 1.05rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.8;
+		stroke-linecap: square;
+		stroke-linejoin: miter;
+	}
+
+	:global(.apartment-plans__switch:hover),
+	:global(.apartment-plans__switch:focus-visible) {
+		border-color: rgba(199, 150, 67, 0.5);
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+		outline: none;
+	}
+
+	:global(.apartment-plans__switch--previous:hover),
+	:global(.apartment-plans__switch--previous:focus-visible) {
+		transform: translateX(-0.15rem);
+	}
+
+	:global(.apartment-plans__switch--next:hover),
+	:global(.apartment-plans__switch--next:focus-visible) {
+		transform: translateX(0.15rem);
 	}
 
 	.apartment-plans__details {
@@ -504,6 +594,10 @@ const initialIndex = Math.max(
 		.apartment-plans__frame {
 			min-height: auto;
 		}
+
+		:global(.apartment-plans__switches) {
+			inset-inline: 0;
+		}
 	}
 
 	@media (max-width: 720px) {
@@ -527,12 +621,17 @@ const initialIndex = Math.max(
 		.apartment-plans__spec dd {
 			text-align: left;
 		}
+
+		:global(.apartment-plans__switches) {
+			inset-inline: 0;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.apartment-plans__tab,
 		.apartment-plans__tab::after,
 		.apartment-plans__cta,
+		:global(.apartment-plans__switch),
 		.apartment-plans__panel {
 			transition: none;
 			animation: none;

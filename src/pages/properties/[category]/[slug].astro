@@ -888,11 +888,47 @@ const propertyStructuredData = {
 		height: 100%;
 		aspect-ratio: 1;
 		object-fit: cover;
-		transform: scale(var(--gallery-modal-zoom, 1));
-		transform-origin: center;
+		transform: translate3d(var(--gallery-modal-pan-x, 0), var(--gallery-modal-pan-y, 0), 0)
+			scale(var(--gallery-modal-zoom, 1));
+		transform-origin: var(--gallery-modal-origin-x, 50%) var(--gallery-modal-origin-y, 50%);
 		transition: transform 0.45s var(--ease-premium);
 		will-change: transform;
 		backface-visibility: hidden;
+	}
+
+	.property-gallery-modal--contain .property-gallery-modal__image {
+		object-fit: contain;
+		background: rgba(245, 243, 238, 0.92);
+	}
+
+	.property-gallery-modal--natural .property-gallery-modal__image-frame {
+		width: min(
+			100%,
+			calc(
+				(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap)) *
+					var(--gallery-modal-aspect-ratio, 1)
+			),
+			82vw
+		);
+		height: min(
+			calc(82vw / var(--gallery-modal-aspect-ratio, 1)),
+			calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap))
+		);
+		aspect-ratio: var(--gallery-modal-aspect-ratio, 1);
+		overflow: visible;
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+	}
+
+	.property-gallery-modal--natural .property-gallery-modal__image {
+		aspect-ratio: auto;
+		background: transparent;
+	}
+
+	.property-gallery-modal--natural .property-gallery-modal__image-button {
+		overflow: visible;
+		background: transparent;
 	}
 
 	.property-gallery-modal__switch {
@@ -909,12 +945,10 @@ const propertyStructuredData = {
 
 	.property-gallery-modal__image[data-turn-direction="next"] {
 		animation: gallery-image-turn-next 0.64s var(--ease-premium);
-		transform-origin: left center;
 	}
 
 	.property-gallery-modal__image[data-turn-direction="previous"] {
 		animation: gallery-image-turn-previous 0.64s var(--ease-premium);
-		transform-origin: right center;
 	}
 
 	@keyframes gallery-modal-fade {
@@ -1197,14 +1231,17 @@ const propertyStructuredData = {
 		}
 
 		.property-gallery-modal__stage {
-			grid-template-rows: minmax(0, 1fr) auto;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
+			position: relative;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr);
 			align-content: center;
-			gap: 0.8rem;
+			justify-items: center;
+			gap: 0;
 		}
 
 		.property-gallery-modal__image-frame {
-			grid-column: 1 / -1;
+			grid-column: 1;
+			grid-row: 1;
 			overflow: clip;
 			width: min(
 				100%,
@@ -1218,21 +1255,70 @@ const propertyStructuredData = {
 			);
 		}
 
+		.property-gallery-modal--natural .property-gallery-modal__image-frame {
+			width: min(
+				100%,
+				92vw,
+				calc(
+					(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem) *
+						var(--gallery-modal-aspect-ratio, 1)
+				)
+			);
+			height: min(
+				calc(92vw / var(--gallery-modal-aspect-ratio, 1)),
+				calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem)
+			);
+		}
+
+		.property-gallery-modal--natural .property-gallery-modal__image-frame[data-zoomed="true"] {
+			width: min(100%, 92vw);
+			height: calc(
+				100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem
+			);
+			aspect-ratio: auto;
+		}
+
+		.property-gallery-modal--natural .property-gallery-modal__image-frame[data-zoomed="true"]
+			.property-gallery-modal__image-button {
+			height: 100%;
+			overflow: hidden;
+			touch-action: none;
+		}
+
+		.property-gallery-modal--natural .property-gallery-modal__image-frame[data-zoomed="true"]
+			.property-gallery-modal__image {
+			transition: transform 0.18s var(--ease-premium);
+		}
+
 		.property-gallery-modal__peek {
 			display: none;
 		}
 
 		.property-gallery-modal__switch {
-			position: static;
+			position: absolute;
+			z-index: 4;
+			top: 50%;
+			width: 2.85rem;
+			height: 2.85rem;
+			border-color: rgba(245, 243, 238, 0.34);
+			background: rgba(8, 22, 38, 0.42);
+			box-shadow: 0 0.9rem 2rem rgba(8, 22, 38, 0.16);
 			min-width: 0;
+			transform: translateY(-50%);
+			-webkit-tap-highlight-color: transparent;
 		}
 
 		.property-gallery-modal__switch--previous {
-			justify-self: start;
+			left: max(0.65rem, env(safe-area-inset-left));
 		}
 
 		.property-gallery-modal__switch--next {
-			justify-self: end;
+			right: max(0.65rem, env(safe-area-inset-right));
+		}
+
+		.property-gallery-modal__switch:hover,
+		.property-gallery-modal__switch:focus-visible {
+			transform: translateY(-50%);
 		}
 	}
 </style>

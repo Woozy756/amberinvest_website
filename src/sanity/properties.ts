@@ -11,6 +11,8 @@ export interface PropertyImage {
   zoomSrc: string
   alt: string
   label?: string
+  width?: number
+  height?: number
 }
 
 export interface PropertyDetailItem {
@@ -52,6 +54,8 @@ export interface Property {
   image: string
   gallery: PropertyImage[]
   floorPlanImage?: string
+  additionalFloorPlanImage?: string
+  floorPlanImages: PropertyImage[]
   floorPlanNote?: string
   floorPlanSectionTitle?: string
   floorPlanCardTitle?: string
@@ -125,7 +129,16 @@ interface RawProperty {
     alt?: string
     label?: string
   }>
-  floorPlanImage?: string
+  floorPlanImage?: {
+    src?: string
+    width?: number
+    height?: number
+  }
+  additionalFloorPlanImage?: {
+    src?: string
+    width?: number
+    height?: number
+  }
   floorPlanNote?: string
   floorPlanSectionTitle?: string
   floorPlanCardTitle?: string
@@ -179,7 +192,16 @@ const propertySelection = `
     alt,
     label
   },
-  "floorPlanImage": floorPlanImage.asset->url,
+  "floorPlanImage": floorPlanImage{
+    "src": asset->url,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
+  "additionalFloorPlanImage": additionalFloorPlanImage{
+    "src": asset->url,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
   floorPlanNote,
   floorPlanSectionTitle,
   floorPlanCardTitle,
@@ -295,6 +317,36 @@ function mapProperty(rawProperty: RawProperty): Property {
         label: trimValue(item.label),
       }))
       .filter((item) => item.src) ?? []
+  const fallbackFloorPlanImage = trimValue(rawProperty.floorPlanImage?.src)
+  const fallbackFloorPlanAlt = `${rawProperty.rooms ?? ''} istabu dzīvokļa plāns`.trim()
+  const mapFloorPlanImage = (
+    item: RawProperty['floorPlanImage'],
+    label: string,
+  ): PropertyImage | null => {
+    const src = trimValue(item?.src)
+
+    if (!src) {
+      return null
+    }
+
+    return {
+      src: getSanityImageUrl(src, {width: 1600, fit: 'max', quality: 86}),
+      srcSet: getSanityImageSrcSet(src, [720, 1100, 1600, 2200], {
+        fit: 'max',
+        quality: 86,
+      }),
+      thumbSrc: getSanityImageUrl(src, {width: 360, fit: 'max', quality: 78}),
+      zoomSrc: getSanityImageUrl(src, {width: 2400, fit: 'max', quality: 88}),
+      alt: fallbackFloorPlanAlt,
+      label,
+      width: item?.width,
+      height: item?.height,
+    }
+  }
+  const mappedFloorPlanImages = [
+    mapFloorPlanImage(rawProperty.floorPlanImage, 'Plānojums'),
+    mapFloorPlanImage(rawProperty.additionalFloorPlanImage, 'Papildu plāns'),
+  ].filter((item): item is PropertyImage => Boolean(item))
 
   return {
     id: rawProperty._id,
@@ -332,7 +384,9 @@ function mapProperty(rawProperty: RawProperty): Property {
               },
             ]
           : [],
-    floorPlanImage: trimValue(rawProperty.floorPlanImage),
+    floorPlanImage: fallbackFloorPlanImage,
+    additionalFloorPlanImage: trimValue(rawProperty.additionalFloorPlanImage?.src),
+    floorPlanImages: mappedFloorPlanImages,
     floorPlanNote: trimValue(rawProperty.floorPlanNote),
     floorPlanSectionTitle: trimValue(rawProperty.floorPlanSectionTitle),
     floorPlanCardTitle: trimValue(rawProperty.floorPlanCardTitle),
