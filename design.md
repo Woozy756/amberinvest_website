@@ -22,12 +22,12 @@ A restrained dark theme ensuring photography and accents stand out naturally.
 ## 3. Typography
 The type system relies on a strong hierarchy, utilizing modern geometry mixed with an editorial serif for headings.
 
-- **Primary Font (Sans-Serif)**: `Inter`
+- **Primary Font (Sans-Serif)**: `Lato`
   - *Usage*: Body text, metadata, navigation, buttons, small all-caps labels.
   - *Characteristics*: Highly readable, geometric, modern.
-- **Secondary Font (Serif)**: `Playfair Display`
+- **Secondary Font (Sans-Serif)**: `Lato`
   - *Usage*: `H1`, `H2`, `H3`, large numbers, and key architectural statements.
-  - *Characteristics*: Confident, elegant, tightened letter spacing.
+  - *Characteristics*: Clear, confident, and direct.
 
 ### Typographic Patterns
 - **Micro-labels**: `text-[10px]` to `text-xs`, `uppercase`, `tracking-widest`. Used for section super-titles, data labels, and image captions.

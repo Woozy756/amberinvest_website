@@ -11,10 +11,7 @@ const query = [project?.address?.trim(), project?.city?.trim()].filter(Boolean).
 const embedUrl = query
 	? `https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
 	: "";
-const mapsUrl = query ? `https://www.google.com/maps?q=${encodeURIComponent(query)}` : "";
 const heading = project?.title || "Atrašanās vieta";
-const city = project?.city?.trim();
-const address = project?.address?.trim();
 ---
 
 {
@@ -33,50 +30,6 @@ const address = project?.address?.trim();
 				></iframe>
 			</div>
 
-			<div class="property-location-map__meta">
-				<div class="property-location-map__actions">
-					<p class="property-location-map__subtitle text-sm leading-[1.55]">
-						{city ? <>{city}{address ? ", " : ""}</> : null}
-						{address ? <strong class="font-bold uppercase">{address}</strong> : null}
-						{!city && !address ? heading : null}
-					</p>
-					{
-						mapsUrl ? (
-							<a
-								class="property-location-map__link w-fit text-xs font-bold tracking-[0.12em] uppercase no-underline"
-								href={mapsUrl}
-								target="_blank"
-								rel="noreferrer"
-							>
-								<span>Skatīt Google Maps</span>
-								<svg
-									class="property-location-map__arrow"
-									viewBox="0 0 16 16"
-									aria-hidden="true"
-									focusable="false"
-								>
-									<path
-										d="M2.5 8h9"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="1.6"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-									<path
-										d="M8 4.5 12.5 8 8 11.5"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="1.6"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									/>
-								</svg>
-							</a>
-						) : null
-					}
-				</div>
-			</div>
 		</div>
 	)
 }

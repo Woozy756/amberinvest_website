@@ -59,7 +59,7 @@ export function createPropertyPageViewModel(property: Property): PropertyPageVie
 			image: property.floorPlanImage ?? "/property-floor-plan.svg",
 			images: property.floorPlanImages,
 			imageAlt: `${property.rooms} istabu dzīvokļa plāns`,
-			ctaText: "Pieteikt apskati",
+			ctaText: "Piesaki apskati",
 			ctaLink: "#property-inquiry",
 			specs: floorPlanSpecs,
 		},

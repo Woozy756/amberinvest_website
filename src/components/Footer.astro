@@ -4,9 +4,10 @@ import { splitLines, toPhoneHref } from "../lib/formatting";
 
 interface Props {
 	siteSettings?: SiteSettings | null;
+	tone?: "dark" | "light";
 }
 
-const { siteSettings = null } = Astro.props;
+const { siteSettings = null, tone = "dark" } = Astro.props;
 
 const footerNavigation = siteSettings?.footerNavigation ?? [];
 const visibleFooterNavigation = footerNavigation.filter(
@@ -27,7 +28,7 @@ const hasContacts = Boolean(phone || contactEmail || addressLines.length || busi
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="site-footer" aria-labelledby="site-footer-title">
+<footer class:list={["site-footer", `site-footer--${tone}`]} aria-labelledby="site-footer-title">
 	<div class="site-footer__container">
 		<div class="site-footer__grid">
 			<div class="site-footer__brand fade-in">
@@ -106,10 +107,18 @@ const currentYear = new Date().getFullYear();
 <style>
 	.site-footer {
 		position: relative;
-		background:
-			linear-gradient(180deg, rgba(19, 24, 33, 0.96) 0%, #0f1115 100%);
-		color: var(--surface-light);
 		border-top: 1px solid rgba(138, 144, 152, 0.14);
+	}
+
+	.site-footer--dark {
+		background: linear-gradient(180deg, rgba(19, 24, 33, 0.96) 0%, #0f1115 100%);
+		color: var(--surface-light);
+	}
+
+	.site-footer--light {
+		background: #f6f5f1;
+		color: var(--bg-primary);
+		border-top-color: rgba(35, 38, 43, 0.1);
 	}
 
 	.site-footer::before {
@@ -126,6 +135,10 @@ const currentYear = new Date().getFullYear();
 			);
 		opacity: 0.3;
 		pointer-events: none;
+	}
+
+	.site-footer--light::before {
+		opacity: 0.12;
 	}
 
 	.site-footer__container {
@@ -156,7 +169,7 @@ const currentYear = new Date().getFullYear();
 
 	.site-footer__title {
 		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(1.9rem, 3vw, 2.8rem);
 		line-height: 1.08;
 		letter-spacing: -0.02em;
@@ -169,7 +182,11 @@ const currentYear = new Date().getFullYear();
 		max-width: 34ch;
 		font-size: 0.98rem;
 		line-height: 1.75;
-		color: var(--text-secondary);
+		color: rgba(245, 243, 238, 0.9);
+	}
+
+	.site-footer--light .site-footer__description {
+		color: rgba(15, 17, 21, 0.72);
 	}
 
 	.site-footer__list {
@@ -197,6 +214,21 @@ const currentYear = new Date().getFullYear();
 	.site-footer__credit a:focus-visible {
 		color: var(--accent-primary);
 		outline: none;
+	}
+
+	.site-footer--light .site-footer__list li,
+	.site-footer--light .site-footer__list a,
+	.site-footer--light .site-footer__social-link {
+		color: rgba(15, 17, 21, 0.78);
+	}
+
+	.site-footer--light .site-footer__list a:hover,
+	.site-footer--light .site-footer__list a:focus-visible,
+	.site-footer--light .site-footer__social-link:hover,
+	.site-footer--light .site-footer__social-link:focus-visible,
+	.site-footer--light .site-footer__credit a:hover,
+	.site-footer--light .site-footer__credit a:focus-visible {
+		color: var(--accent-hover);
 	}
 
 	.site-footer__social-list {
@@ -254,6 +286,15 @@ const currentYear = new Date().getFullYear();
 		font-size: 0.82rem;
 		line-height: 1.6;
 		color: rgba(245, 243, 238, 0.72);
+	}
+
+	.site-footer--light .site-footer__grid {
+		border-bottom-color: rgba(35, 38, 43, 0.12);
+	}
+
+	.site-footer--light .site-footer__copyright,
+	.site-footer--light .site-footer__credit {
+		color: rgba(15, 17, 21, 0.58);
 	}
 
 	.site-footer__credit {

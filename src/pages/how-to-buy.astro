@@ -6,10 +6,139 @@ import { loadHowToBuyPage } from "../sanity/howToBuy";
 
 const locale = "lv";
 const messages = getMessages(locale);
-const content = await loadHowToBuyPage();
-if (!content) {
+const sanityContent = await loadHowToBuyPage();
+if (!sanityContent) {
 	throw new Error("How To Buy Page content is missing in Sanity.");
 }
+const content = {
+	...sanityContent,
+	title: "Kā iegādāties dzīvokli",
+	heroEyebrow: "Kā iegādāties",
+	heroTitle: "Kā iegādāties dzīvokli mūsu projektā",
+	heroLead:
+		"No dzīvokļa izvēles līdz atslēgām mēs palīdzam Jums saprast katru soli vienkārši un bez liekas steigas.",
+	heroLeadParagraphs: [
+		"No dzīvokļa izvēles līdz atslēgām mēs palīdzam Jums saprast katru soli vienkārši un bez liekas steigas.",
+		"Ja rodas jautājumi par apskati, rezervāciju, finansējumu vai dokumentiem, mūsu komanda izstāstīs, kas jādara tālāk un kā sagatavoties."
+	],
+	stepsTitle: "No pirmās apskates līdz Jūsu dzīvokļa atslēgām.",
+	stepsLead: "",
+	stepsLeadParagraphs: [],
+	steps: [
+		{
+			title: "Izvēlieties dzīvokli",
+			body: "Apskatām pieejamos dzīvokļus pēc istabu skaita, platības, stāva un budžeta. Palīdzam salīdzināt plānojumus, lai Jums būtu vieglāk saprast, kurš variants ikdienā būs ērtākais.",
+			bodyParagraphs: [
+				"Apskatām pieejamos dzīvokļus pēc istabu skaita, platības, stāva un budžeta. Palīdzam salīdzināt plānojumus, lai Jums būtu vieglāk saprast, kurš variants ikdienā būs ērtākais."
+			],
+			supportingNote: "Pirms apskates varam sagatavot vairākus piemērotus variantus."
+		},
+		{
+			title: "Vienojamies par apskati",
+			body: "Norunājam Jums ērtu apskates laiku Talsu ielā 3A un uz vietas parādām dzīvokli, apdari, plānojumu un ēkas priekšrocības.",
+			bodyParagraphs: [
+				"Norunājam Jums ērtu apskates laiku Talsu ielā 3A un uz vietas parādām dzīvokli, apdari, plānojumu un ēkas priekšrocības."
+			],
+			supportingNote: "Apskates laikā varat uzdot visus jautājumus par māju, izmaksām un pieejamību."
+		},
+		{
+			title: "Rezervējam izvēlēto dzīvokli",
+			body: "Kad esat atradis piemērotāko dzīvokli, izskaidrojam rezervācijas kārtību, termiņus un nākamos dokumentus. Dzīvoklis tiek fiksēts, lai Jūs mierīgi varētu sakārtot nākamos soļus.",
+			bodyParagraphs: [
+				"Kad esat atradis piemērotāko dzīvokli, izskaidrojam rezervācijas kārtību, termiņus un nākamos dokumentus. Dzīvoklis tiek fiksēts, lai Jūs mierīgi varētu sakārtot nākamos soļus."
+			],
+			supportingNote: "Visus rezervācijas nosacījumus izrunājam pirms jebkādu saistību uzņemšanās."
+		},
+		{
+			title: "Sakārtojam finansējumu un dokumentus",
+			body: "Ja nepieciešams bankas finansējums, palīdzam sagatavot informāciju par izvēlēto dzīvokli. Ja pirkums notiek bez aizdevuma, vienojamies par skaidru norēķinu un dokumentu secību.",
+			bodyParagraphs: [
+				"Ja nepieciešams bankas finansējums, palīdzam sagatavot informāciju par izvēlēto dzīvokli. Ja pirkums notiek bez aizdevuma, vienojamies par skaidru norēķinu un dokumentu secību."
+			],
+			supportingNote: "Mērķis ir, lai Jums vienmēr ir skaidrs, kas vajadzīgs un līdz kuram datumam."
+		},
+		{
+			title: "Parakstām līgumu un nododam dzīvokli",
+			body: "Kad nosacījumi ir saskaņoti, tiek sagatavoti darījuma dokumenti, veikti norēķini un noorganizēta dzīvokļa nodošana. Pēc tam varat sākt iekārtot savas jaunās mājas.",
+			bodyParagraphs: [
+				"Kad nosacījumi ir saskaņoti, tiek sagatavoti darījuma dokumenti, veikti norēķini un noorganizēta dzīvokļa nodošana. Pēc tam varat sākt iekārtot savas jaunās mājas."
+			],
+			supportingNote: "Nodošanas brīdī izstāstām arī praktiskos jautājumus par mājokļa lietošanu."
+		}
+	],
+	financingEyebrow: "Finansējums",
+	financingTitle: "Palīdzēsim saprast Jums piemērotāko finansējuma ceļu",
+	financingLead:
+		"Ja dzīvokli plānojat iegādāties ar hipotekāro kredītu, sagatavosim būtisko informāciju bankai un palīdzēsim saprast termiņus.",
+	financingLeadParagraphs: [
+		"Ja dzīvokli plānojat iegādāties ar hipotekāro kredītu, sagatavosim būtisko informāciju bankai un palīdzēsim saprast termiņus."
+	],
+	financingHighlights: [
+		{ label: "Objekta dati", value: "Sagatavojam informāciju par izvēlēto dzīvokli." },
+		{ label: "Termiņi", value: "Saskaņojam rezervāciju ar bankas izvērtēšanas procesu." },
+		{ label: "Norēķinu secība", value: "Izskaidrojam iemaksas un gala norēķina kārtību." },
+		{ label: "Konsultācija", value: "Atbildēsim uz jautājumiem pirms lēmuma pieņemšanas." }
+	],
+	documentsEyebrow: "Dokumenti",
+	documentsTitle: "Viss svarīgais tiek izskaidrots pirms parakstīšanas",
+	documentsLead:
+		"Dokumentu secība var atšķirties atkarībā no finansējuma veida, taču Jums nebūs jāmin, kas notiek tālāk. Katru soli izrunājam savlaicīgi.",
+	documentsLeadParagraphs: [
+		"Dokumentu secība var atšķirties atkarībā no finansējuma veida, taču Jums nebūs jāmin, kas notiek tālāk. Katru soli izrunājam savlaicīgi."
+	],
+	documentItems: [
+		{ label: "Rezervācijas vienošanās", value: "Fiksē izvēlēto dzīvokli un rezervācijas termiņu." },
+		{ label: "Bankas izvērtēšana", value: "Nepieciešama, ja izmantojat hipotekāro kredītu." },
+		{ label: "Darījuma dokumenti", value: "Nosaka norēķinu secību un īpašuma nodošanu." },
+		{ label: "Nodošanas akts", value: "Noslēdz procesu un apstiprina dzīvokļa nodošanu." }
+	],
+	faqEyebrow: "Biežākie jautājumi",
+	faqTitle: "Kas visbiežāk interesē pircējus",
+	faqLead:
+		"Ja atbildi neatrodat šeit, sazinieties ar mums. Mēs izstāstīsim tieši par Jūsu izvēlēto dzīvokli.",
+	faqLeadParagraphs: [
+		"Ja atbildi neatrodat šeit, sazinieties ar mums. Mēs izstāstīsim tieši par Jūsu izvēlēto dzīvokli."
+	],
+	faqItems: [
+		{
+			question: "Cik ilgi var rezervēt dzīvokli?",
+			answer: "Rezervācijas termiņu saskaņojam individuāli, ņemot vērā izvēlēto dzīvokli un finansējuma procesu.",
+			answerParagraphs: [
+				"Rezervācijas termiņu saskaņojam individuāli, ņemot vērā izvēlēto dzīvokli un finansējuma procesu."
+			]
+		},
+		{
+			question: "Vai palīdzat ar bankas procesu?",
+			answer: "Jā, sagatavojam bankai nepieciešamo informāciju par dzīvokli un palīdzam saprast, kādi dokumenti parasti ir vajadzīgi.",
+			answerParagraphs: [
+				"Jā, sagatavojam bankai nepieciešamo informāciju par dzīvokli un palīdzam saprast, kādi dokumenti parasti ir vajadzīgi."
+			]
+		},
+		{
+			question: "Kas ir iekļauts dzīvokļa cenā?",
+			answer: "Dzīvokļi ir ar pilnībā pabeigtu apdari. Konkrētā dzīvokļa specifikāciju izstāstām apskates vai konsultācijas laikā.",
+			answerParagraphs: [
+				"Dzīvokļi ir ar pilnībā pabeigtu apdari. Konkrētā dzīvokļa specifikāciju izstāstām apskates vai konsultācijas laikā."
+			]
+		}
+	],
+	contactEyebrow: "Piesakieties",
+	contactTitle: "Atstāj savus kontaktus",
+	contactLead:
+		"Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par apskati Tev ērtā laikā.",
+	contactLeadParagraphs: [
+		"Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par apskati Tev ērtā laikā."
+	],
+	contactBenefits: [
+		"Dzīvokļu apskate ar mūsu speciālistu",
+		"Atbildēsim uz Tavu pieteikumu 24 stundu laikā",
+		"Mēs rūpējamies par Tavu datu drošību."
+	],
+	contactFormTitle: "Atstāj savus kontaktus",
+	contactFormIntro: "",
+	contactDefaultInformation: "Vēlos pieteikties dzīvokļa apskatei.",
+	contactSubmitLabel: "Pieteikties apskatei"
+};
 const sectionNav = [
 	{ href: "#process", label: "Soli pa solim" },
 	{ href: "#financing", label: "Finansējums" },
@@ -62,10 +191,6 @@ const faqStructuredData =
 						{content.heroTitle}
 					</h1>
 
-					<div class="how-to-buy-hero__lead fade-in text-base leading-relaxed sm:text-lg" data-reveal-delay="110">
-						{content.heroLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
-					</div>
-
 				</div>
 
 				<nav class="how-to-buy-hero__nav fade-in" data-reveal-delay="140" aria-label="Kā iet uz sadaļām">
@@ -107,13 +232,14 @@ const faqStructuredData =
 			<div class="how-to-buy-shell how-to-buy-process__layout">
 				<div class="how-to-buy-process__intro">
 						<div class="how-to-buy-process__intro-inner fade-in">
-						<p class="how-to-buy-eyebrow text-xs font-bold uppercase tracking-widest">{content.stepsEyebrow}</p>
 						<h2 class="how-to-buy-section-title text-4xl font-semibold leading-none tracking-tight sm:text-5xl lg:text-6xl">
 							{content.stepsTitle}
 						</h2>
-						<div class="how-to-buy-copy text-base leading-relaxed">
-							{content.stepsLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
-						</div>
+						{content.stepsLeadParagraphs.length > 0 ? (
+							<div class="how-to-buy-copy text-base leading-relaxed">
+								{content.stepsLeadParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+							</div>
+						) : null}
 					</div>
 				</div>
 
@@ -322,7 +448,7 @@ const faqStructuredData =
 
 	.how-to-buy-section-title,
 	.how-to-buy-hero__title {
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		text-wrap: balance;
 	}
 
@@ -382,9 +508,13 @@ const faqStructuredData =
 		align-items: center;
 	}
 
+	.how-to-buy-hero__layout {
+		align-items: start;
+	}
+
 	.how-to-buy-hero__content {
 		max-width: 39rem;
-		padding-top: clamp(1rem, 2vw, 2rem);
+		padding-top: 0;
 	}
 
 	.how-to-buy-hero__title {
@@ -403,15 +533,6 @@ const faqStructuredData =
 	.contact-section__benefit span {
 		margin: 0;
 		color: var(--text-secondary);
-	}
-
-	.how-to-buy-hero__lead {
-		margin-top: 1.5rem;
-		max-width: 42rem;
-	}
-
-	.how-to-buy-hero__lead p {
-		color: rgba(245, 243, 238, 0.78);
 	}
 
 	.how-to-buy-hero__nav {
@@ -523,7 +644,7 @@ const faqStructuredData =
 
 	.how-to-buy-step__content h3 {
 		margin: 0.75rem 0 0.6rem;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		color: inherit;
 	}
 
@@ -692,7 +813,7 @@ const faqStructuredData =
 		padding: 1.2rem 0;
 		cursor: pointer;
 		list-style: none;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 	}
 
 	.how-to-buy-faq__item summary::-webkit-details-marker {
@@ -793,7 +914,7 @@ const faqStructuredData =
 
 	.contact-section__title {
 		margin: 1rem 0 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(2.15rem, 4.2vw, 4rem);
 		line-height: 1.06;
 		letter-spacing: -0.02em;

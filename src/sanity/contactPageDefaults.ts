@@ -5,18 +5,18 @@ export const contactPageDefaults: ContactPageContent = {
 	contactEyebrow: "Tiešs kontakts",
 	contactTitle: "Visa būtiskā informācija vienuviet.",
 	contactLead:
-		"Ja vēlaties saņemt ātru atbildi, izmantojiet sev ērtāko saziņas veidu. Telefons, e-pasts un biroja adrese tiek ņemti no Site Settings, lai tie visā mājaslapā vienmēr būtu vienādi.",
+		"Ja vēlaties saņemt ātru atbildi, izmantojiet sev ērtāko saziņas veidu.",
 	contactHighlights: [
 		"Tieša saziņa ar projektu komandu",
 		"Vienota informācija par cenām, plāniem un pieejamību",
 		"Atbalsts no pirmā jautājuma līdz darījuma noslēgumam"
 	],
-	formEyebrow: "Pieteikums",
-	formTitle: "Aizpildiet formu, un mēs sazināsimies ar jums.",
+	formEyebrow: "Piesakieties",
+	formTitle: "Atstāj savus kontaktus",
 	formLead:
-		"Šī forma ir piemērota, ja vēlaties saņemt personalizētu atbildi, pieteikt apskati vai noskaidrot detaļas par konkrētu dzīvokli.",
-	formCardTitle: "Nosūtīt pieprasījumu",
-	formCardIntro: "Atstājiet savus datus, un mēs sazināsimies ar jums iespējami drīz.",
-	defaultInformation: "Vēlos saņemt vairāk informācijas par pieejamajiem īpašumiem.",
-	submitLabel: "Nosūtīt pieprasījumu"
+		"Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par apskati Tev ērtā laikā.",
+	formCardTitle: "Atstāj savus kontaktus",
+	formCardIntro: "",
+	defaultInformation: "Vēlos pieteikties dzīvokļa apskatei.",
+	submitLabel: "Pieteikties apskatei"
 };

@@ -30,11 +30,7 @@ const images = content.editorialImages
 	.filter((item): item is { image: string; alt: string; label: string; orientation: "landscape" | "portrait" } => item !== null) ?? [];
 
 const hasEditorialContent = Boolean(
-	content.editorialEyebrow?.trim() ||
-		content.editorialTitle?.trim() ||
-		content.editorialLead?.trim() ||
-		content.editorialRowAriaLabel?.trim() ||
-		images.length
+	images.length
 );
 
 if (!hasEditorialContent) {
@@ -48,14 +44,8 @@ const rows = [
 ];
 ---
 
-<section class="editorial-gallery" aria-labelledby="editorial-gallery-title">
+<section class="editorial-gallery" aria-label={content.editorialRowAriaLabel?.trim() || "Interjera galerija"}>
 	<div class="editorial-gallery__container">
-		<header class="editorial-gallery__header fade-in">
-			<p class="editorial-gallery__eyebrow">{content.editorialEyebrow}</p>
-			<h2 id="editorial-gallery-title" class="editorial-gallery__title">{content.editorialTitle}</h2>
-			<p class="editorial-gallery__lead">{content.editorialLead}</p>
-		</header>
-
 		{images.length > 0 && (
 			<div class="editorial-gallery__rows" aria-label={content.editorialRowAriaLabel?.trim() || undefined}>
 				{
@@ -155,47 +145,13 @@ const rows = [
 	.editorial-gallery {
 		background: var(--surface-light);
 		color: var(--bg-primary);
-		padding: clamp(5rem, 9vw, 7.5rem) 0;
+		padding: clamp(3.25rem, 5.5vw, 4.75rem) 0;
 	}
 
 	.editorial-gallery__container {
 		width: min(100%, 1280px);
 		margin: 0 auto;
 		padding: 0 clamp(1.5rem, 4vw, 3rem);
-	}
-
-	.editorial-gallery__header {
-		max-width: 52rem;
-		display: grid;
-		gap: 1rem;
-		margin-bottom: clamp(2.5rem, 4vw, 3.5rem);
-	}
-
-	.editorial-gallery__eyebrow {
-		margin: 0;
-		font-size: 0.72rem;
-		font-weight: 600;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		color: var(--accent-primary);
-	}
-
-	.editorial-gallery__title {
-		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
-		font-size: clamp(2rem, 4vw, 3.7rem);
-		line-height: 1.08;
-		letter-spacing: -0.018em;
-		max-width: 14ch;
-		text-wrap: balance;
-	}
-
-	.editorial-gallery__lead {
-		margin: 0;
-		max-width: 44rem;
-		font-size: clamp(1rem, 1.35vw, 1.1rem);
-		line-height: 1.75;
-		color: rgba(15, 17, 21, 0.62);
 	}
 
 	.editorial-gallery__rows {
@@ -292,10 +248,6 @@ const rows = [
 	}
 
 	@media (max-width: 900px) {
-		.editorial-gallery__title {
-			max-width: 16ch;
-		}
-
 		.editorial-gallery__row,
 		.editorial-gallery__row.is-reversed,
 		.editorial-gallery__row.is-hover-first,
@@ -377,15 +329,7 @@ const rows = [
 
 	@media (max-width: 640px) {
 		.editorial-gallery {
-			padding: 4.5rem 0;
-		}
-
-		.editorial-gallery__header {
-			margin-bottom: 2rem;
-		}
-
-		.editorial-gallery__title {
-			max-width: 13ch;
+			padding: 3rem 0;
 		}
 
 		.editorial-gallery__rows {

@@ -4,13 +4,17 @@ import { formatCurrency } from "../../lib/formatting";
 
 interface Props {
 	property: Property;
+	ctaHref?: string;
+	ctaLabel?: string;
+	showPrice?: boolean;
 	index?: number;
 }
 
-const { property, index = 0 } = Astro.props as Props;
+const { property, ctaHref, ctaLabel = "Skatīt detaļas", showPrice = true, index = 0 } = Astro.props as Props;
 const status = propertyStatusMeta[property.status];
 const priceLabel = formatCurrency(property.price, property.currency);
 const propertyHref = getPropertyHref(property);
+const cardCtaHref = ctaHref || propertyHref;
 const locationLabel = property.project?.city || "Dzīvoklis";
 ---
 
@@ -30,11 +34,10 @@ const locationLabel = property.project?.city || "Dzīvoklis";
 			</svg>
 			<span>{locationLabel}</span>
 		</p>
-		<h2 class="property-card__title">
-			<a href={propertyHref}>{property.title}</a>
-		</h2>
-		<p class="property-card__description">{property.shortDescription}</p>
-		<div class="property-card__spacer" aria-hidden="true"></div>
+			<h2 class="property-card__title">
+				<a href={propertyHref}>{property.title}</a>
+			</h2>
+			<div class="property-card__spacer" aria-hidden="true"></div>
 
 		<div class="property-card__meta">
 			<dl class="property-card__details" aria-label={`${property.title} pamatinformācija`}>
@@ -52,9 +55,9 @@ const locationLabel = property.project?.city || "Dzīvoklis";
 				</div>
 			</dl>
 
-			<div class="property-card__footer">
-				<p class="property-card__price">{priceLabel}</p>
-				<a class="property-card__cta" href={propertyHref}>Skatīt detaļas</a>
+			<div class="property-card__footer" data-has-price={showPrice ? "true" : "false"}>
+				{showPrice ? <p class="property-card__price">{priceLabel}</p> : null}
+				<a class="property-card__cta" href={cardCtaHref}>{ctaLabel}</a>
 			</div>
 		</div>
 	</div>
@@ -133,12 +136,12 @@ const locationLabel = property.project?.city || "Dzīvoklis";
 		color: #5c6169;
 	}
 
-	.property-card__body {
-		display: grid;
-		grid-template-rows: auto auto auto minmax(0, 1fr) auto;
-		flex: 1 1 auto;
-		min-height: 0;
-		gap: 1rem;
+		.property-card__body {
+			display: grid;
+			grid-template-rows: auto auto minmax(0, 1fr) auto;
+			flex: 1 1 auto;
+			min-height: 0;
+			gap: 1rem;
 		padding: 1.3rem 1.3rem 1.4rem;
 	}
 
@@ -187,7 +190,7 @@ const locationLabel = property.project?.city || "Dzīvoklis";
 
 	.property-card__title {
 		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(1.55rem, 2vw, 1.85rem);
 		line-height: 1.08;
 		letter-spacing: -0.02em;
@@ -204,14 +207,7 @@ const locationLabel = property.project?.city || "Dzīvoklis";
 		outline: none;
 	}
 
-	.property-card__description {
-		margin: 0;
-		font-size: 0.97rem;
-		line-height: 1.72;
-		color: rgba(15, 17, 21, 0.62);
-	}
-
-	.property-card__details {
+		.property-card__details {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 0.75rem;
@@ -238,7 +234,7 @@ const locationLabel = property.project?.city || "Dzīvoklis";
 
 	.property-card__footer {
 		display: flex;
-		align-items: end;
+		align-items: center;
 		justify-content: space-between;
 		gap: 1rem;
 		padding-top: 1rem;
@@ -247,24 +243,32 @@ const locationLabel = property.project?.city || "Dzīvoklis";
 
 	.property-card__price {
 		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(1.6rem, 2.1vw, 2rem);
 		line-height: 1;
 		letter-spacing: -0.025em;
 		color: var(--bg-primary);
 	}
 
+	.property-card__footer[data-has-price="false"] {
+		justify-content: stretch;
+	}
+
+	.property-card__footer[data-has-price="false"] .property-card__cta {
+		width: 100%;
+	}
+
 	.property-card__cta {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-height: 2.85rem;
-		padding: 0.55rem 1rem;
+		min-height: 3.05rem;
+		padding: 0.65rem 1.15rem;
 		background: var(--accent-primary);
 		color: var(--bg-primary);
 		text-decoration: none;
 		font-size: 0.7rem;
-		font-weight: 700;
+		font-weight: 900;
 		letter-spacing: 0.15em;
 		text-transform: uppercase;
 		transition:

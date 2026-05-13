@@ -19,10 +19,11 @@ const isPropertiesLink = (item: SiteLink) => {
 };
 
 const isFaqLink = (item: SiteLink) => item.href.trim().toLowerCase() === "/faq";
+const isContactLink = (item: SiteLink) => item.href.trim().toLowerCase() === "/contact";
 
 const configuredNavItems = siteSettings?.headerNavigation ?? [];
 
-const visibleNavItems = configuredNavItems.filter((item) => !isFaqLink(item));
+const visibleNavItems = configuredNavItems.filter((item) => !isFaqLink(item) && !isContactLink(item));
 const firstPropertiesItem = visibleNavItems.find(isPropertiesLink);
 const propertiesLabel = firstPropertiesItem?.label || messages.header.properties;
 const mainNavItems = visibleNavItems.filter((item) => !isPropertiesLink(item));

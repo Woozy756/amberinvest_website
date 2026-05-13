@@ -35,9 +35,7 @@ const {
 	status,
 	priceLabel,
 	pricePerSquareMeterLabel,
-	descriptionParagraphs,
 	locationLabel,
-	aboutSectionTitle,
 	keyFacts,
 	floorPlans
 } =
@@ -50,6 +48,11 @@ const gallery = property.gallery;
 const contactPhone = siteSettings?.phone?.trim();
 const contactPhoneHref = toPhoneHref(contactPhone);
 const contactEmail = siteSettings?.contactEmail?.trim();
+const locationBullets = [
+	"Tuvumā bērnudārzi, skolas, veikali un dažādi ikdienā nepieciešamie pakalpojumi",
+	"Ērta nokļūšana līdz Ventspils centram, jūrai un pilsētas ikdienas galamērķiem",
+	"Sakārtota, mierīga vide jaunām ģimenēm un speciālistiem"
+];
 const siteUrl = (import.meta.env.PUBLIC_SITE_URL ?? "https://amberhome.lv").replace(/\/+$/, "");
 const propertyUrl = new URL(getPropertyHref(property), `${siteUrl}/`).toString();
 const propertyAvailability = {
@@ -130,13 +133,13 @@ const propertyStructuredData = {
 							</svg>
 							<span>{locationLabel}</span>
 						</p>
-						<h1 class="property-hero__title font-['Playfair_Display',Georgia,serif] text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.02] tracking-[-0.025em]">
+						<h1 class="property-hero__title font-brand-heading text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.02] tracking-[-0.025em]">
 							{property.title}
 						</h1>
 
 						<div class="property-hero__headline-row">
 							<div class="property-hero__price-group">
-								<p class="property-hero__price font-['Playfair_Display',Georgia,serif] text-4xl md:text-5xl leading-[1] tracking-[0em]">
+								<p class="property-hero__price font-brand-heading text-4xl md:text-5xl leading-[1] tracking-[0em]">
 									{priceLabel}
 								</p>
 								<p class="property-hero__price-note text-sm font-medium leading-[1.4]">
@@ -163,10 +166,10 @@ const propertyStructuredData = {
 
 						<div class="property-hero__actions">
 							<a class="property-hero__cta text-xs font-bold tracking-[0.15em] uppercase" href="#property-inquiry">
-								Pieteikt apskati
+								Piesaki apskati
 							</a>
 							<p class="property-hero__cta-note text-sm leading-[1.65]">
-								Atbildam 24 stundu laikā un sagatavojam arī līdzīgo plānojumu piedāvājumus.
+								Atbildēsim tuvāko 24 stundu laikā un sagatavosim izdevīgāko piedāvājumu.
 							</p>
 						</div>
 
@@ -192,33 +195,39 @@ const propertyStructuredData = {
 		</section>
 
 		<FloorPlansSection
-			eyebrow=""
-			title={property.floorPlanSectionTitle || `${property.rooms} istabu dzīvokļa plāns`}
-			lead={property.floorPlanNote || "Plānojuma pārskats ar svarīgākajām telpu zonām un apdares informāciju."}
-			tabsAriaLabel="Dzīvokļu plānojumu izvēle"
+				eyebrow=""
+				title={property.floorPlanSectionTitle || `${property.rooms} istabu dzīvokļa plāns`}
+				lead=""
+				tabsAriaLabel="Dzīvokļu plānojumu izvēle"
 			specsAriaLabel="Plānojuma specifikācija"
 			plans={floorPlans}
 			initialTabId={property.category.slug}
 			showTabs={false}
 		/>
 
-		<section class="property-section">
+		<section class="property-section property-location-section" id="property-location">
 			<div class="property-page__container">
-				<div class="property-about fade-in">
+				<div class="property-about property-about--location fade-in">
 					<div class="property-about__content">
 						<div class="property-section__heading property-section__heading--about">
-							<p class="property-page__eyebrow text-xs font-bold tracking-[0.16em] uppercase">Par dzīvokli</p>
-							<h2 class="font-['Playfair_Display',Georgia,serif] text-3xl md:text-4xl lg:text-5xl leading-[1.12] tracking-[-0.025em]">
-								{aboutSectionTitle}
+							<p class="property-page__eyebrow property-location-section__eyebrow text-xs font-bold tracking-[0.16em] uppercase">
+								<span>DZĪVOKĻA ATRAŠANĀS VIETA</span>
+								<span>{property.project?.address || "Talsu iela 3A"}, {property.project?.city || "Ventspils"}</span>
+							</p>
+							<h2 class="font-brand-heading text-3xl md:text-4xl lg:text-5xl leading-[1.12] tracking-[-0.025em]">
+								Ideāla atrašanās vieta
 							</h2>
 						</div>
 
 						<div class="property-about__description">
-							{
-								descriptionParagraphs.map((paragraph) => (
-									<p class="text-lg leading-[1.92]">{paragraph}</p>
-								))
-							}
+							<p class="text-lg leading-[1.82]">
+								Talsu iela 3A atrodas Ventspilī, ērtā un ikdienai praktiskā vietā ar piekļuvi pilsētas pakalpojumiem, izglītības iestādēm, veikaliem un atpūtas iespējām.
+							</p>
+							<ul class="property-location-section__list" role="list">
+								{locationBullets.map((item) => (
+									<li>{item}</li>
+								))}
+							</ul>
 						</div>
 					</div>
 
@@ -236,17 +245,13 @@ const propertyStructuredData = {
 				<section class="property-section property-section--similar">
 					<div class="property-page__container">
 						<div class="property-section__heading property-section__heading--wide fade-in">
-							<div>
-								<p class="property-page__eyebrow text-xs font-bold tracking-[0.16em] uppercase">Līdzīgi dzīvokļi</p>
-								<h2 class="font-['Playfair_Display',Georgia,serif] text-3xl md:text-4xl lg:text-5xl leading-[1.06] tracking-[-0.025em]">
-									Vēl daži pārdomāti piedāvājumi šajā kolekcijā
-								</h2>
+								<div>
+									<p class="property-page__eyebrow text-xs font-bold tracking-[0.16em] uppercase">Līdzīgi dzīvokļi</p>
+									<h2 class="font-brand-heading text-3xl md:text-4xl lg:text-5xl leading-[1.06] tracking-[-0.025em]">
+										Pieejamie dzīvokļi
+									</h2>
+								</div>
 							</div>
-							<p class="text-base leading-[1.72]">
-								Salīdziniet plānojumus, cenu līmeni un pieejamību, lai ātrāk pieņemtu lēmumu par
-								atbilstošāko dzīvokli.
-							</p>
-						</div>
 
 						<ul class="property-related__grid" role="list">
 							{
@@ -323,7 +328,7 @@ const propertyStructuredData = {
 	}
 
 	.property-hero {
-		padding-bottom: clamp(4rem, 6vw, 5rem);
+		padding-bottom: clamp(2.2rem, 4vw, 3.25rem);
 	}
 
 	.property-hero__grid {
@@ -334,13 +339,13 @@ const propertyStructuredData = {
 	}
 
 	.property-hero__gallery {
+		position: sticky;
+		top: 6.75rem;
 		width: fit-content;
 		max-width: 100%;
 	}
 
 	.property-hero__summary {
-		position: sticky;
-		top: 6.75rem;
 		display: grid;
 		gap: 1.35rem;
 		padding-left: clamp(1rem, 2vw, 1.6rem);
@@ -479,8 +484,8 @@ const propertyStructuredData = {
 		align-items: center;
 		justify-content: center;
 		width: fit-content;
-		min-height: 3rem;
-		padding: 0.65rem 1.15rem;
+		min-height: 3.55rem;
+		padding: 0.85rem 1.55rem;
 		background: var(--accent-primary);
 		color: var(--bg-primary);
 		text-decoration: none;
@@ -1009,8 +1014,12 @@ const propertyStructuredData = {
 		}
 	}
 
+	.property-page .apartment-plans {
+		padding-top: clamp(2.5rem, 4vw, 3.4rem);
+	}
+
 	.property-section {
-		padding: clamp(4rem, 7vw, 5.6rem) 0;
+		padding: clamp(3.5rem, 6vw, 5rem) 0;
 		border-top: 1px solid rgba(35, 38, 43, 0.08);
 	}
 
@@ -1070,6 +1079,44 @@ const propertyStructuredData = {
 		margin-top: 1.35rem;
 	}
 
+	.property-location-section__eyebrow {
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	.property-location-section__eyebrow span:last-child {
+		color: rgba(15, 17, 21, 0.72);
+		letter-spacing: 0.08em;
+	}
+
+	.property-location-section__list {
+		list-style: none;
+		display: grid;
+		gap: 1rem;
+		margin: 1.4rem 0 0;
+		padding: 0;
+	}
+
+	.property-location-section__list li {
+		position: relative;
+		padding-left: 1.35rem;
+		font-weight: 800;
+		line-height: 1.55;
+		color: rgba(15, 17, 21, 0.78);
+	}
+
+	.property-location-section__list li::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0.72em;
+		width: 0.45rem;
+		height: 0.45rem;
+		border-radius: 999px;
+		background: var(--accent-primary);
+		transform: translateY(-50%);
+	}
+
 	.property-about__map {
 		position: sticky;
 		top: 6.75rem;
@@ -1090,6 +1137,7 @@ const propertyStructuredData = {
 		height: 100%;
 		border: 0;
 		display: block;
+		filter: grayscale(1) saturate(0) contrast(1.06);
 	}
 
 	.property-location-map__meta {
@@ -1175,6 +1223,7 @@ const propertyStructuredData = {
 		}
 
 		.property-hero__gallery {
+			position: static;
 			justify-self: center;
 			width: 100%;
 		}

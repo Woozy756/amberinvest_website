@@ -2,14 +2,24 @@
 import HeroAvailability from "../components/home/HeroAvailability.astro";
 import ProjectHighlights from "../components/home/ProjectHighlights.astro";
 import EditorialGallery from "../components/home/EditorialGallery.astro";
+import ProjectLocation from "../components/home/ProjectLocation.astro";
 import ContactSection from "../components/home/ContactSection.astro";
 import Layout from '../layouts/Layout.astro';
 import { getMessages } from "../i18n/translations";
 import { loadHomepage } from "../sanity/homepage";
+import { getAllProperties, type Property } from "../sanity/properties";
 
 const locale = "lv";
 const messages = getMessages(locale);
-const homepage = await loadHomepage();
+const featuredPropertySlugs = [
+	"talsu-3a-dzivoklis-nr6",
+	"talsu-3a-dzivoklis-nr11",
+	"talsu-3a-dzivoklis-nr2"
+];
+const [homepage, allProperties] = await Promise.all([loadHomepage(), getAllProperties()]);
+const featuredProperties = featuredPropertySlugs
+	.map((slug) => allProperties.find((property) => property.slug === slug))
+	.filter((property): property is Property => Boolean(property));
 ---
 
 <Layout
@@ -20,12 +30,14 @@ const homepage = await loadHomepage();
 	ogImageAlt={homepage?.seo?.ogImage?.alt || homepage?.hero.heroBackgroundImage?.alt || messages.home.heroTitle}
 	noIndex={homepage?.seo?.noIndex}
 	overlayHeader={true}
+	footerTone="light"
 	locale={locale}
 >
-	<main>
-		<HeroAvailability content={homepage?.hero} />
-		<ProjectHighlights locale={locale} content={homepage?.highlights} />
-		<EditorialGallery content={homepage?.editorial} />
+		<main>
+			<HeroAvailability content={homepage?.hero} />
+			<ProjectHighlights locale={locale} content={homepage?.highlights} featuredProperties={featuredProperties} />
+			<EditorialGallery content={homepage?.editorial} />
+			<ProjectLocation />
 		<ContactSection content={homepage?.contact} />
 	</main>
 </Layout>

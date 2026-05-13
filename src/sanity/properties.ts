@@ -279,6 +279,67 @@ function getDescriptionParagraphs(blocks: RawPortableTextBlock[] = []): string[]
     .filter(Boolean)
 }
 
+function formatDescriptionArea(area: number): string {
+  if (!Number.isFinite(area) || area <= 0) {
+    return ''
+  }
+
+  return Number.isInteger(area) ? String(area) : area.toFixed(1)
+}
+
+function getApartmentTypeLabel(rooms: number): string {
+  const labels: Record<number, string> = {
+    1: 'Vienistabas',
+    2: 'Divistabu',
+    3: 'Trīsistabu',
+    4: 'Četristabu',
+    5: 'Piecu istabu',
+  }
+
+  return labels[rooms] ?? `${rooms} istabu`
+}
+
+function getLowercaseApartmentTypeLabel(rooms: number): string {
+  const label = getApartmentTypeLabel(rooms)
+  return label ? `${label.charAt(0).toLocaleLowerCase('lv')}${label.slice(1)}` : label
+}
+
+function getRoomsFromCategorySlug(slug: string): number | null {
+  const match = slug.match(/^(\d+)-rooms$/)
+  return match ? Number(match[1]) : null
+}
+
+function getBedroomDescription(rooms: number): string | null {
+  const bedroomCount = rooms - 1
+  const labels: Record<number, string> = {
+    1: 'viena guļamistaba',
+    2: 'divas guļamistabas',
+    3: 'trīs guļamistabas',
+    4: 'četras guļamistabas',
+  }
+
+  if (bedroomCount <= 0) {
+    return null
+  }
+
+  return labels[bedroomCount] ?? `${bedroomCount} guļamistabas`
+}
+
+function getPropertyDescription(rooms: number, area: number, fallbackDescription?: string): string {
+  const formattedArea = formatDescriptionArea(area)
+
+  if (!rooms || !formattedArea) {
+    return fallbackDescription ?? ''
+  }
+
+  const bedroomDescription = getBedroomDescription(rooms)
+  const layoutDescription = bedroomDescription
+    ? `plaša viesistaba ar virtuves un ēdamzonu, ${bedroomDescription}, kā arī vannas istaba un atsevišķa tualetes telpa`
+    : 'plaša viesistaba ar virtuves un ēdamzonu, kā arī vannas istaba un atsevišķa tualetes telpa'
+
+  return `Pārdomāta plānojuma ${getLowercaseApartmentTypeLabel(rooms)} dzīvoklis ar kopējo platību ${formattedArea} m². Dzīvoklī ir ${layoutDescription}.`
+}
+
 function mapProject(rawProject?: RawPropertyProject): PropertyProject | undefined {
   if (!rawProject) {
     return undefined
@@ -301,7 +362,14 @@ function mapProject(rawProject?: RawPropertyProject): PropertyProject | undefine
 
 function mapProperty(rawProperty: RawProperty): Property {
   const category = mapCategory(rawProperty.category)
+  const rooms = getRoomsFromCategorySlug(category.slug) ?? rawProperty.rooms ?? 0
   const image = rawProperty.heroImage ?? ''
+  const generatedDescription = getPropertyDescription(
+    rooms,
+    rawProperty.area ?? 0,
+    trimValue(rawProperty.shortDescription),
+  )
+  const seo = mapSeo(rawProperty.seo)
   const gallery =
     rawProperty.gallery
       ?.map((item) => ({
@@ -318,7 +386,7 @@ function mapProperty(rawProperty: RawProperty): Property {
       }))
       .filter((item) => item.src) ?? []
   const fallbackFloorPlanImage = trimValue(rawProperty.floorPlanImage?.src)
-  const fallbackFloorPlanAlt = `${rawProperty.rooms ?? ''} istabu dzīvokļa plāns`.trim()
+  const fallbackFloorPlanAlt = `${rooms || ''} istabu dzīvokļa plāns`.trim()
   const mapFloorPlanImage = (
     item: RawProperty['floorPlanImage'],
     label: string,
@@ -354,10 +422,10 @@ function mapProperty(rawProperty: RawProperty): Property {
     slug: trimValue(rawProperty.slug) ?? '',
     propertyCode: trimValue(rawProperty.propertyCode) ?? '',
     status: rawProperty.status ?? 'available',
-    shortDescription: trimValue(rawProperty.shortDescription) ?? '',
-    descriptionParagraphs: getDescriptionParagraphs(rawProperty.description),
+    shortDescription: generatedDescription,
+    descriptionParagraphs: generatedDescription ? [generatedDescription] : getDescriptionParagraphs(rawProperty.description),
     aboutSectionTitle: trimValue(rawProperty.aboutSectionTitle),
-    rooms: rawProperty.rooms ?? 0,
+    rooms,
     area: rawProperty.area ?? 0,
     price: rawProperty.price ?? 0,
     pricePerSquareMeter: rawProperty.pricePerSquareMeter ?? 0,
@@ -399,7 +467,12 @@ function mapProperty(rawProperty: RawProperty): Property {
         .filter((detail) => detail.label && detail.value) ?? [],
     category,
     project: mapProject(rawProperty.project),
-    seo: mapSeo(rawProperty.seo),
+    seo: seo
+      ? {
+          ...seo,
+          metaDescription: generatedDescription || seo.metaDescription,
+        }
+      : undefined,
   }
 }
 

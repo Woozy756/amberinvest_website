@@ -110,7 +110,7 @@ const translations: Record<Locale, Messages> = {
 			heroLead:
 				"Vēsturiskās ēkas atjaunošanas projekts ar sakārtotu inženierinfrastruktūru, moderniem plānojumiem un pārdomātu koplietošanas telpu kvalitāti.",
 			primaryCta: "Skatīt dzīvokļus",
-			secondaryCta: "Pieteikt apskati",
+			secondaryCta: "Piesaki apskati",
 			availabilityTitle: "Aktuālā pieejamība",
 			availabilityCta: "Pieejamie dzīvokļi",
 			metrics: [
@@ -120,8 +120,8 @@ const translations: Record<Locale, Messages> = {
 				{ label: "Pabeigšana", value: "2026" }
 			],
 			projectHighlights: {
-				eyebrow: "Par projektu",
-				title: "Pārdomāts risinājums kvalitatīvai dzīvošanai",
+				eyebrow: "Jauns daudzdzīvokļu projekts Ventspilī",
+				title: "Tavas jaunās mājas Ventspilī",
 				galleryAriaLabel: "Projekta galerija",
 				features: [
 					{
@@ -202,7 +202,7 @@ const translations: Record<Locale, Messages> = {
 						price: "no €65 000",
 						imageKey: "plan2room",
 						imageAlt: "Divu istabu dzīvokļa plāns",
-						ctaText: "Pieteikt apskati",
+						ctaText: "Piesaki apskati",
 						ctaLink: "/contact",
 						specs: [
 							{ label: "Kopējā platība", value: "48.7 m²" },

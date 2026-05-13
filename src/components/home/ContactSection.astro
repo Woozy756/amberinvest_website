@@ -8,14 +8,20 @@ interface Props {
 
 const { content } = Astro.props;
 
-const fallbackEyebrow = "Sazinies ar mums";
-const fallbackTitle = "Piesakiet konsultāciju";
+const fallbackEyebrow = "Piesakieties";
+const fallbackTitle = "Atstāj savus kontaktus";
 const fallbackLead =
-	"Aizpildiet formu, un mēs sazināsimies, lai vienotos par nākamo soli.";
-const eyebrow = content?.contactEyebrow?.trim() || fallbackEyebrow;
-const title = content?.contactTitle?.trim() || fallbackTitle;
-const lead = content?.contactLead?.trim() || fallbackLead;
-const benefits = content?.contactBenefits?.map((benefit) => benefit.trim()).filter(Boolean) ?? [];
+	"Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par apskati Tev ērtā laikā.";
+const fallbackBenefits = [
+	"Dzīvokļu apskate ar mūsu speciālistu",
+	"Atbildēsim uz Tavu pieteikumu 24 stundu laikā",
+	"Mēs rūpējamies par Tavu datu drošību."
+];
+void content;
+const eyebrow = fallbackEyebrow;
+const title = fallbackTitle;
+const lead = fallbackLead;
+const benefits = fallbackBenefits;
 ---
 
 <section class="contact-section" aria-labelledby="contact-section-title">
@@ -46,7 +52,12 @@ const benefits = content?.contactBenefits?.map((benefit) => benefit.trim()).filt
 
 			<div class="contact-section__form-wrap fade-in" data-reveal-delay="180">
 				<div class="contact-section__card contact-form-card">
-					<ContactForm client:idle />
+					<ContactForm
+						client:idle
+						title="Atstāj savus kontaktus"
+						intro=""
+						submitLabel="Pieteikties apskatei"
+					/>
 				</div>
 			</div>
 		</div>
@@ -61,7 +72,7 @@ const benefits = content?.contactBenefits?.map((benefit) => benefit.trim()).filt
 			radial-gradient(circle at top left, rgba(199, 150, 67, 0.14), transparent 34%),
 			linear-gradient(180deg, #0f1115 0%, #131821 100%);
 		color: var(--surface-light);
-		padding: clamp(5rem, 10vw, 8rem) 0;
+		padding: clamp(4rem, 7vw, 5.75rem) 0;
 	}
 
 	.contact-section::before {
@@ -111,7 +122,7 @@ const benefits = content?.contactBenefits?.map((benefit) => benefit.trim()).filt
 
 	.contact-section__title {
 		margin: 1rem 0 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(2.15rem, 4.2vw, 4rem);
 		line-height: 1.06;
 		letter-spacing: -0.02em;
@@ -171,7 +182,7 @@ const benefits = content?.contactBenefits?.map((benefit) => benefit.trim()).filt
 
 	@media (max-width: 640px) {
 		.contact-section {
-			padding: 4.5rem 0;
+			padding: 3.75rem 0;
 		}
 
 		.contact-section__card {

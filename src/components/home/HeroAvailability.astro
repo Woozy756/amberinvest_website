@@ -7,49 +7,93 @@ interface Props {
 
 const { content } = Astro.props;
 const heroImage = content?.heroBackgroundImage?.asset?.url ?? "";
+const nightHeroImage = "/images/hero-night.png";
 const availabilityMetrics = content?.metrics ?? [];
-const primaryCtaLabel = "Skatīt dzīvokļus";
+const primaryCtaLabel = "APSKATIES DZĪVOKĻUS";
 const primaryCtaHref = "/properties";
+const contactCtaLabel = "Sazinies ar mums";
+const contactCtaHref = "/contact";
+const heroProjectKicker = "Jaunais daudzīvokļu projekts";
+const heroProjectLocation = "Ventspilī, Talsu Ielā 3A";
+const heroTitlePrefix = "Iepazīsties un";
+const heroTitleMain = "Atrodi savas jaunās mājas";
 ---
 
 {
 	content ? (
-		<section class="hero" aria-labelledby="hero-title" style={`--hero-background-image: url("${heroImage}")`}>
-			<div class="hero__container">
-				<div class="hero__body">
-					<div class="hero__content fade-in">
-						<h1 id="hero-title">{content.heroTitle}</h1>
-						<p class="hero__lead">{content.heroLead}</p>
-						<div class="hero__actions">
-							<a class="button button--primary" href={primaryCtaHref}>
-								{primaryCtaLabel}
-							</a>
+		<div class="hero-pin">
+			<section
+				class="hero"
+				aria-labelledby="hero-title"
+				style={`--hero-background-image: url("${heroImage}"); --hero-night-image: url("${nightHeroImage}")`}
+			>
+				<div class="hero__image hero__image--day" aria-hidden="true"></div>
+				<div class="hero__image hero__image--night" aria-hidden="true"></div>
+				<div class="hero__container">
+					<div class="hero__body">
+							<div class="hero__content fade-in">
+								<h1 id="hero-title">
+									<span class="hero__project-kicker">{heroProjectKicker}</span>
+									<strong class="hero__project-heading">{heroProjectLocation}</strong>
+									<span class="hero__intro-line">{heroTitlePrefix}</span>
+									<strong class="hero__intro-main">{heroTitleMain}</strong>
+								</h1>
+							<div class="hero__actions">
+								<a class="button button--primary" href={primaryCtaHref}>
+									{primaryCtaLabel}
+								</a>
+								<a class="button button--secondary" href={contactCtaHref}>
+									{contactCtaLabel}
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<div class="availability" aria-labelledby="availability-title">
+						<h2 id="availability-title" class="sr-only">{content.availabilityTitle}</h2>
+						<div class="availability__container fade-in" data-reveal-delay="160">
+							<dl class="availability__grid">
+								{
+									availabilityMetrics.map((metric, index) => (
+										<div class="availability__item fade-in" data-reveal-delay={String(220 + index * 70)}>
+											<dt>{metric.label}</dt>
+											<dd data-stat-value={metric.value}>{metric.value}</dd>
+										</div>
+									))
+								}
+							</dl>
+							<div class="availability__actions">
+								<a class="button button--primary" href={primaryCtaHref}>
+									{primaryCtaLabel}
+								</a>
+								<a class="button button--secondary" href={contactCtaHref}>
+									{contactCtaLabel}
+								</a>
+							</div>
 						</div>
 					</div>
 				</div>
-
-				<div class="availability" aria-labelledby="availability-title">
-					<h2 id="availability-title" class="sr-only">{content.availabilityTitle}</h2>
-					<div class="availability__container fade-in" data-reveal-delay="160">
-						<dl class="availability__grid">
-							{
-								availabilityMetrics.map((metric, index) => (
-									<div class="availability__item fade-in" data-reveal-delay={String(220 + index * 70)}>
-										<dt>{metric.label}</dt>
-										<dd>{metric.value}</dd>
-									</div>
-								))
-							}
-						</dl>
-					</div>
-				</div>
-			</div>
-		</section>
+			</section>
+		</div>
 	) : null
 }
 
 <style>
+	.hero-pin {
+		position: relative;
+	}
+
 	.hero {
+		--hero-header-clearance: clamp(5.75rem, 10svh, 7.5rem);
+		--hero-content-bottom-space: clamp(1.5rem, 4svh, 2.75rem);
+		--hero-content-nudge: 0rem;
+		--mobile-hero-content-y: 0px;
+		--mobile-hero-content-opacity: 1;
+		--mobile-hero-pointer-events: auto;
+		--mobile-stats-y: 0px;
+		--mobile-stats-opacity: 1;
+		--mobile-stats-pointer-events: auto;
+
 		position: relative;
 		min-height: 100svh;
 		display: flex;
@@ -57,44 +101,73 @@ const primaryCtaHref = "/properties";
 		background-color: var(--bg-primary);
 	}
 
-	.hero::before {
-		content: "";
+	.hero__image {
 		position: absolute;
 		inset: 0;
-		background-image: var(--hero-background-image);
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
-		opacity: 0.7;
+		pointer-events: none;
 		transition: transform 1.2s var(--ease-premium);
-		will-change: transform;
+		will-change: opacity, transform;
 	}
 
+	.hero__image--day {
+		z-index: 0;
+		background-image: var(--hero-background-image);
+		opacity: 0.72;
+	}
+
+	.hero__image--night {
+		z-index: 1;
+		background-image: var(--hero-night-image);
+		opacity: 0;
+		animation: hero-night-fade 5.8s var(--ease-premium) 1.35s forwards;
+	}
+
+	.hero::before,
 	.hero::after,
 	.hero__container::before {
 		content: "";
 		position: absolute;
 		pointer-events: none;
-		z-index: 1;
+		z-index: 2;
 	}
 
-	.hero::after {
-		inset: auto 0 0;
-		height: clamp(13rem, 32svh, 23rem);
+	.hero::before {
+		inset: 0;
 		background:
 			linear-gradient(
-				to bottom,
-				rgba(15, 17, 21, 0) 0%,
-				rgba(15, 17, 21, 0.34) 32%,
-				rgba(15, 17, 21, 0.9) 62%,
-				rgba(15, 17, 21, 1) 100%
+				180deg,
+				rgba(8, 12, 18, 0.4) 0%,
+				rgba(8, 12, 18, 0.22) 32%,
+				rgba(8, 12, 18, 0.32) 56%,
+				rgba(8, 12, 18, 0.76) 100%
 			),
 			linear-gradient(
 				90deg,
-				rgba(15, 17, 21, 0.62) 0%,
-				rgba(15, 17, 21, 0.34) 35%,
-				rgba(15, 17, 21, 0.08) 62%,
-				rgba(15, 17, 21, 0.14) 100%
+				rgba(8, 12, 18, 0.24) 0%,
+				rgba(8, 12, 18, 0.08) 35%,
+				rgba(8, 12, 18, 0.16) 100%
+			);
+	}
+
+	.hero::after {
+		inset: 0;
+		background:
+			radial-gradient(
+				ellipse at 50% 38%,
+				rgba(0, 0, 0, 0.34) 0%,
+				rgba(0, 0, 0, 0.2) 34%,
+				rgba(0, 0, 0, 0.04) 62%,
+				rgba(0, 0, 0, 0) 76%
+			),
+			linear-gradient(
+				to bottom,
+				rgba(15, 17, 21, 0) 42%,
+				rgba(15, 17, 21, 0.52) 68%,
+				rgba(15, 17, 21, 0.92) 86%,
+				rgba(15, 17, 21, 1) 100%
 			);
 	}
 
@@ -115,7 +188,7 @@ const primaryCtaHref = "/properties";
 
 	.hero__container {
 		position: relative;
-		z-index: 2;
+		z-index: 3;
 		width: min(100%, 1280px);
 		min-height: 100svh;
 		margin-inline: auto;
@@ -125,29 +198,62 @@ const primaryCtaHref = "/properties";
 	}
 
 	.hero__body {
+		min-height: 0;
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		justify-content: center;
-		padding: clamp(8rem, 12vw, 10rem) 0 clamp(3rem, 5vw, 4rem);
+		padding: var(--hero-header-clearance) 0 var(--hero-content-bottom-space);
 		text-align: center;
 	}
 
 	.hero__content {
 		position: relative;
+		z-index: 1;
 		display: grid;
 		justify-items: center;
-		max-width: min(100%, 42rem);
+		max-width: min(100%, 62rem);
+		transform: translateY(var(--hero-content-nudge));
 	}
 
 	h1 {
 		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
-		font-size: clamp(2.45rem, 5.2vw, 5.35rem);
-		line-height: 0.98;
-		letter-spacing: -0.012em;
-		max-width: 18ch;
+		font-family: var(--font-body);
+		font-size: clamp(2.45rem, 4.8vw, 4.7rem);
+		font-weight: 400;
+		line-height: 1.02;
+		letter-spacing: 0;
+		max-width: 100%;
 		color: var(--surface-light);
+		text-shadow: 0 4px 28px rgba(0, 0, 0, 0.72);
 	}
+
+		h1 span,
+		h1 strong {
+			display: block;
+			white-space: nowrap;
+		}
+
+		h1 strong {
+			font-weight: 800;
+		}
+
+		h1 .hero__project-kicker,
+		h1 .hero__intro-line,
+		h1 .hero__intro-main {
+			font-size: clamp(1.55rem, 3.15vw, 3.25rem);
+			line-height: 1.08;
+		}
+
+		h1 .hero__project-kicker {
+			font-weight: 400;
+		}
+
+		h1 .hero__project-heading {
+			margin: clamp(0.12rem, 0.35vw, 0.28rem) 0 clamp(0.55rem, 1.2vw, 0.9rem);
+			font-size: inherit;
+			line-height: 1.02;
+			white-space: normal;
+		}
 
 	h1::after {
 		content: "";
@@ -167,10 +273,16 @@ const primaryCtaHref = "/properties";
 
 	.hero__lead {
 		margin: clamp(0.95rem, 1.7vw, 1.25rem) 0 0;
-		max-width: 38rem;
+		max-width: 44rem;
 		font-size: clamp(1.02rem, 1.35vw, 1.18rem);
 		line-height: 1.68;
 		color: rgba(245, 243, 238, 0.94);
+		text-shadow: 0 2px 16px rgba(0, 0, 0, 0.82);
+	}
+
+	.hero__lead strong {
+		font-weight: 800;
+		color: #fff;
 	}
 
 	.hero__actions {
@@ -185,17 +297,19 @@ const primaryCtaHref = "/properties";
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-height: 2.9rem;
-		padding: 0.72rem 1.2rem;
+		min-height: 3.35rem;
+		padding: 0.9rem 1.55rem;
 		border: 1px solid transparent;
-		font-size: 0.72rem;
-		font-weight: 600;
+		font-size: 0.82rem;
+		font-weight: 900;
 		text-transform: uppercase;
-		letter-spacing: 0.14em;
+		letter-spacing: 0.1em;
 		text-decoration: none;
 		transition:
 			transform 220ms var(--ease-premium),
-			background-color 220ms var(--ease-premium);
+			background-color 220ms var(--ease-premium),
+			border-color 220ms var(--ease-premium),
+			color 220ms var(--ease-premium);
 	}
 
 	.button--primary {
@@ -210,19 +324,30 @@ const primaryCtaHref = "/properties";
 	}
 
 	.button--secondary {
-		border-color: rgba(245, 243, 238, 0.46);
+		border-color: rgba(245, 243, 238, 0.7);
 		color: var(--surface-light);
-		background-color: rgba(15, 17, 21, 0.24);
+		background-color: transparent;
 	}
 
 	.button--secondary:hover {
 		border-color: var(--accent-primary);
-		color: var(--text-secondary);
+		color: var(--surface-light);
+		background-color: rgba(15, 17, 21, 0.16);
 		transform: translateY(-2px);
 	}
 
-	.hero:hover::before {
+	.hero:hover .hero__image {
 		transform: scale(1.03);
+	}
+
+	@keyframes hero-night-fade {
+		0% {
+			opacity: 0;
+		}
+
+		100% {
+			opacity: 0.9;
+		}
 	}
 
 	.availability {
@@ -231,6 +356,10 @@ const primaryCtaHref = "/properties";
 
 	.availability__container {
 		display: block;
+	}
+
+	.availability__actions {
+		display: none;
 	}
 
 	.availability__grid {
@@ -281,7 +410,7 @@ const primaryCtaHref = "/properties";
 
 	.availability__item dd {
 		margin: 0.55rem 0 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(1.15rem, 1.7vw, 1.5rem);
 		line-height: 1.2;
 		letter-spacing: -0.01em;
@@ -306,69 +435,320 @@ const primaryCtaHref = "/properties";
 		}
 	}
 
-	@media (max-width: 860px) {
+	@media (min-aspect-ratio: 16 / 9) and (max-height: 820px) {
 		.hero {
+			--hero-header-clearance: clamp(4.75rem, 11svh, 6.25rem);
+			--hero-content-bottom-space: clamp(1rem, 3svh, 1.75rem);
+			--hero-content-nudge: 0.5rem;
+		}
+
+			h1 {
+				font-size: clamp(2.25rem, 4.2vw, 4rem);
+			}
+
+			h1 .hero__project-kicker,
+			h1 .hero__intro-line,
+			h1 .hero__intro-main {
+				font-size: clamp(1.35rem, 2.8vw, 2.65rem);
+			}
+
+		.hero__lead {
+			max-width: 42rem;
+			font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+		}
+
+		.hero__actions {
+			margin-top: 1.65rem;
+		}
+	}
+
+	@media (max-aspect-ratio: 4 / 5) {
+		.hero {
+			--hero-header-clearance: clamp(5.25rem, 10svh, 7rem);
+			--hero-content-bottom-space: clamp(1.4rem, 4svh, 2.4rem);
+		}
+	}
+
+	@media (max-width: 860px) {
+		.hero-pin {
+			height: 145svh;
+		}
+
+		.hero {
+			--hero-header-clearance: clamp(5rem, 12svh, 6.75rem);
+			--hero-content-bottom-space: clamp(1.25rem, 4svh, 2.25rem);
+			--hero-content-nudge: 0rem;
+			--mobile-stats-y: 34svh;
+			--mobile-stats-opacity: 0;
+			--mobile-hero-pointer-events: auto;
+			--mobile-stats-pointer-events: none;
+
+			position: sticky;
+			top: 0;
 			min-height: 100svh;
+			display: flex;
+		}
+
+		.hero__image {
+			background-attachment: fixed;
 		}
 
 		.hero__container {
+			display: grid;
+			grid-template-rows: 1fr;
 			min-height: 100svh;
 			padding-bottom: 0;
 		}
 
 		.hero__content {
 			max-width: min(100%, 34rem);
+			justify-items: center;
 		}
 
 		.hero__body {
-			align-items: flex-start;
+			min-height: 100svh;
+			align-items: center;
 			justify-content: center;
-			padding: clamp(7rem, 22vw, 8.5rem) 0 2.25rem;
+			padding: var(--hero-header-clearance) 0 var(--hero-content-bottom-space);
+			text-align: center;
+			opacity: var(--mobile-hero-content-opacity);
+			pointer-events: var(--mobile-hero-pointer-events);
+			transform: translateY(var(--mobile-hero-content-y));
+			transition:
+				opacity 90ms linear,
+				transform 90ms linear;
 		}
 
 		h1 {
-			font-size: clamp(2.45rem, 12vw, 4rem);
-			max-width: 13ch;
+			font-size: clamp(1.8rem, 7vw, 2.7rem);
+			max-width: 100%;
 		}
 
+			h1 .hero__project-kicker {
+				font-size: clamp(0.98rem, 4vw, 1.3rem);
+			}
+
+			h1 .hero__intro-line,
+			h1 .hero__intro-main {
+				font-size: clamp(1.18rem, 5.3vw, 1.95rem);
+			}
+
 		.hero__lead {
-			max-width: 31ch;
-			font-size: 1rem;
+			max-width: 33ch;
+			font-size: clamp(1.04rem, 3.2vw, 1.12rem);
+			line-height: 1.58;
+		}
+
+		h1::after {
+			margin-left: auto;
+			margin-right: auto;
 		}
 
 		.hero__actions {
 			width: 100%;
 			max-width: 22rem;
+			justify-content: center;
 		}
 
 		.button {
+			min-height: 3.15rem;
+			padding: 0.82rem 1.35rem;
+			font-size: 0.78rem;
 		}
 
 		.availability__container {
-			display: block;
+			display: grid;
+			justify-items: center;
+			width: 100%;
+		}
+
+		.availability {
+			position: absolute;
+			z-index: 2;
+			inset: 0 clamp(1.5rem, 4vw, 3rem);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0;
+			opacity: var(--mobile-stats-opacity);
+			pointer-events: var(--mobile-stats-pointer-events);
+			transform: translateY(var(--mobile-stats-y));
+			transition:
+				opacity 90ms linear,
+				transform 90ms linear;
 		}
 
 		.availability__grid {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
+			width: min(100%, 20rem);
+			margin-inline: auto;
+			grid-template-columns: 1fr;
 		}
 
+		.availability__item,
 		.availability__item:nth-child(odd) {
 			border-left: 0;
 		}
+
+		.availability__item {
+			padding: 1rem 0 1.12rem;
+			text-align: center;
+		}
+
+		.availability__item::before {
+			left: 0;
+			right: 0;
+		}
+
+		.availability__item dt {
+			font-size: clamp(0.78rem, 2.6vw, 0.95rem);
+			font-weight: 900;
+			letter-spacing: 0.13em;
+			text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
+		}
+
+		.availability__item dd {
+			margin-top: 0.5rem;
+			font-size: clamp(1.75rem, 7.3vw, 2.35rem);
+			font-weight: 900;
+			line-height: 1.05;
+			letter-spacing: 0;
+			text-shadow: 0 3px 14px rgba(0, 0, 0, 0.78);
+		}
+
+		.availability__actions {
+			width: 100%;
+			max-width: 22rem;
+			margin-top: clamp(0.8rem, 2.8svh, 1.3rem);
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 0.75rem;
+		}
 	}
+
+	@media (max-width: 420px) {
+		.hero__content {
+			max-width: min(100%, 21.5rem);
+		}
+
+		.hero__lead {
+			max-width: 31ch;
+		}
+	}
+
+		@media (max-width: 340px) {
+			h1 span,
+			h1 strong {
+				white-space: normal;
+			}
+
+			h1 .hero__project-kicker {
+				font-size: 0.92rem;
+				white-space: nowrap;
+			}
+		}
 
 	@media (prefers-reduced-motion: reduce) {
 		.button {
 			transition: none;
 		}
 
-		.hero::before {
+		.hero__image,
+		.hero__image--night {
 			transition: none;
+			animation: none;
+		}
+
+		.hero__image--night {
+			opacity: 0.9;
+		}
+
+		.availability__item {
+			opacity: 1;
+			transform: none;
+			animation: none;
 		}
 
 		.button:hover,
-		.hero:hover::before {
+		.hero:hover .hero__image {
 			transform: none;
 		}
 	}
 </style>
+
+<script>
+	const hero = document.querySelector<HTMLElement>(".hero");
+	const heroPin = document.querySelector<HTMLElement>(".hero-pin");
+	const statValues = Array.from(document.querySelectorAll<HTMLElement>("[data-stat-value]")).map((element) => ({
+		element,
+		originalValue: element.dataset.statValue ?? element.textContent ?? "",
+	}));
+	const mobileQuery = window.matchMedia("(max-width: 860px)");
+	const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+	let frame = 0;
+
+	const formatCountedStatValue = (value: string, progress: number) => {
+		if (progress >= 1) return value;
+
+		return value.replace(/\d+(?:[.,]\d+)?/g, (match) => {
+			const targetValue = Number(match.replace(",", "."));
+			const countedValue = Math.round(targetValue * progress);
+			return String(countedValue);
+		});
+	};
+
+	const updateMobileStatsCount = (progress: number) => {
+		const countProgress = reducedMotionQuery.matches ? 1 : Math.min(1, Math.max(0, (progress - 0.12) / 0.62));
+		const easedCountProgress = countProgress * countProgress * (3 - 2 * countProgress);
+
+		statValues.forEach(({ element, originalValue }) => {
+			element.textContent = formatCountedStatValue(originalValue, easedCountProgress);
+		});
+	};
+
+	const restoreStats = () => {
+		statValues.forEach(({ element, originalValue }) => {
+			element.textContent = originalValue;
+		});
+	};
+
+	const updateMobileHeroParallax = () => {
+		frame = 0;
+
+		if (!hero || !heroPin || !mobileQuery.matches) {
+			hero?.style.removeProperty("--mobile-hero-content-y");
+			hero?.style.removeProperty("--mobile-hero-content-opacity");
+			hero?.style.removeProperty("--mobile-hero-pointer-events");
+			hero?.style.removeProperty("--mobile-stats-y");
+			hero?.style.removeProperty("--mobile-stats-opacity");
+			hero?.style.removeProperty("--mobile-stats-pointer-events");
+			restoreStats();
+			return;
+		}
+
+		const rect = heroPin.getBoundingClientRect();
+		const viewportHeight = window.innerHeight || 1;
+		const rawProgress = Math.min(1, Math.max(0, -rect.top / (viewportHeight * 0.38)));
+		const easedProgress = rawProgress * rawProgress * (3 - 2 * rawProgress);
+		const inverseProgress = 1 - easedProgress;
+		const heroContentOpacity = Math.max(0, 1 - easedProgress * 2.35);
+
+		hero.style.setProperty("--mobile-hero-content-y", `${Math.round(easedProgress * viewportHeight * -0.5)}px`);
+		hero.style.setProperty("--mobile-hero-content-opacity", `${heroContentOpacity}`);
+		hero.style.setProperty("--mobile-hero-pointer-events", heroContentOpacity > 0.18 ? "auto" : "none");
+		hero.style.setProperty("--mobile-stats-y", `${Math.round(viewportHeight * inverseProgress * 0.24)}px`);
+		hero.style.setProperty("--mobile-stats-opacity", `${easedProgress}`);
+		hero.style.setProperty("--mobile-stats-pointer-events", easedProgress > 0.72 ? "auto" : "none");
+		updateMobileStatsCount(easedProgress);
+	};
+
+	const requestMobileHeroParallaxUpdate = () => {
+		if (frame) return;
+		frame = window.requestAnimationFrame(updateMobileHeroParallax);
+	};
+
+	updateMobileHeroParallax();
+	window.addEventListener("scroll", requestMobileHeroParallaxUpdate, { passive: true });
+	window.addEventListener("resize", requestMobileHeroParallaxUpdate);
+	mobileQuery.addEventListener("change", requestMobileHeroParallaxUpdate);
+</script>

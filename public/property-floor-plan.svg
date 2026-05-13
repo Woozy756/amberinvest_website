@@ -15,11 +15,11 @@
   <rect x="172" y="570" width="236" height="118" fill="#C79643" fill-opacity="0.14"/>
   <rect x="610" y="450" width="144" height="238" fill="#0F1115" fill-opacity="0.05"/>
   <rect x="878" y="176" width="92" height="144" fill="#0F1115" fill-opacity="0.05"/>
-  <text x="214" y="230" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="4">DZIVOJAMA ISTABA</text>
-  <text x="214" y="278" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="3">+ VIRTUVE</text>
-  <text x="846" y="236" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">VANNAS</text>
-  <text x="856" y="270" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">ISTABA</text>
-  <text x="196" y="520" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="3">GULAMISTABA</text>
-  <text x="594" y="520" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">HALLE</text>
-  <text x="874" y="520" fill="#23262B" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="3">KABINETS</text>
+  <text x="214" y="230" fill="#23262B" font-family="Lato, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="4">DZIVOJAMA ISTABA</text>
+  <text x="214" y="278" fill="#23262B" font-family="Lato, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="3">+ VIRTUVE</text>
+  <text x="846" y="236" fill="#23262B" font-family="Lato, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">VANNAS</text>
+  <text x="856" y="270" fill="#23262B" font-family="Lato, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">ISTABA</text>
+  <text x="196" y="520" fill="#23262B" font-family="Lato, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="3">GULAMISTABA</text>
+  <text x="594" y="520" fill="#23262B" font-family="Lato, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">HALLE</text>
+  <text x="874" y="520" fill="#23262B" font-family="Lato, Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="3">KABINETS</text>
 </svg>

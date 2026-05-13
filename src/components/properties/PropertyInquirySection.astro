@@ -20,27 +20,26 @@ const propertyHref = getPropertyHref(property);
 	<div class="property-inquiry__container">
 		<div class="property-inquiry__layout">
 			<div class="property-inquiry__content">
-				<p class="property-inquiry__eyebrow fade-in">Apskates pieteikums</p>
+				<p class="property-inquiry__eyebrow fade-in">Piesakieties</p>
 				<h2 id="property-inquiry-title" class="property-inquiry__title fade-in" data-reveal-delay="60">
-					Rezervējiet apskates laiku vai saņemiet individuālu piedāvājumu
+					Atstāj savus kontaktus
 				</h2>
 				<p class="property-inquiry__lead fade-in" data-reveal-delay="120">
-					Pastāstiet, kas jūs interesē par <strong>{property.title}</strong>, un mēs sagatavosim
-					atbilstošu apskates laiku, plānojuma skaidrojumu vai cenas piedāvājumu.
+					Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par <strong>{property.title}</strong> apskati Tev ērtā laikā.
 				</p>
 
 				<ul class="property-inquiry__benefits" role="list">
 					<li class="property-inquiry__benefit fade-in" data-reveal-delay="180">
 						<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-						<span>Atbildi sagatavojam vienas darba dienas laikā</span>
+						<span>Dzīvokļu apskate ar mūsu speciālistu</span>
 					</li>
 					<li class="property-inquiry__benefit fade-in" data-reveal-delay="230">
 						<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-						<span>Apskati pielāgojam jūsu grafikam</span>
+						<span>Atbildēsim uz Tavu pieteikumu 24 stundu laikā</span>
 					</li>
 					<li class="property-inquiry__benefit fade-in" data-reveal-delay="280">
 						<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-						<span>Saņemsiet arī pieejamības un līdzīgo plānojumu pārskatu</span>
+						<span>Mēs rūpējamies par Tavu datu drošību.</span>
 					</li>
 				</ul>
 
@@ -56,14 +55,14 @@ const propertyHref = getPropertyHref(property);
 				<div class="property-inquiry__card contact-form-card">
 					<ContactForm
 						client:idle
-						title="Pieteikt apskati"
-						intro={`Aizpildiet formu, un mēs sazināsimies par izvēlēto dzīvokli: ${property.title}.`}
+						title="Atstāj savus kontaktus"
+						intro=""
 						defaultInformation="Apskate"
 						sourceProject={property.project?.title}
 						sourceProperty={property.title}
 						sourcePropertyCode={property.propertyCode}
 						sourceUrl={propertyHref}
-						submitLabel="Pieteikt apskati"
+						submitLabel="Pieteikties apskatei"
 					/>
 				</div>
 			</div>
@@ -129,7 +128,7 @@ const propertyHref = getPropertyHref(property);
 
 	.property-inquiry__title {
 		margin: 1rem 0 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(2rem, 4vw, 3.5rem);
 		line-height: 1.05;
 		letter-spacing: -0.025em;

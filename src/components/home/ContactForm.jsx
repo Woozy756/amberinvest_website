@@ -50,10 +50,10 @@ function validate(values) {
 }
 
 export default function ContactForm({
-	title = "Piesakiet konsultāciju",
-	intro = "Aizpildiet formu, un mēs sazināsimies, lai vienotos par nākamo soli.",
+	title = "Atstāj savus kontaktus",
+	intro = "",
 	defaultInformation = "",
-	submitLabel = "Nosūtīt pieprasījumu",
+	submitLabel = "Pieteikties apskatei",
 	sourceProject = "",
 	sourceProperty = "",
 	sourcePropertyCode = "",
@@ -162,7 +162,7 @@ export default function ContactForm({
 				<h3 className="contact-form__title text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
 					{title}
 				</h3>
-				<p className="contact-form__intro text-base leading-relaxed">{intro}</p>
+				{intro ? <p className="contact-form__intro text-base leading-relaxed">{intro}</p> : null}
 			</div>
 
 			<div className="contact-form__grid">
@@ -177,7 +177,7 @@ export default function ContactForm({
 						type="text"
 						value={values.firstName}
 						onChange={handleChange}
-						placeholder="Vārds"
+						placeholder="Ievadi savu vārdu"
 						aria-invalid={errors.firstName ? "true" : "false"}
 						aria-describedby={errors.firstName ? `${id}-firstName-error` : undefined}
 						autoComplete="given-name"
@@ -201,7 +201,7 @@ export default function ContactForm({
 						type="text"
 						value={values.lastName}
 						onChange={handleChange}
-						placeholder="Uzvārds"
+						placeholder="Ievadi savu uzvārdu"
 						aria-invalid={errors.lastName ? "true" : "false"}
 						aria-describedby={errors.lastName ? `${id}-lastName-error` : undefined}
 						autoComplete="family-name"
@@ -249,7 +249,7 @@ export default function ContactForm({
 						type="email"
 						value={values.email}
 						onChange={handleChange}
-						placeholder="E-pasts"
+						placeholder="Ievadi savu e-pastu"
 						aria-invalid={errors.email ? "true" : "false"}
 						aria-describedby={errors.email ? `${id}-email-error` : undefined}
 						autoComplete="email"
@@ -272,7 +272,7 @@ export default function ContactForm({
 						name="information"
 						value={values.information}
 						onChange={handleChange}
-						placeholder="Pastāstiet, ko vēlaties noskaidrot"
+						placeholder="Pastāsti, ko vēlies noskaidrot"
 						rows="4"
 					/>
 				</div>
@@ -290,7 +290,7 @@ export default function ContactForm({
 							required
 						/>
 						<label className="text-sm leading-relaxed" htmlFor={`${id}-consent`}>
-							Piekrītu personas datu apstrādei
+							Piekrītu, ka mani dati tiek izmantoti saziņai par pieteikumu
 						</label>
 					</div>
 					{errors.consent ? (

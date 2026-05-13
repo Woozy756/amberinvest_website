@@ -23,7 +23,7 @@ export interface FloorPlanTab {
 interface Props {
 	eyebrow?: string;
 	title: string;
-	lead: string;
+	lead?: string;
 	tabsAriaLabel: string;
 	specsAriaLabel: string;
 	plans: FloorPlanTab[];
@@ -33,6 +33,7 @@ interface Props {
 
 const { eyebrow, title, lead, tabsAriaLabel, specsAriaLabel, plans, initialTabId, showTabs = true } = Astro.props as Props;
 const hasEyebrow = Boolean(eyebrow?.trim());
+const hasLead = Boolean(lead?.trim());
 const sectionId = `apartment-plans-${Math.random().toString(36).slice(2, 9)}`;
 const initialIndex = Math.max(
 	0,
@@ -47,11 +48,11 @@ const initialIndex = Math.max(
 				<div class:list={{ "apartment-plans__top-row": true, "apartment-plans__top-row--single": !showTabs }}>
 					<header class="apartment-plans__header">
 						{hasEyebrow ? <p class="apartment-plans__eyebrow fade-in">{eyebrow}</p> : null}
-						<h2 id={`${sectionId}-title`} class="apartment-plans__title fade-in" data-reveal-delay="70">
-							{title}
-						</h2>
-						<p class="apartment-plans__lead fade-in" data-reveal-delay="130">{lead}</p>
-					</header>
+							<h2 id={`${sectionId}-title`} class="apartment-plans__title fade-in" data-reveal-delay="70">
+								{title}
+							</h2>
+							{hasLead ? <p class="apartment-plans__lead fade-in" data-reveal-delay="130">{lead}</p> : null}
+						</header>
 
 					<div class="apartment-plans__tabs-wrap fade-in" data-reveal-delay="170" hidden={!showTabs}>
 						<div class="apartment-plans__tabs" role="tablist" aria-label={tabsAriaLabel}>
@@ -190,7 +191,7 @@ const initialIndex = Math.max(
 	.apartment-plans {
 		background: var(--surface-light);
 		color: var(--bg-primary);
-		padding: clamp(5rem, 9vw, 7.5rem) 0;
+		padding: clamp(4rem, 7vw, 5.8rem) 0;
 	}
 
 	.apartment-plans__container {
@@ -229,7 +230,7 @@ const initialIndex = Math.max(
 
 	.apartment-plans__title {
 		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(2rem, 4vw, 3.7rem);
 		line-height: 1.08;
 		letter-spacing: -0.018em;
@@ -489,7 +490,7 @@ const initialIndex = Math.max(
 
 	.apartment-plans__apartment-title {
 		margin: 0;
-		font-family: "Playfair Display", Georgia, serif;
+		font-family: var(--font-heading);
 		font-size: clamp(1.6rem, 2.6vw, 2.35rem);
 		line-height: 1.08;
 		letter-spacing: -0.018em;
@@ -537,14 +538,14 @@ const initialIndex = Math.max(
 		align-items: center;
 		justify-content: center;
 		justify-self: start;
-		min-height: 46px;
-		padding: 0.72rem 1.25rem;
+		min-height: 3.35rem;
+		padding: 0.85rem 1.45rem;
 		margin-top: 0.55rem;
 		background: var(--accent-primary);
 		color: var(--bg-primary);
 		text-decoration: none;
-		font-size: 0.72rem;
-		font-weight: 600;
+		font-size: 0.78rem;
+		font-weight: 900;
 		letter-spacing: 0.14em;
 		text-transform: uppercase;
 		transition:
