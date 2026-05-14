@@ -548,10 +548,28 @@ const ctaItems = [
 	}
 
 		@media (max-width: 720px) {
-			.project-overview {
-				scroll-margin-top: 4.8rem;
-				padding: 6rem 0 3.5rem;
-			}
+		.project-overview {
+			scroll-margin-top: 4.8rem;
+			padding: 4.5rem 0 3rem;
+		}
+
+		.project-overview__grid {
+			display: flex;
+			flex-direction: column;
+			gap: clamp(1.35rem, 4.5vw, 1.8rem);
+		}
+
+		.project-overview__heading-block {
+			gap: clamp(1rem, 3vw, 1.25rem);
+		}
+
+		.project-overview__image {
+			order: -1;
+			aspect-ratio: 1.12;
+			width: 100%;
+			max-width: 100%;
+			justify-self: stretch;
+		}
 
 		.project-apartments {
 			padding: 2.65rem 0 3.75rem;
@@ -582,13 +600,6 @@ const ctaItems = [
 
 		.project-overview__lead-secondary {
 			display: inline;
-		}
-
-		.project-overview__image {
-			aspect-ratio: 1 / 1;
-			width: 100%;
-			max-width: 42rem;
-			justify-self: center;
 		}
 
 		.project-cta {
