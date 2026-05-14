@@ -4,6 +4,7 @@ import PropertyCard from "../../../components/properties/PropertyCard.astro";
 import PropertyGallery from "../../../components/properties/PropertyGallery.jsx";
 import PropertyInquirySection from "../../../components/properties/PropertyInquirySection.astro";
 import PropertyLocationMap from "../../../components/properties/PropertyLocationMap.astro";
+import BenefitsStrip from "../../../components/shared/BenefitsStrip.astro";
 import FloorPlansSection from "../../../components/shared/FloorPlansSection.astro";
 import {
 	getAllProperties,
@@ -193,6 +194,8 @@ const propertyStructuredData = {
 				</div>
 			</div>
 		</section>
+
+		<BenefitsStrip placement="product" class="fade-in" data-reveal-delay="180" />
 
 		<FloorPlansSection
 				eyebrow=""
@@ -510,8 +513,8 @@ const propertyStructuredData = {
 	.property-hero__contact-row {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.9rem 1.2rem;
-		padding-top: 1.2rem;
+		gap: 0.9rem clamp(1.6rem, 3vw, 2.4rem);
+		padding: 1.2rem clamp(0.85rem, 1.8vw, 1.15rem) 0;
 		border-top: 1px solid rgba(35, 38, 43, 0.1);
 	}
 

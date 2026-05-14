@@ -7,7 +7,6 @@ interface Props {
 
 const { content } = Astro.props;
 const heroImage = content?.heroBackgroundImage?.asset?.url ?? "";
-const nightHeroImage = "/images/hero-night.png";
 const availabilityMetrics = content?.metrics ?? [];
 const primaryCtaLabel = "APSKATIES DZĪVOKĻUS";
 const primaryCtaHref = "/properties";
@@ -25,10 +24,9 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 			<section
 				class="hero"
 				aria-labelledby="hero-title"
-				style={`--hero-background-image: url("${heroImage}"); --hero-night-image: url("${nightHeroImage}")`}
+				style={`--hero-background-image: url("${heroImage}")`}
 			>
-				<div class="hero__image hero__image--day" aria-hidden="true"></div>
-				<div class="hero__image hero__image--night" aria-hidden="true"></div>
+				<div class="hero__image" aria-hidden="true"></div>
 				<div class="hero__container">
 					<div class="hero__body">
 							<div class="hero__content fade-in">
@@ -112,17 +110,10 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		will-change: opacity, transform;
 	}
 
-	.hero__image--day {
+	.hero__image {
 		z-index: 0;
 		background-image: var(--hero-background-image);
-		opacity: 0.72;
-	}
-
-	.hero__image--night {
-		z-index: 1;
-		background-image: var(--hero-night-image);
-		opacity: 0;
-		animation: hero-night-fade 5.8s var(--ease-premium) 1.35s forwards;
+		opacity: 1;
 	}
 
 	.hero::before,
@@ -139,16 +130,16 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		background:
 			linear-gradient(
 				180deg,
-				rgba(8, 12, 18, 0.4) 0%,
-				rgba(8, 12, 18, 0.22) 32%,
-				rgba(8, 12, 18, 0.32) 56%,
-				rgba(8, 12, 18, 0.76) 100%
+				rgba(8, 12, 18, 0.14) 0%,
+				rgba(8, 12, 18, 0.06) 32%,
+				rgba(8, 12, 18, 0.1) 56%,
+				rgba(8, 12, 18, 0.32) 100%
 			),
 			linear-gradient(
 				90deg,
-				rgba(8, 12, 18, 0.24) 0%,
-				rgba(8, 12, 18, 0.08) 35%,
-				rgba(8, 12, 18, 0.16) 100%
+				rgba(8, 12, 18, 0.07) 0%,
+				rgba(8, 12, 18, 0.02) 35%,
+				rgba(8, 12, 18, 0.04) 100%
 			);
 	}
 
@@ -157,17 +148,17 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		background:
 			radial-gradient(
 				ellipse at 50% 38%,
-				rgba(0, 0, 0, 0.34) 0%,
-				rgba(0, 0, 0, 0.2) 34%,
-				rgba(0, 0, 0, 0.04) 62%,
+				rgba(0, 0, 0, 0.46) 0%,
+				rgba(0, 0, 0, 0.3) 34%,
+				rgba(0, 0, 0, 0.08) 62%,
 				rgba(0, 0, 0, 0) 76%
 			),
 			linear-gradient(
 				to bottom,
 				rgba(15, 17, 21, 0) 42%,
-				rgba(15, 17, 21, 0.52) 68%,
-				rgba(15, 17, 21, 0.92) 86%,
-				rgba(15, 17, 21, 1) 100%
+				rgba(15, 17, 21, 0.34) 68%,
+				rgba(15, 17, 21, 0.62) 86%,
+				rgba(15, 17, 21, 0.78) 100%
 			);
 	}
 
@@ -179,9 +170,9 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		transform: translateX(-50%);
 		background: linear-gradient(
 			to bottom,
-			rgba(15, 17, 21, 0.68) 0%,
-			rgba(15, 17, 21, 0.42) 34%,
-			rgba(15, 17, 21, 0.08) 72%,
+			rgba(15, 17, 21, 0.32) 0%,
+			rgba(15, 17, 21, 0.18) 34%,
+			rgba(15, 17, 21, 0.02) 72%,
 			rgba(15, 17, 21, 0) 100%
 		);
 	}
@@ -338,16 +329,6 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 
 	.hero:hover .hero__image {
 		transform: scale(1.03);
-	}
-
-	@keyframes hero-night-fade {
-		0% {
-			opacity: 0;
-		}
-
-		100% {
-			opacity: 0.9;
-		}
 	}
 
 	.availability {
@@ -653,14 +634,8 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 			transition: none;
 		}
 
-		.hero__image,
-		.hero__image--night {
+		.hero__image {
 			transition: none;
-			animation: none;
-		}
-
-		.hero__image--night {
-			opacity: 0.9;
 		}
 
 		.availability__item {

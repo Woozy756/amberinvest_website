@@ -1,5 +1,6 @@
 ---
 import PropertyCard from "../properties/PropertyCard.astro";
+import BenefitsStrip from "../shared/BenefitsStrip.astro";
 import type { Property } from "../../sanity/properties";
 
 interface Props {
@@ -62,6 +63,8 @@ const ctaItems = [
 				loading="lazy"
 			/>
 		</figure>
+
+		<BenefitsStrip placement="home" class="fade-in" data-reveal-delay="180" />
 	</div>
 </section>
 
@@ -275,12 +278,12 @@ const ctaItems = [
 			border-color 220ms var(--ease-premium);
 	}
 
-		.project-overview__button:hover,
-		.project-overview__button:focus-visible {
-			transform: translateY(-2px);
-			background: var(--accent-hover);
-			border-color: var(--accent-hover);
-		}
+	.project-overview__button:hover,
+	.project-overview__button:focus-visible {
+		transform: translateY(-2px);
+		background: var(--accent-hover);
+		border-color: var(--accent-hover);
+	}
 
 	.project-apartments {
 		background:
