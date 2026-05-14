@@ -207,17 +207,17 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 			--benefits-scroll-space: 26rem;
 			--benefits-sticky-height: 10.75rem;
 
-			width: 100vw;
+			width: 100%;
 			height: calc(var(--benefits-scroll-space) + var(--benefits-sticky-height));
 			margin-top: clamp(3.5rem, 16vw, 5.75rem);
-			margin-inline: calc(50% - 50vw);
+			margin-inline: 0;
 			border-top: 0;
 		}
 
 		.benefits-strip__sticky {
 			position: sticky;
 			top: 50%;
-			width: 100vw;
+			width: 100%;
 			overflow: hidden;
 			background: transparent;
 			transform: translateY(-50%);
