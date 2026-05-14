@@ -566,15 +566,27 @@ const ctaItems = [
 		}
 
 		.project-overview__heading-block h2 {
-			font-size: clamp(2.15rem, 11vw, 3.1rem);
+			font-size: clamp(1.95rem, 9.5vw, 2.85rem);
+			max-width: 11ch;
 		}
 
 		.project-overview__lead {
-			font-size: clamp(0.95rem, 4.45vw, 1.35rem);
+			font-size: clamp(0.92rem, 3.9vw, 1.12rem);
+			line-height: 1.5;
+		}
+
+		.project-overview__lead-primary {
+			white-space: normal;
+		}
+
+		.project-overview__lead-secondary {
+			display: inline;
 		}
 
 		.project-overview__image {
 			aspect-ratio: 1 / 1;
+			width: 100%;
+			max-width: 100%;
 		}
 
 		.project-cta {
