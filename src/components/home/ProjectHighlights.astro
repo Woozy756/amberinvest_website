@@ -17,17 +17,22 @@ const ctaBackgroundImage =
 
 const ctaItems = [
 	{
-		title: "Mēs sazināsimies ar Jums",
-		body: "Atstājiet kontaktinformāciju, un mūsu speciālists ar Jums sazināsies."
+		title: "Sagatavojam variantus",
+		body: "Pirms apskates varam sagatavot vairākus Jūsu vajadzībām un budžetam piemērotus dzīvokļus."
 	},
 	{
-		title: "Sarunāt dzīvokļu apskati",
-		body: "Vienosimies par kopīgas apskates laiku, kas jums ir ērts."
+		title: "Palīdzam iegūt finansējumu",
+		body: "Nodrošinām nepieciešamos dokumentus finansējuma saņemšanai kredītiestādēs."
 	},
 	{
-		title: "Un izvēlētos piemērotāko dzīvokli",
-		body: "Palīdzēsim salīdzināt plānojumus, cenas un atrast piemērotāko dzīvokli."
+		title: "Rezervējam dzīvokli",
+		body: "Kad esat atradis piemērotāko dzīvokli, veicam rezervāciju nākamo soļu sakārtošanai."
 	}
+];
+const overviewFacts = [
+	"Katram dzīvoklim ir savi elektrības, apkures un ūdens skaitītāji.",
+	"Ēka ir siltināta, lai mājoklis būtu energoefektīvs ikdienā.",
+	"Zeme zem mājas ir privāts īpašums; iegādājoties dzīvokli, īpašumā ietilpst arī domājamā daļa no zemes."
 ];
 ---
 
@@ -36,8 +41,8 @@ const ctaItems = [
 		<div class="project-overview__heading-block fade-in">
 			<p class="project-overview__eyebrow">Jauns daudzdzīvokļu projekts Ventspilī</p>
 			<h2 id="project-overview-title">
-				<span>Tavas jaunās mājas</span>
-				<span>Ventspilī</span>
+				<span>“AmberHome”</span>
+				<span>Talsu iela 3A</span>
 			</h2>
 
 			<div class="project-overview__copy" data-reveal-delay="120">
@@ -48,8 +53,13 @@ const ctaItems = [
 					<span class="project-overview__lead-secondary">kur ikdienai nepieciešamais ir ērti sasniedzams.</span>
 				</p>
 				<p>
-					3-5 istabu dzīvokļi ar pārdomātu plānojumu no 53 līdz 90 m² un pilnībā pabeigtu apdari, lai jaunās mājas varētu sākt baudīt bez liekām rūpēm.
+					3, 4 un 5 istabu dzīvokļi ar pārdomātu plānojumu no 53 līdz 90 m² un pilnībā pabeigtu apdari, lai jaunās mājas varētu sākt baudīt bez liekām rūpēm.
 				</p>
+				<ul class="project-overview__facts" role="list">
+					{overviewFacts.map((fact) => (
+						<li>{fact}</li>
+					))}
+				</ul>
 				<a class="project-overview__button" href="/contact">Sazinies ar mums</a>
 			</div>
 		</div>
@@ -224,6 +234,35 @@ const ctaItems = [
 
 	.project-overview__copy p {
 		margin: 0;
+	}
+
+	.project-overview__facts {
+		list-style: none;
+		margin: 0.1rem 0 0;
+		padding: 0;
+		display: grid;
+		gap: 0.7rem;
+	}
+
+	.project-overview__facts li {
+		position: relative;
+		padding-left: 1.15rem;
+		font-size: clamp(0.95rem, 1.1vw, 1.04rem);
+		font-weight: 700;
+		line-height: 1.5;
+		color: rgba(15, 17, 21, 0.76);
+	}
+
+	.project-overview__facts li::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0.75em;
+		width: 0.42rem;
+		height: 0.42rem;
+		border-radius: 999px;
+		background: var(--accent-primary);
+		transform: translateY(-50%);
 	}
 
 	.project-overview__lead {

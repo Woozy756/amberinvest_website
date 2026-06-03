@@ -8,24 +8,29 @@ const { placement = "home", class: className = "", ...attrs } = Astro.props as P
 
 const benefits = [
 	{
-		lines: ["A+", "Energo efektivitāte"],
-		icon: "/images/benefits/energy-efficiency.png"
+		lines: ["A kategorijas", "energoefektivitāte"],
+		icon: "/images/benefits/energy-efficiency.png",
+		description: "≥45 kWh gadā uz m²."
 	},
 	{
 		lines: ["Regulējamas", "siltās grīdas"],
-		icon: "/images/benefits/heated-floors.png"
+		icon: "/images/benefits/heated-floors.png",
+		description: "Katrā istabā."
 	},
 	{
 		lines: ["Rekuperācijas sistēma -", "nodrošina svaigu gaisu telpās"],
-		icon: "/images/benefits/ventilation.png"
+		icon: "/images/benefits/ventilation.png",
+		description: "Svaigāks gaiss ikdienā."
 	},
 	{
 		lines: ["Pabeigta iekšējā", "apdare"],
-		icon: "/images/benefits/finished-interior.png"
+		icon: "/images/benefits/finished-interior.png",
+		description: "Labiekārtots sanitārais mezgls ar santehniku."
 	},
 	{
 		lines: ["Pieejamas auto", "stāvvietas"],
-		icon: "/images/benefits/parking.png"
+		icon: "/images/benefits/parking.png",
+		description: "Ērta ikdienas novietošana pie mājas."
 	}
 ];
 
@@ -38,12 +43,15 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 			{
 				benefits.map((benefit) => (
 					<li class="benefits-strip__item">
-						<img src={benefit.icon} alt="" width="64" height="64" loading="lazy" aria-hidden="true" />
-						<span>
+						<span class="benefits-strip__icon" aria-hidden="true">
+							<img src={benefit.icon} alt="" width="64" height="64" loading="lazy" />
+						</span>
+						<span class="benefits-strip__title">
 							{benefit.lines.map((line) => (
 								<span class="benefits-strip__line">{line}</span>
 							))}
 						</span>
+						<p>{benefit.description}</p>
 					</li>
 				))
 			}
@@ -112,6 +120,7 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 		width: min(100%, 1280px);
 		margin: clamp(0.4rem, 1vw, 0.8rem) auto 0;
 		border-top: 1px solid rgba(35, 38, 43, 0.12);
+		overflow: visible;
 	}
 
 	.benefits-strip--home {
@@ -119,8 +128,8 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 	}
 
 	.benefits-strip--product {
-		width: min(calc(100% - clamp(1rem, 2vw, 1.5rem)), 1600px);
-		margin-top: clamp(0.4rem, 1.2vw, 1rem);
+		width: min(calc(100% - clamp(3rem, 8vw, 6rem)), 1184px);
+		margin-top: clamp(0.4rem, 1vw, 0.8rem);
 		margin-bottom: clamp(1.2rem, 2.6vw, 2rem);
 	}
 
@@ -146,35 +155,76 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 	}
 
 	.benefits-strip__item {
+		position: relative;
+		box-sizing: border-box;
 		min-width: 0;
-		min-height: clamp(12rem, 15.5vw, 15rem);
+		min-height: clamp(16rem, 17vw, 17rem);
 		display: grid;
-		align-content: center;
+		grid-template-rows:
+			clamp(4.5rem, 6.2vw, 5.5rem)
+			minmax(3.45rem, auto)
+			minmax(3.25rem, auto);
+		align-content: start;
 		justify-items: center;
-		gap: clamp(0.55rem, 1vw, 0.82rem);
-		padding: clamp(0.75rem, 1.5vw, 1rem) clamp(0.55rem, 1.2vw, 1.05rem);
+		gap: clamp(0.45rem, 0.8vw, 0.65rem);
+		padding: clamp(1.05rem, 1.6vw, 1.25rem) clamp(0.8rem, 1.4vw, 1.05rem);
 		border-left: 1px solid rgba(0, 119, 182, 0.15);
+		background: transparent;
 		text-align: center;
+		transform: scale(1);
+		transform-origin: center;
+		transition:
+			transform 220ms var(--ease-premium),
+			background-color 220ms var(--ease-premium),
+			box-shadow 220ms var(--ease-premium);
 	}
 
 	.benefits-strip__item:first-child {
 		border-left: 0;
 	}
 
-	.benefits-strip__item img {
-		width: clamp(5.6rem, 8.6vw, 9.25rem);
-		height: clamp(5.6rem, 8.6vw, 9.25rem);
+	.benefits-strip__item:hover {
+		z-index: 2;
+		background: rgba(255, 255, 255, 0.86);
+		box-shadow: 0 18px 45px rgba(15, 17, 21, 0.11);
+		transform: scale(1.08);
+	}
+
+	.benefits-strip__icon {
+		display: grid;
+		place-items: center;
+		width: clamp(4.5rem, 6.2vw, 5.5rem);
+		height: clamp(4.5rem, 6.2vw, 5.5rem);
+	}
+
+	.benefits-strip__icon img {
+		width: 100%;
+		height: 100%;
 		object-fit: contain;
 		opacity: 0.88;
 	}
 
-	.benefits-strip__item span {
-		max-width: none;
+	.benefits-strip__title {
+		display: grid;
+		align-content: center;
+		justify-items: center;
+		width: 100%;
+		max-width: 13.5rem;
 		color: rgba(15, 17, 21, 0.86);
-		font-size: clamp(0.98rem, 1.45vw, 1.42rem);
+		font-size: clamp(0.92rem, 1.1vw, 1.08rem);
 		font-weight: 900;
-		line-height: 1.05;
+		line-height: 1.08;
 		letter-spacing: 0;
+	}
+
+	.benefits-strip__item p {
+		max-width: 13.5rem;
+		margin: 0;
+		color: rgba(15, 17, 21, 0.58);
+		font-size: clamp(0.76rem, 0.9vw, 0.9rem);
+		font-weight: 700;
+		line-height: 1.35;
+		text-wrap: balance;
 	}
 
 	.benefits-strip__line {
@@ -184,18 +234,13 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 
 	@media (min-width: 981px) {
 		.benefits-strip__item {
-			height: clamp(12rem, 15vw, 15rem);
+			height: clamp(16rem, 17vw, 17rem);
 		}
 	}
 
 	@media (max-width: 980px) {
 		.benefits-strip__track {
-			grid-template-columns:
-				minmax(11.5rem, 1fr)
-				minmax(11.5rem, 1fr)
-				minmax(20rem, 1.45fr)
-				minmax(11.5rem, 1fr)
-				minmax(11.5rem, 1fr);
+			grid-template-columns: repeat(5, minmax(12rem, 1fr));
 			overflow-x: auto;
 			overscroll-behavior-inline: contain;
 			scrollbar-width: none;
@@ -226,29 +271,37 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 		.benefits-strip__track {
 			width: max-content;
 			min-width: max-content;
-			grid-template-columns:
-				minmax(14rem, 76vw)
-				minmax(14rem, 76vw)
-				minmax(18.5rem, 86vw)
-				minmax(14rem, 76vw)
-				minmax(14rem, 76vw);
+			grid-template-columns: repeat(5, minmax(14.5rem, 76vw));
 			padding: 0.7rem max(1.25rem, 6vw) 0;
 			overflow: visible;
 			will-change: transform;
 		}
 
 		.benefits-strip__item {
-			min-height: 10.2rem;
+			min-height: 11rem;
+			grid-template-rows:
+				clamp(4.5rem, 18vw, 5.4rem)
+				minmax(3.45rem, auto)
+				minmax(2.4rem, auto);
 			border-left: 1px solid rgba(0, 119, 182, 0.15);
 		}
 
-		.benefits-strip__item img {
-			width: clamp(4.6rem, 18vw, 5.6rem);
-			height: clamp(4.6rem, 18vw, 5.6rem);
+		.benefits-strip__item:hover {
+			transform: scale(1.04);
 		}
 
-		.benefits-strip__item span {
-			font-size: clamp(0.92rem, 4.8vw, 1.18rem);
+		.benefits-strip__icon {
+			width: clamp(4.5rem, 18vw, 5.4rem);
+			height: clamp(4.5rem, 18vw, 5.4rem);
+		}
+
+		.benefits-strip__title {
+			font-size: clamp(0.86rem, 4.3vw, 1.08rem);
+		}
+
+		.benefits-strip__item p {
+			max-width: 13rem;
+			font-size: clamp(0.74rem, 3.4vw, 0.86rem);
 		}
 	}
 

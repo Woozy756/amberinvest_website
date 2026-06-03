@@ -10,7 +10,15 @@ interface Props {
 const { siteSettings = null, tone = "dark" } = Astro.props;
 
 const footerNavigation = siteSettings?.footerNavigation ?? [];
-const visibleFooterNavigation = footerNavigation.filter(
+const hasAboutBuildingFooterLink = footerNavigation.some((item) => item.href.trim().toLowerCase() === "/par-eku");
+const footerNavigationItems = hasAboutBuildingFooterLink
+	? footerNavigation
+	: [
+			...footerNavigation.slice(0, 2),
+			{ label: "Par Ēku", href: "/par-eku" },
+			...footerNavigation.slice(2)
+		];
+const visibleFooterNavigation = footerNavigationItems.filter(
 	(item) => item.href.trim().toLowerCase() !== "/faq"
 );
 

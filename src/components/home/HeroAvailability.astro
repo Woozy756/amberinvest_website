@@ -6,16 +6,24 @@ interface Props {
 }
 
 const { content } = Astro.props;
-const heroImage = content?.heroBackgroundImage?.asset?.url ?? "";
-const availabilityMetrics = content?.metrics ?? [];
+const heroFallbackImage = "/images/hero-night.png";
+const heroImage = content?.heroBackgroundImage?.asset?.url ?? heroFallbackImage;
+const availabilityMetrics =
+	content?.metrics?.map((metric) =>
+		metric.label.toLowerCase().includes("istabu")
+			? { ...metric, value: "3, 4, 5" }
+			: metric
+	) ?? [];
 const primaryCtaLabel = "APSKATIES DZĪVOKĻUS";
 const primaryCtaHref = "/properties";
 const contactCtaLabel = "Sazinies ar mums";
 const contactCtaHref = "/contact";
 const heroProjectKicker = "Jaunais daudzīvokļu projekts";
-const heroProjectLocation = "Ventspilī, Talsu Ielā 3A";
+const heroProjectLocation = '"AmberHome" Talsu iela 3A';
 const heroTitlePrefix = "Iepazīsties un";
 const heroTitleMain = "Atrodi savas jaunās mājas";
+const heroLead =
+	"Apskati pieejamos dzīvokļus Talsu ielā 3A un atrodi mājokli, kas atbilst Tavām ikdienas vajadzībām un budžetam.";
 ---
 
 {
@@ -24,18 +32,19 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 			<section
 				class="hero"
 				aria-labelledby="hero-title"
-				style={`--hero-background-image: url("${heroImage}")`}
+				style={`--hero-background-image: url("${heroImage}"); --hero-fallback-image: url("${heroFallbackImage}")`}
 			>
 				<div class="hero__image" aria-hidden="true"></div>
 				<div class="hero__container">
 					<div class="hero__body">
-							<div class="hero__content fade-in">
-								<h1 id="hero-title">
-									<span class="hero__project-kicker">{heroProjectKicker}</span>
-									<strong class="hero__project-heading">{heroProjectLocation}</strong>
-									<span class="hero__intro-line">{heroTitlePrefix}</span>
-									<strong class="hero__intro-main">{heroTitleMain}</strong>
-								</h1>
+						<div class="hero__content fade-in">
+							<h1 id="hero-title">
+								<span class="hero__project-kicker">{heroProjectKicker}</span>
+								<strong class="hero__project-heading">{heroProjectLocation}</strong>
+								<span class="hero__intro-line">{heroTitlePrefix}</span>
+								<strong class="hero__intro-main">{heroTitleMain}</strong>
+							</h1>
+							<p class="hero__lead">{heroLead}</p>
 							<div class="hero__actions">
 								<a class="button button--primary" href={primaryCtaHref}>
 									{primaryCtaLabel}
@@ -112,7 +121,8 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 
 	.hero__image {
 		z-index: 0;
-		background-image: var(--hero-background-image);
+		background-image: var(--hero-background-image), var(--hero-fallback-image);
+		filter: brightness(1.28) saturate(1.04);
 		opacity: 1;
 	}
 
@@ -128,17 +138,17 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		background:
 			radial-gradient(
 				ellipse at 50% 38%,
-				rgba(0, 0, 0, 0.46) 0%,
-				rgba(0, 0, 0, 0.3) 34%,
-				rgba(0, 0, 0, 0.08) 62%,
+				rgba(0, 0, 0, 0.2) 0%,
+				rgba(0, 0, 0, 0.13) 34%,
+				rgba(0, 0, 0, 0.03) 62%,
 				rgba(0, 0, 0, 0) 76%
 			),
 			linear-gradient(
 				to bottom,
 				rgba(15, 17, 21, 0) 42%,
-				rgba(15, 17, 21, 0.34) 68%,
-				rgba(15, 17, 21, 0.62) 86%,
-				rgba(15, 17, 21, 0.78) 100%
+				rgba(15, 17, 21, 0.18) 68%,
+				rgba(15, 17, 21, 0.36) 86%,
+				rgba(15, 17, 21, 0.52) 100%
 			);
 	}
 
@@ -167,20 +177,32 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		z-index: 1;
 		display: grid;
 		justify-items: center;
-		max-width: min(100%, 62rem);
+		max-width: min(100%, 56rem);
 		transform: translateY(var(--hero-content-nudge));
+	}
+
+	.hero__content::before {
+		content: "";
+		position: absolute;
+		z-index: -1;
+		inset: clamp(-1.25rem, -2.4vw, -0.85rem) clamp(-1.5rem, -3.4vw, -1rem);
+		background: radial-gradient(ellipse at center, rgba(8, 11, 16, 0.44) 0%, rgba(8, 11, 16, 0.3) 44%, rgba(8, 11, 16, 0) 72%);
+		filter: blur(2px);
+		pointer-events: none;
 	}
 
 	h1 {
 		margin: 0;
 		font-family: var(--font-body);
-		font-size: clamp(2.45rem, 4.8vw, 4.7rem);
+		font-size: clamp(2.05rem, 3.9vw, 3.85rem);
 		font-weight: 400;
 		line-height: 1.02;
 		letter-spacing: 0;
 		max-width: 100%;
 		color: var(--surface-light);
-		text-shadow: 0 4px 28px rgba(0, 0, 0, 0.72);
+		text-shadow:
+			0 2px 10px rgba(0, 0, 0, 0.92),
+			0 10px 34px rgba(0, 0, 0, 0.72);
 	}
 
 		h1 span,
@@ -196,7 +218,7 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		h1 .hero__project-kicker,
 		h1 .hero__intro-line,
 		h1 .hero__intro-main {
-			font-size: clamp(1.55rem, 3.15vw, 3.25rem);
+			font-size: clamp(1.25rem, 2.45vw, 2.45rem);
 			line-height: 1.08;
 		}
 
@@ -228,12 +250,14 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 	}
 
 	.hero__lead {
-		margin: clamp(0.95rem, 1.7vw, 1.25rem) 0 0;
-		max-width: 44rem;
-		font-size: clamp(1.02rem, 1.35vw, 1.18rem);
-		line-height: 1.68;
+		margin: clamp(0.85rem, 1.4vw, 1.05rem) 0 0;
+		max-width: 42rem;
+		font-size: clamp(0.98rem, 1.15vw, 1.12rem);
+		line-height: 1.58;
 		color: rgba(245, 243, 238, 0.94);
-		text-shadow: 0 2px 16px rgba(0, 0, 0, 0.82);
+		text-shadow:
+			0 1px 8px rgba(0, 0, 0, 0.95),
+			0 6px 24px rgba(0, 0, 0, 0.72);
 	}
 
 	.hero__lead strong {
@@ -242,7 +266,7 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 	}
 
 	.hero__actions {
-		margin-top: 2.15rem;
+		margin-top: 1.65rem;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
@@ -388,19 +412,19 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 			--hero-content-nudge: 0.5rem;
 		}
 
-			h1 {
-				font-size: clamp(2.25rem, 4.2vw, 4rem);
-			}
+		h1 {
+			font-size: clamp(1.95rem, 3.5vw, 3.35rem);
+		}
 
-			h1 .hero__project-kicker,
-			h1 .hero__intro-line,
-			h1 .hero__intro-main {
-				font-size: clamp(1.35rem, 2.8vw, 2.65rem);
-			}
+		h1 .hero__project-kicker,
+		h1 .hero__intro-line,
+		h1 .hero__intro-main {
+			font-size: clamp(1.12rem, 2.15vw, 2.05rem);
+		}
 
 		.hero__lead {
 			max-width: 42rem;
-			font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+			font-size: clamp(0.94rem, 1.08vw, 1.02rem);
 		}
 
 		.hero__actions {
@@ -467,23 +491,37 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		}
 
 		h1 {
-			font-size: clamp(2.05rem, 8vw, 3.15rem);
+			font-size: clamp(1.65rem, 6.3vw, 2.32rem);
 			max-width: 100%;
 		}
 
-			h1 .hero__project-kicker {
-				font-size: clamp(1.08rem, 4.5vw, 1.45rem);
-			}
+		h1 span,
+		h1 strong {
+			white-space: normal;
+		}
 
-			h1 .hero__intro-line,
-			h1 .hero__intro-main {
-				font-size: clamp(1.32rem, 5.9vw, 2.18rem);
-			}
+		h1 .hero__project-kicker {
+			font-size: clamp(0.95rem, 3.6vw, 1.22rem);
+			white-space: nowrap;
+		}
+
+		h1 .hero__intro-line,
+		h1 .hero__intro-main {
+			font-size: clamp(1.08rem, 4.6vw, 1.58rem);
+		}
+
+		h1 .hero__project-heading {
+			max-width: 12ch;
+		}
+
+		h1 .hero__intro-main {
+			max-width: 14ch;
+		}
 
 		.hero__lead {
-			max-width: 31ch;
-			font-size: clamp(1.12rem, 3.6vw, 1.22rem);
-			line-height: 1.54;
+			max-width: 32ch;
+			font-size: clamp(0.86rem, 3.1vw, 0.98rem);
+			line-height: 1.5;
 		}
 
 		h1::after {

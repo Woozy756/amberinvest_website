@@ -32,6 +32,7 @@ export const pageType = defineType({
       options: {
         list: [
           {title: 'Par mums', value: 'about-us'},
+          {title: 'Par Ēku', value: 'par-eku'},
           {title: 'Kā iegādāties', value: 'how-to-buy'},
           {title: 'Kontakti', value: 'contact'},
           {title: 'Pielāgota', value: 'custom'},

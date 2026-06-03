@@ -20,13 +20,44 @@ const isPropertiesLink = (item: SiteLink) => {
 
 const isFaqLink = (item: SiteLink) => item.href.trim().toLowerCase() === "/faq";
 const isContactLink = (item: SiteLink) => item.href.trim().toLowerCase() === "/contact";
+const normalizeNavHref = (href: string) => {
+	const normalizedHref = href.trim().toLowerCase().replace(/\/+$/, "");
+	return normalizedHref || "/";
+};
+const mainNavOrder = new Map([
+	["/", 0],
+	["/how-to-buy", 1],
+	["/about-us", 2],
+	["/par-eku", 3]
+]);
+const orderMainNavItems = (items: SiteLink[]) =>
+	[...items].sort((a, b) => {
+		const aOrder = mainNavOrder.get(normalizeNavHref(a.href)) ?? Number.MAX_SAFE_INTEGER;
+		const bOrder = mainNavOrder.get(normalizeNavHref(b.href)) ?? Number.MAX_SAFE_INTEGER;
+		return aOrder - bOrder;
+	});
 
 const configuredNavItems = siteSettings?.headerNavigation ?? [];
+const defaultNavItems: SiteLink[] = [
+	{ label: messages.header.home, href: "/" },
+	{ label: messages.header.howToBuy, href: "/how-to-buy" },
+	{ label: messages.header.aboutUs, href: "/about-us" },
+	{ label: messages.header.aboutBuilding, href: "/par-eku" }
+];
+const baseNavItems = configuredNavItems.length > 0 ? configuredNavItems : defaultNavItems;
+const hasAboutBuildingLink = baseNavItems.some((item) => item.href.trim().toLowerCase() === "/par-eku");
+const navigationItems = hasAboutBuildingLink
+	? baseNavItems
+	: [
+			...baseNavItems.slice(0, 1),
+			{ label: messages.header.aboutBuilding, href: "/par-eku" },
+			...baseNavItems.slice(1)
+		];
 
-const visibleNavItems = configuredNavItems.filter((item) => !isFaqLink(item) && !isContactLink(item));
+const visibleNavItems = navigationItems.filter((item) => !isFaqLink(item) && !isContactLink(item));
 const firstPropertiesItem = visibleNavItems.find(isPropertiesLink);
 const propertiesLabel = firstPropertiesItem?.label || messages.header.properties;
-const mainNavItems = visibleNavItems.filter((item) => !isPropertiesLink(item));
+const mainNavItems = orderMainNavItems(visibleNavItems.filter((item) => !isPropertiesLink(item)));
 const leadingNavItems = mainNavItems.slice(0, 1);
 const trailingNavItems = mainNavItems.slice(1);
 
@@ -237,6 +268,21 @@ const propertiesItems = [
 			box-shadow 240ms var(--ease-premium);
 	}
 
+	.site-header::before {
+		content: "";
+		position: absolute;
+		inset: 0 0 -1.4rem;
+		z-index: 1;
+		pointer-events: none;
+		opacity: 0;
+		background: linear-gradient(180deg, rgba(8, 11, 16, 0.42) 0%, rgba(8, 11, 16, 0.24) 58%, rgba(8, 11, 16, 0) 100%);
+		transition: opacity 240ms var(--ease-premium);
+	}
+
+	.site-header[data-overlay="true"][data-scrolled="false"]::before {
+		opacity: 1;
+	}
+
 	.site-header[data-overlay="false"] {
 		background-color: var(--nav-surface);
 		border-color: rgba(138, 144, 152, 0.14);
@@ -321,6 +367,10 @@ const propertiesItems = [
 		object-fit: contain;
 	}
 
+	.site-header[data-overlay="true"][data-scrolled="false"] .brand__mark-image {
+		filter: drop-shadow(0 1px 10px rgba(0, 0, 0, 0.42));
+	}
+
 	.nav {
 		justify-self: center;
 	}
@@ -356,6 +406,12 @@ const propertiesItems = [
 		text-decoration: none;
 		cursor: pointer;
 		transition: color 220ms var(--ease-premium);
+	}
+
+	.site-header[data-overlay="true"][data-scrolled="false"] .nav__link,
+	.site-header[data-overlay="true"][data-scrolled="false"] .nav__toggle,
+	.site-header[data-overlay="true"][data-scrolled="false"] .brand {
+		text-shadow: 0 1px 10px rgba(0, 0, 0, 0.52);
 	}
 
 	.nav__link::after,

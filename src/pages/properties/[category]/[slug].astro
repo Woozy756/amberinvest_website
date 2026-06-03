@@ -54,6 +54,11 @@ const locationBullets = [
 	"Ērta nokļūšana līdz Ventspils centram, jūrai un pilsētas ikdienas galamērķiem",
 	"Sakārtota, mierīga vide jaunām ģimenēm un speciālistiem"
 ];
+const propertyProjectFacts = [
+	"Katram dzīvoklim ir savi elektrības, apkures un ūdens skaitītāji.",
+	"Ēka ir siltināta un veidota energoefektīvai ikdienas lietošanai.",
+	"Zeme zem mājas ir privāts īpašums; iegādājoties dzīvokli, īpašumā ietilpst arī domājamā daļa no zemes, kas tiek noteikta proporcionāli dzīvokļa platībai."
+];
 const siteUrl = (import.meta.env.PUBLIC_SITE_URL ?? "https://amberhome.lv").replace(/\/+$/, "");
 const propertyUrl = new URL(getPropertyHref(property), `${siteUrl}/`).toString();
 const propertyAvailability = {
@@ -228,6 +233,11 @@ const propertyStructuredData = {
 							</p>
 							<ul class="property-location-section__list" role="list">
 								{locationBullets.map((item) => (
+									<li>{item}</li>
+								))}
+							</ul>
+							<ul class="property-location-section__facts" role="list" aria-label="Papildu īpašuma informācija">
+								{propertyProjectFacts.map((item) => (
 									<li>{item}</li>
 								))}
 							</ul>
@@ -1117,6 +1127,36 @@ const propertyStructuredData = {
 		height: 0.45rem;
 		border-radius: 999px;
 		background: var(--accent-primary);
+		transform: translateY(-50%);
+	}
+
+	.property-location-section__facts {
+		list-style: none;
+		display: grid;
+		gap: 0.85rem;
+		margin: 1.35rem 0 0;
+		padding: 1.15rem 0 0;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.property-location-section__facts li {
+		position: relative;
+		padding-left: 1.15rem;
+		font-size: 0.98rem;
+		font-weight: 700;
+		line-height: 1.6;
+		color: rgba(15, 17, 21, 0.7);
+	}
+
+	.property-location-section__facts li::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0.78em;
+		width: 0.36rem;
+		height: 0.36rem;
+		border-radius: 999px;
+		background: rgba(199, 150, 67, 0.85);
 		transform: translateY(-50%);
 	}
 

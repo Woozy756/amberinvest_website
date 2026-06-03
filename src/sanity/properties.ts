@@ -337,7 +337,7 @@ function getPropertyDescription(rooms: number, area: number, fallbackDescription
     ? `dzīvojamā istaba, kas apvienota ar virtuves zonu, ${bedroomDescription}, vannas istaba un atsevišķa tualetes telpa`
     : 'dzīvojamā istaba, kas apvienota ar virtuves zonu, vannas istaba un atsevišķa tualetes telpa'
 
-  return `${getApartmentTypeLabel(rooms)} dzīvoklis ar kopējo platību ${formattedArea} m². Dzīvoklī ir ${layoutDescription}. Dzīvoklī ir iestrādāta rekuperācijas sistēma, kas nodrošina svaigu gaisu telpās, regulējamas siltās grīdas katrā istabā un pilnībā pabeigta iekšējā apdare, lai jaunajās mājās varētu ievākties bez papildu rūpēm. Ēka veidota kā A+ energoefektīvs projekts, un iedzīvotājiem ir pieejamas arī autostāvvietas.`
+  return `${getApartmentTypeLabel(rooms)} dzīvoklis ar kopējo platību ${formattedArea} m². Dzīvoklī ir ${layoutDescription}. Dzīvoklī ir rekuperācijas sistēma, kas nodrošina svaigu gaisu telpās, regulējamas siltās grīdas katrā istabā un pilnībā pabeigta iekšējā apdare ar labiekārtotu sanitāro mezglu un santehniku. Katram dzīvoklim ir savi elektrības, apkures un ūdens skaitītāji, ēka ir siltināta, un iedzīvotājiem ir pieejamas arī autostāvvietas.`
 }
 
 function mapProject(rawProject?: RawPropertyProject): PropertyProject | undefined {

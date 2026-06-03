@@ -20,6 +20,7 @@ type Messages = {
 		properties: string;
 		propertiesListing: string;
 		propertyDetail: string;
+		aboutBuilding: string;
 		aboutUs: string;
 		howToBuy: string;
 		contact: string;
@@ -75,6 +76,7 @@ type Messages = {
 	pages: {
 		properties: string;
 		propertyDetail: string;
+		aboutBuilding: string;
 		aboutUs: string;
 		howToBuy: string;
 		contact: string;
@@ -100,6 +102,7 @@ const translations: Record<Locale, Messages> = {
 			properties: "Dzīvokļi",
 			propertiesListing: "Dzīvokļu saraksts",
 			propertyDetail: "Dzīvokļa detaļas",
+			aboutBuilding: "Par Ēku",
 			aboutUs: "Par mums",
 			howToBuy: "Kā iegādāties",
 			contact: "Kontakti"
@@ -236,6 +239,7 @@ const translations: Record<Locale, Messages> = {
 		pages: {
 			properties: "Amberinvest | Dzīvokļu saraksts",
 			propertyDetail: "Amberinvest | Dzīvokļa detaļas",
+			aboutBuilding: "Amberinvest | Par Ēku",
 			aboutUs: "Amberinvest | Par mums",
 			howToBuy: "Amberinvest | Kā iegādāties",
 			contact: "Amberinvest | Kontakti"

@@ -80,7 +80,7 @@ const serializeStructuredData = (data: Record<string, unknown>) =>
 <html lang={locale}>
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script is:inline>
 			if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 				document.documentElement.classList.add('js-motion');
@@ -119,10 +119,14 @@ const serializeStructuredData = (data: Record<string, unknown>) =>
 				}
 			});
 
+			const revealAll = () => {
+				revealElements.forEach((element) => element.classList.add('is-visible'));
+			};
+
 			if (!revealElements.length || !document.documentElement.classList.contains('js-motion')) {
-				revealElements.forEach((element) => element.classList.add('is-visible'));
+				revealAll();
 			} else if (!('IntersectionObserver' in window)) {
-				revealElements.forEach((element) => element.classList.add('is-visible'));
+				revealAll();
 			} else {
 				const revealObserver = new IntersectionObserver(
 					(entries, observer) => {
@@ -133,12 +137,28 @@ const serializeStructuredData = (data: Record<string, unknown>) =>
 						});
 					},
 					{
-						rootMargin: '0px 0px -10% 0px',
-						threshold: 0.12
+						rootMargin: '0px 0px 30% 0px',
+						threshold: 0.01
 					}
 				);
 
 				revealElements.forEach((element) => revealObserver.observe(element));
+
+				const scheduleRevealFallback = () => {
+					window.setTimeout(() => {
+						revealElements.forEach((element) => {
+							if (element.classList.contains('is-visible')) return;
+							element.classList.add('is-visible');
+							revealObserver.unobserve(element);
+						});
+					}, 1800);
+				};
+
+				if (document.readyState === 'complete') {
+					scheduleRevealFallback();
+				} else {
+					window.addEventListener('load', scheduleRevealFallback, { once: true });
+				}
 			}
 		</script>
 	</body>

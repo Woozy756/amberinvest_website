@@ -26,7 +26,7 @@ function sitemapEntry(path: string): string {
 
 export async function GET() {
 	const [properties, categories] = await Promise.all([getAllProperties(), getPropertyCategories()]);
-	const staticPaths = ["/", "/properties", "/about-us", "/how-to-buy", "/contact"];
+	const staticPaths = ["/", "/properties", "/par-eku", "/about-us", "/how-to-buy", "/contact"];
 	const categoryPaths = categories.map((category) => getPropertyCategoryHref(category));
 	const propertyPaths = properties.map((property) => getPropertyHref(property));
 	const paths = [...staticPaths, ...categoryPaths, ...propertyPaths];
