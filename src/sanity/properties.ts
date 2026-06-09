@@ -133,11 +133,13 @@ interface RawProperty {
     src?: string
     width?: number
     height?: number
+    originalFilename?: string
   }
   additionalFloorPlanImage?: {
     src?: string
     width?: number
     height?: number
+    originalFilename?: string
   }
   floorPlanNote?: string
   floorPlanSectionTitle?: string
@@ -195,12 +197,14 @@ const propertySelection = `
   "floorPlanImage": floorPlanImage{
     "src": asset->url,
     "width": asset->metadata.dimensions.width,
-    "height": asset->metadata.dimensions.height
+    "height": asset->metadata.dimensions.height,
+    "originalFilename": asset->originalFilename
   },
   "additionalFloorPlanImage": additionalFloorPlanImage{
     "src": asset->url,
     "width": asset->metadata.dimensions.width,
-    "height": asset->metadata.dimensions.height
+    "height": asset->metadata.dimensions.height,
+    "originalFilename": asset->originalFilename
   },
   floorPlanNote,
   floorPlanSectionTitle,
@@ -309,6 +313,46 @@ function getRoomsFromCategorySlug(slug: string): number | null {
   return match ? Number(match[1]) : null
 }
 
+function getApartmentNumberFromPlanFilename(filename?: string): number | null {
+  const match = filename?.match(/Talsu3A_dz(\d+)/i)
+  return match ? Number(match[1]) : null
+}
+
+function getApartmentNumber(rawProperty: RawProperty): number | null {
+  return (
+    getApartmentNumberFromPlanFilename(rawProperty.additionalFloorPlanImage?.originalFilename) ??
+    getApartmentNumberFromPlanFilename(rawProperty.floorPlanImage?.originalFilename)
+  )
+}
+
+function replaceApartmentNumber(value: string | undefined, apartmentNumber: number): string | undefined {
+  if (!value) {
+    return value
+  }
+
+  return value.replace(/(nr\.?\s*)\d+/i, `$1${apartmentNumber}`)
+}
+
+function replaceApartmentSlugNumber(value: string | undefined, apartmentNumber: number): string | undefined {
+  if (!value) {
+    return value
+  }
+
+  return value.replace(/nr\d+$/i, `nr${apartmentNumber}`)
+}
+
+function getFloorFromApartmentNumber(apartmentNumber: number): number {
+  if (apartmentNumber <= 5) {
+    return 1
+  }
+
+  if (apartmentNumber <= 10) {
+    return 2
+  }
+
+  return 3
+}
+
 function getBedroomDescription(rooms: number): string | null {
   const bedroomCount = rooms - 1
   const labels: Record<number, string> = {
@@ -363,10 +407,26 @@ function mapProject(rawProject?: RawPropertyProject): PropertyProject | undefine
 function mapProperty(rawProperty: RawProperty): Property {
   const category = mapCategory(rawProperty.category)
   const rooms = getRoomsFromCategorySlug(category.slug) ?? rawProperty.rooms ?? 0
+  const apartmentNumber = getApartmentNumber(rawProperty)
+  const title =
+    apartmentNumber !== null
+      ? replaceApartmentNumber(trimValue(rawProperty.title), apartmentNumber) ?? ''
+      : trimValue(rawProperty.title) ?? ''
+  const slug =
+    apartmentNumber !== null
+      ? replaceApartmentSlugNumber(trimValue(rawProperty.slug), apartmentNumber) ?? ''
+      : trimValue(rawProperty.slug) ?? ''
+  const propertyCode =
+    apartmentNumber !== null
+      ? replaceApartmentNumber(trimValue(rawProperty.propertyCode), apartmentNumber) ?? ''
+      : trimValue(rawProperty.propertyCode) ?? ''
+  const correctedArea = apartmentNumber === 15 ? 70.6 : rawProperty.area ?? 0
+  const correctedFloor =
+    apartmentNumber !== null ? getFloorFromApartmentNumber(apartmentNumber) : rawProperty.floor ?? 0
   const image = rawProperty.heroImage ?? ''
   const generatedDescription = getPropertyDescription(
     rooms,
-    rawProperty.area ?? 0,
+    correctedArea,
     trimValue(rawProperty.shortDescription),
   )
   const seo = mapSeo(rawProperty.seo)
@@ -385,8 +445,19 @@ function mapProperty(rawProperty: RawProperty): Property {
         label: trimValue(item.label),
       }))
       .filter((item) => item.src) ?? []
-  const fallbackFloorPlanImage = trimValue(rawProperty.floorPlanImage?.src)
-  const fallbackFloorPlanAlt = `${rooms || ''} istabu dzīvokļa plāns`.trim()
+  const primaryFloorPlanNumber = getApartmentNumberFromPlanFilename(
+    rawProperty.floorPlanImage?.originalFilename,
+  )
+  const primaryFloorPlanMatches =
+    apartmentNumber === null ||
+    primaryFloorPlanNumber === null ||
+    primaryFloorPlanNumber === apartmentNumber
+  const primaryFloorPlan = primaryFloorPlanMatches ? rawProperty.floorPlanImage : undefined
+  const fallbackFloorPlanImage =
+    trimValue(primaryFloorPlan?.src) ?? trimValue(rawProperty.additionalFloorPlanImage?.src)
+  const fallbackFloorPlanAlt = title
+    ? `${title} dzīvokļa plāns`
+    : `${rooms || ''} istabu dzīvokļa plāns`.trim()
   const mapFloorPlanImage = (
     item: RawProperty['floorPlanImage'],
     label: string,
@@ -412,25 +483,32 @@ function mapProperty(rawProperty: RawProperty): Property {
     }
   }
   const mappedFloorPlanImages = [
-    mapFloorPlanImage(rawProperty.floorPlanImage, 'Plānojums'),
-    mapFloorPlanImage(rawProperty.additionalFloorPlanImage, 'Papildu plāns'),
+    mapFloorPlanImage(primaryFloorPlan, 'Dzīvokļa plāns'),
+    mapFloorPlanImage(rawProperty.additionalFloorPlanImage, 'Stāva plāns'),
   ].filter((item): item is PropertyImage => Boolean(item))
+
+  const correctedDetails =
+    apartmentNumber === 10
+      ? rawProperty.details?.map((detail) =>
+          detail.label === 'Guļamistabas' ? {...detail, value: '3'} : detail,
+        )
+      : rawProperty.details
 
   return {
     id: rawProperty._id,
-    title: trimValue(rawProperty.title) ?? '',
-    slug: trimValue(rawProperty.slug) ?? '',
-    propertyCode: trimValue(rawProperty.propertyCode) ?? '',
+    title,
+    slug,
+    propertyCode,
     status: rawProperty.status ?? 'available',
     shortDescription: generatedDescription,
     descriptionParagraphs: generatedDescription ? [generatedDescription] : getDescriptionParagraphs(rawProperty.description),
     aboutSectionTitle: trimValue(rawProperty.aboutSectionTitle),
     rooms,
-    area: rawProperty.area ?? 0,
+    area: correctedArea,
     price: rawProperty.price ?? 0,
     pricePerSquareMeter: rawProperty.pricePerSquareMeter ?? 0,
     currency: trimValue(rawProperty.currency) ?? 'EUR',
-    floor: rawProperty.floor ?? 0,
+    floor: correctedFloor,
     building: trimValue(rawProperty.building),
     image,
     gallery:
@@ -459,7 +537,7 @@ function mapProperty(rawProperty: RawProperty): Property {
     floorPlanSectionTitle: trimValue(rawProperty.floorPlanSectionTitle),
     floorPlanCardTitle: trimValue(rawProperty.floorPlanCardTitle),
     details:
-      rawProperty.details
+      correctedDetails
         ?.map((detail) => ({
           label: detail.label ?? '',
           value: detail.value ?? '',
@@ -552,17 +630,17 @@ export async function getPropertiesByCategory(categorySlug: string): Promise<Pro
 
 export async function getPropertyBySlug(slug: string): Promise<Property | null> {
   try {
-    const rawProperty = await sanityClient.fetch<RawProperty | null>(
+    const rawProperties = await sanityClient.fetch<RawProperty[]>(
       `*[
         _type == "property" &&
-        slug.current == $slug
-      ][0] {
+        defined(slug.current) &&
+        defined(propertyType->slug.current)
+      ] {
         ${propertySelection}
       }`,
-      {slug},
     )
 
-    return rawProperty ? mapProperty(rawProperty) : null
+    return rawProperties.map(mapProperty).find((property) => property.slug === slug) ?? null
   } catch (error) {
     handleSanityQueryError(`property "${slug}"`, error)
   }
@@ -573,25 +651,24 @@ export async function getPropertyByCategoryAndSlug(
   slug: string,
 ): Promise<Property | null> {
   try {
-    const rawProperty = await sanityClient.fetch<RawProperty | null>(
+    const rawProperties = await sanityClient.fetch<RawProperty[]>(
       `*[
         _type == "property" &&
-        slug.current == $slug &&
         propertyType->slug.current == $categorySlug
-      ][0] {
+      ] {
         ${propertySelection}
       }`,
-      {categorySlug, slug},
+      {categorySlug},
     )
 
-    return rawProperty ? mapProperty(rawProperty) : null
+    return rawProperties.map(mapProperty).find((property) => property.slug === slug) ?? null
   } catch (error) {
     handleSanityQueryError(`property "${slug}" in category "${categorySlug}"`, error)
   }
 }
 
 export async function getSimilarProperties(
-  slug: string,
+  propertyId: string,
   categorySlug: string,
   limit = 3,
 ): Promise<Property[]> {
@@ -600,16 +677,16 @@ export async function getSimilarProperties(
       `*[
         _type == "property" &&
         defined(slug.current) &&
-        slug.current != $slug &&
+        _id != $propertyId &&
         propertyType->slug.current == $categorySlug
       ] | order(price asc) {
         ${propertySelection}
       }`,
-      {slug, categorySlug},
+      {propertyId, categorySlug},
     )
 
     return rawProperties.map(mapProperty).slice(0, limit)
   } catch (error) {
-    handleSanityQueryError(`similar properties for "${slug}"`, error)
+    handleSanityQueryError(`similar properties for "${propertyId}"`, error)
   }
 }

@@ -16,11 +16,21 @@ const priceLabel = formatCurrency(property.price, property.currency);
 const propertyHref = getPropertyHref(property);
 const cardCtaHref = ctaHref || propertyHref;
 const locationLabel = property.project?.city || "Dzīvoklis";
+const imageLoading = index < 2 ? "eager" : "lazy";
+const imageFetchPriority = index < 2 ? "high" : "auto";
 ---
 
 <article class="property-card fade-in" data-reveal-delay={String(80 + index * 45)}>
 	<a class="property-card__media" href={propertyHref} aria-label={`Skatīt ${property.title} detaļas`}>
-		<img src={property.image} alt={property.title} loading="lazy" width="1400" height="1040" />
+		<img
+			src={property.image}
+			alt={property.title}
+			loading={imageLoading}
+			fetchpriority={imageFetchPriority}
+			decoding="async"
+			width="1400"
+			height="1040"
+		/>
 		<span class="property-card__status" data-tone={status.tone}>{status.label}</span>
 	</a>
 

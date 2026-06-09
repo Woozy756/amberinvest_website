@@ -769,7 +769,8 @@ const safetyItems = [
 
 	@media (max-width: 860px) {
 		.building-hero {
-			min-height: auto;
+			min-height: min(42rem, 88svh);
+			align-items: center;
 		}
 
 		.building-hero__stats,
@@ -796,12 +797,20 @@ const safetyItems = [
 			padding-inline: 1.25rem;
 		}
 
+		.building-intro,
+		.building-section {
+			padding: 3.35rem 0;
+		}
+
 		.building-hero__container {
-			padding-top: calc(4.8rem + 3rem);
+			gap: 1.65rem;
+			padding-top: 6.4rem;
+			padding-bottom: 2.4rem;
 		}
 
 		.building-hero h1 {
-			font-size: clamp(3.35rem, 17vw, 4rem);
+			font-size: clamp(3.15rem, 15vw, 3.9rem);
+			line-height: 0.94;
 		}
 
 		.building-hero__content p:not(.building-eyebrow) {
@@ -823,7 +832,27 @@ const safetyItems = [
 
 		.building-intro h2,
 		.building-section h2 {
-			font-size: clamp(2rem, 11vw, 3rem);
+			font-size: clamp(1.85rem, 8.2vw, 2.45rem);
+			line-height: 1.08;
+			overflow-wrap: normal;
+		}
+
+		.building-intro__content,
+		.building-section__header {
+			gap: 0.85rem;
+		}
+
+		.building-detail__heading h2 {
+			font-size: clamp(1.85rem, 8.8vw, 2.35rem);
+			line-height: 1.08;
+			overflow-wrap: anywhere;
+			word-break: normal;
+		}
+
+		.building-detail__heading p:not(.building-eyebrow) {
+			max-width: 100%;
+			font-size: 0.98rem;
+			line-height: 1.65;
 		}
 
 		.building-section-nav a {

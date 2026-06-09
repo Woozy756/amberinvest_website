@@ -42,7 +42,7 @@ const {
 } =
 	createPropertyPageViewModel(property);
 const [similarProperties, siteSettings] = await Promise.all([
-	getSimilarProperties(property.slug, property.category.slug, 3),
+	getSimilarProperties(property.id, property.category.slug, 3),
 	loadSiteSettings()
 ]);
 const gallery = property.gallery;
@@ -211,6 +211,7 @@ const propertyStructuredData = {
 			plans={floorPlans}
 			initialTabId={property.category.slug}
 			showTabs={false}
+			showPrice={false}
 		/>
 
 		<section class="property-section property-location-section" id="property-location">

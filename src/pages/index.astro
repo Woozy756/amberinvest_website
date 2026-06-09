@@ -12,9 +12,9 @@ import { getAllProperties, type Property } from "../sanity/properties";
 const locale = "lv";
 const messages = getMessages(locale);
 const featuredPropertySlugs = [
-	"talsu-3a-dzivoklis-nr6",
-	"talsu-3a-dzivoklis-nr11",
-	"talsu-3a-dzivoklis-nr2"
+	"talsu-3a-dzivoklis-nr4",
+	"talsu-3a-dzivoklis-nr10",
+	"talsu-3a-dzivoklis-nr6"
 ];
 const [homepage, allProperties] = await Promise.all([loadHomepage(), getAllProperties()]);
 const featuredProperties = featuredPropertySlugs

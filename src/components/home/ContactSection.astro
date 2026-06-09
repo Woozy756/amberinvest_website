@@ -182,11 +182,41 @@ const benefits = fallbackBenefits;
 
 	@media (max-width: 640px) {
 		.contact-section {
-			padding: 3.75rem 0;
+			padding: 3.5rem 0 3.75rem;
+		}
+
+		.contact-section__layout {
+			gap: 2.35rem;
+		}
+
+		.contact-section__title {
+			margin-top: 0.75rem;
+			max-width: 12ch;
+			font-size: clamp(2rem, 9.4vw, 2.55rem);
+			line-height: 1.04;
+		}
+
+		.contact-section__lead {
+			margin-top: 1rem;
+			max-width: 35ch;
+			font-size: 0.95rem;
+			line-height: 1.65;
+		}
+
+		.contact-section__benefits {
+			margin-top: 1.55rem;
+			gap: 0.82rem;
+		}
+
+		.contact-section__benefit {
+			align-items: flex-start;
+			gap: 0.75rem;
+			font-size: 0.9rem;
+			line-height: 1.5;
 		}
 
 		.contact-section__card {
-			padding: 1.2rem;
+			padding: 1.15rem;
 		}
 	}
 </style>

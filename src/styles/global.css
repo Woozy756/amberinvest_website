@@ -310,6 +310,16 @@ html.js-motion .fade-in.is-visible {
 	filter: blur(0);
 }
 
+@media (max-width: 860px) {
+	html.js-motion .fade-in,
+	html.js-motion .fade-in.is-visible {
+		opacity: 1;
+		transform: none;
+		filter: none;
+		transition: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	html.js-motion .fade-in,
 	html.js-motion .fade-in.is-visible {

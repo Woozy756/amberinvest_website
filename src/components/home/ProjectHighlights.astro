@@ -613,7 +613,7 @@ const overviewFacts = [
 		@media (max-width: 720px) {
 		.project-overview {
 			scroll-margin-top: 4.8rem;
-			padding: 3.65rem 0 2.85rem;
+			padding: 3.35rem 0 0;
 		}
 
 		.project-overview__grid {
@@ -623,7 +623,7 @@ const overviewFacts = [
 		}
 
 		.project-overview__heading-block {
-			gap: 1.05rem;
+			gap: 0.9rem;
 		}
 
 		.project-overview__eyebrow {
@@ -634,42 +634,45 @@ const overviewFacts = [
 		}
 
 		.project-overview__image {
-			aspect-ratio: 1.12;
+			aspect-ratio: 1.18;
 			width: 100%;
 			max-width: 100%;
 			justify-self: stretch;
 		}
 
 		.project-apartments {
-			padding: 2.65rem 0 3.75rem;
+			padding: 0 0 3.35rem;
 		}
 
 		.project-apartments__header {
-			text-align: center;
+			margin-bottom: 1.2rem;
+			padding-top: 1.5rem;
+			text-align: left;
 		}
 
 		.project-apartments__grid {
 			grid-template-columns: 1fr;
+			gap: 1.05rem;
 		}
 
 		.project-overview__heading-block h2 {
-			max-width: 13ch;
-			font-size: clamp(2.35rem, 9.4vw, 3rem);
-			line-height: 1.08;
+			max-width: 14ch;
+			font-size: clamp(2.2rem, 8.8vw, 2.8rem);
+			line-height: 1.06;
 			overflow-wrap: normal;
 			text-wrap: balance;
 		}
 
 		.project-overview__copy {
-			gap: 1rem;
+			gap: 0.9rem;
 			max-width: 34rem;
-			font-size: clamp(1rem, 3.45vw, 1.12rem);
-			line-height: 1.68;
+			font-size: clamp(0.95rem, 3.35vw, 1.05rem);
+			line-height: 1.62;
 		}
 
 		.project-overview__lead {
-			max-width: 15.5em;
-			font-size: clamp(1.18rem, 5vw, 1.55rem);
+			max-width: 20em;
+			font-size: clamp(1.15rem, 4.75vw, 1.45rem);
 			line-height: 1.34;
 			overflow-wrap: normal;
 		}
@@ -689,14 +692,14 @@ const overviewFacts = [
 		}
 
 		.project-overview__facts {
-			gap: 0.66rem;
-			padding-top: 0.05rem;
+			gap: 0.72rem;
+			padding-top: 0.12rem;
 		}
 
 		.project-overview__facts li {
 			padding-left: 1.05rem;
-			font-size: clamp(0.9rem, 3.15vw, 1rem);
-			line-height: 1.46;
+			font-size: clamp(0.88rem, 3.05vw, 0.96rem);
+			line-height: 1.5;
 		}
 
 		.project-overview__facts li::before {
@@ -706,11 +709,20 @@ const overviewFacts = [
 		}
 
 		.project-overview__button {
-			min-width: clamp(10.2rem, 43vw, 13.9rem);
-			min-height: 3.45rem;
-			padding: 0.9rem 1.35rem;
-			font-size: 0.78rem;
-			letter-spacing: 0.09em;
+			min-width: 0;
+			width: 100%;
+			min-height: 3.4rem;
+			padding: 0.85rem 0.7rem;
+			font-size: clamp(0.64rem, 2.65vw, 0.72rem);
+			line-height: 1.25;
+			letter-spacing: 0.07em;
+			text-align: center;
+		}
+
+		.project-overview__actions {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 0.6rem;
 		}
 
 		.project-cta {
@@ -718,11 +730,72 @@ const overviewFacts = [
 		}
 
 		.project-cta__container {
-			padding-block: 4.75rem;
+			padding-block: 3.8rem;
 		}
 
 		.project-cta__item {
 			min-height: auto;
+			padding: 0;
+		}
+
+		.project-cta__content {
+			gap: 2rem;
+		}
+
+		.project-cta h2 {
+			max-width: 12ch;
+			font-size: clamp(2.25rem, 10vw, 2.85rem);
+			line-height: 1.04;
+		}
+
+		.project-cta__row {
+			gap: 1.8rem;
+		}
+
+		.project-cta__items {
+			gap: 1.7rem;
+		}
+
+		.project-cta__item h3 {
+			margin-top: 0.7rem;
+			font-size: clamp(1.28rem, 5.4vw, 1.55rem);
+			line-height: 1.12;
+		}
+
+		.project-cta__item p {
+			margin-top: 0.42rem;
+			max-width: 31ch;
+			font-size: clamp(0.9rem, 3.6vw, 1rem);
+			line-height: 1.45;
+		}
+
+		.project-cta__button {
+			min-height: 3.45rem;
+			padding: 0.9rem 1.55rem;
+			font-size: 0.9rem;
+		}
+
+		.project-apartments__header h2 {
+			font-size: clamp(2rem, 8.8vw, 2.55rem);
+			line-height: 1.08;
+		}
+
+		.project-apartments :global(.property-card__body) {
+			gap: 0.7rem;
+			padding: 1rem 1rem 1.1rem;
+		}
+
+		.project-apartments :global(.property-card__title) {
+			font-size: clamp(1.15rem, 5vw, 1.35rem);
+			line-height: 1.15;
+		}
+
+		.project-apartments :global(.property-card__details) {
+			padding-top: 0.75rem;
+		}
+
+		.project-apartments :global(.property-card__footer) {
+			padding-top: 0.75rem;
 		}
 	}
 

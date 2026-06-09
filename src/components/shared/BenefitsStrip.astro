@@ -59,60 +59,6 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 	</div>
 </div>
 
-<script is:inline>
-	(() => {
-		const benefitScrollers = document.querySelectorAll('[data-benefits-scroll]');
-		const mobileBenefitsQuery = window.matchMedia('(max-width: 720px)');
-
-		if (!benefitScrollers.length) return;
-
-		let benefitsFrame = 0;
-
-		const updateBenefitsScroll = () => {
-			benefitsFrame = 0;
-
-			benefitScrollers.forEach((benefitsScroller) => {
-				const benefitsTrack = benefitsScroller.querySelector('[data-benefits-track]');
-
-				if (!benefitsTrack) return;
-
-				if (!mobileBenefitsQuery.matches) {
-					benefitsScroller.style.removeProperty('--benefits-scroll-space');
-					benefitsScroller.style.removeProperty('--benefits-sticky-height');
-					benefitsTrack.style.removeProperty('--benefits-x');
-					return;
-				}
-
-				const stickyPanel = benefitsScroller.querySelector('[data-benefits-sticky]');
-				const stickyHeight = stickyPanel ? stickyPanel.getBoundingClientRect().height : 1;
-				const stickyTop = Math.max(0, ((window.innerHeight || 1) - stickyHeight) / 2);
-				const distance = Math.max(0, benefitsTrack.scrollWidth - window.innerWidth);
-				const scrollSpace = Math.max(distance * 0.7, window.innerHeight * 0.42);
-				const rect = benefitsScroller.getBoundingClientRect();
-				const progress = Math.min(1, Math.max(0, (stickyTop - rect.top) / scrollSpace));
-
-				benefitsScroller.style.setProperty('--benefits-scroll-space', `${Math.round(scrollSpace)}px`);
-				benefitsScroller.style.setProperty('--benefits-sticky-height', `${Math.round(stickyHeight)}px`);
-				benefitsTrack.style.setProperty('--benefits-x', `${Math.round(-distance * progress)}px`);
-			});
-		};
-
-		const requestBenefitsScroll = () => {
-			if (benefitsFrame) return;
-			benefitsFrame = window.requestAnimationFrame(updateBenefitsScroll);
-		};
-
-		updateBenefitsScroll();
-		window.addEventListener('scroll', requestBenefitsScroll, { passive: true });
-		window.addEventListener('resize', requestBenefitsScroll);
-		if (typeof mobileBenefitsQuery.addEventListener === 'function') {
-			mobileBenefitsQuery.addEventListener('change', requestBenefitsScroll);
-		} else {
-			mobileBenefitsQuery.addListener(requestBenefitsScroll);
-		}
-	})();
-</script>
-
 <style>
 	.benefits-strip {
 		justify-self: center;
@@ -249,59 +195,74 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 
 	@media (max-width: 720px) {
 		.benefits-strip {
-			--benefits-scroll-space: 26rem;
-			--benefits-sticky-height: 10.75rem;
-
-			width: 100%;
-			height: calc(var(--benefits-scroll-space) + var(--benefits-sticky-height));
-			margin-top: clamp(3.5rem, 16vw, 5.75rem);
-			margin-inline: 0;
-			border-top: 0;
+			width: min(calc(100% - 3rem), 34rem);
+			height: auto;
+			margin-top: 1.5rem;
+			margin-bottom: 0;
+			margin-inline: auto;
+			border-top: 1px solid rgba(35, 38, 43, 0.12);
+			border-bottom: 1px solid rgba(35, 38, 43, 0.12);
 		}
 
 		.benefits-strip__sticky {
-			position: sticky;
-			top: 50%;
+			position: static;
 			width: 100%;
-			overflow: hidden;
+			overflow: visible;
 			background: transparent;
-			transform: translateY(-50%);
+			transform: none;
 		}
 
 		.benefits-strip__track {
-			width: max-content;
-			min-width: max-content;
-			grid-template-columns: repeat(5, minmax(14.5rem, 76vw));
-			padding: 0.7rem max(1.25rem, 6vw) 0;
+			width: 100%;
+			min-width: 0;
+			grid-template-columns: 1fr;
+			gap: 0;
+			padding: 0;
+			background: transparent;
 			overflow: visible;
-			will-change: transform;
+			transform: none;
 		}
 
 		.benefits-strip__item {
-			min-height: 11rem;
-			grid-template-rows:
-				clamp(4.5rem, 18vw, 5.4rem)
-				minmax(3.45rem, auto)
-				minmax(2.4rem, auto);
-			border-left: 1px solid rgba(0, 119, 182, 0.15);
+			min-height: auto;
+			grid-template-columns: 2.75rem minmax(0, 1fr);
+			grid-template-rows: auto auto;
+			align-items: center;
+			justify-items: start;
+			gap: 0.2rem 0.72rem;
+			padding: 0.68rem 0.55rem;
+			border-left: 0;
+			background: var(--surface-light);
+			text-align: left;
+			transform: none;
+		}
+
+		.benefits-strip__item + .benefits-strip__item {
+			border-top: 1px solid rgba(35, 38, 43, 0.1);
 		}
 
 		.benefits-strip__item:hover {
-			transform: scale(1.04);
+			transform: none;
 		}
 
 		.benefits-strip__icon {
-			width: clamp(4.5rem, 18vw, 5.4rem);
-			height: clamp(4.5rem, 18vw, 5.4rem);
+			grid-row: 1 / span 2;
+			width: 2.55rem;
+			height: 2.55rem;
 		}
 
 		.benefits-strip__title {
-			font-size: clamp(0.86rem, 4.3vw, 1.08rem);
+			justify-items: start;
+			max-width: 100%;
+			font-size: clamp(0.82rem, 3.3vw, 0.92rem);
+			line-height: 1.14;
 		}
 
 		.benefits-strip__item p {
-			max-width: 13rem;
-			font-size: clamp(0.74rem, 3.4vw, 0.86rem);
+			max-width: 100%;
+			font-size: clamp(0.7rem, 2.85vw, 0.8rem);
+			line-height: 1.34;
+			text-align: left;
 		}
 	}
 

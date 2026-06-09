@@ -29,9 +29,20 @@ interface Props {
 	plans: FloorPlanTab[];
 	initialTabId?: string;
 	showTabs?: boolean;
+	showPrice?: boolean;
 }
 
-const { eyebrow, title, lead, tabsAriaLabel, specsAriaLabel, plans, initialTabId, showTabs = true } = Astro.props as Props;
+const {
+	eyebrow,
+	title,
+	lead,
+	tabsAriaLabel,
+	specsAriaLabel,
+	plans,
+	initialTabId,
+	showTabs = true,
+	showPrice = true
+} = Astro.props as Props;
 const hasEyebrow = Boolean(eyebrow?.trim());
 const hasLead = Boolean(lead?.trim());
 const sectionId = `apartment-plans-${Math.random().toString(36).slice(2, 9)}`;
@@ -109,13 +120,19 @@ const initialIndex = Math.max(
 
 									<div class="apartment-plans__sidebar">
 										<div class="apartment-plans__details fade-in" data-reveal-delay="280">
-											<p class="apartment-plans__price">{plan.price}</p>
+											{showPrice ? <p class="apartment-plans__price">{plan.price}</p> : null}
 											<h3 class="apartment-plans__apartment-title">{plan.title}</h3>
 
 											<dl class="apartment-plans__specs" aria-label={specsAriaLabel}>
 												{
 													plan.specs.map((spec, specIndex) => (
-														<div class="apartment-plans__spec" data-reveal-delay={String(320 + specIndex * 55)}>
+														<div
+															class:list={{
+																"apartment-plans__spec": true,
+																"apartment-plans__spec--wide": spec.value.length > 24
+															}}
+															data-reveal-delay={String(320 + specIndex * 55)}
+														>
 															<dt>{spec.label}</dt>
 															<dd>{spec.value}</dd>
 														</div>
@@ -394,6 +411,7 @@ const initialIndex = Math.max(
 	}
 
 	:global(.apartment-plans__image-trigger) {
+		position: relative;
 		display: grid;
 		place-items: center;
 		width: 100%;
@@ -401,6 +419,17 @@ const initialIndex = Math.max(
 		border: 0;
 		background: transparent;
 		cursor: zoom-in;
+	}
+
+	:global(.apartment-plans__image-trigger)::after {
+		content: "";
+		position: absolute;
+		right: clamp(0.25rem, 2%, 1rem);
+		bottom: clamp(0.65rem, 4%, 1.6rem);
+		width: min(8.75rem, 34%);
+		height: min(6.5rem, 28%);
+		background: #fff;
+		pointer-events: none;
 	}
 
 	:global(.apartment-plans__image-trigger:focus-visible) {
@@ -472,11 +501,25 @@ const initialIndex = Math.max(
 	}
 
 	.apartment-plans__details {
+		position: relative;
 		display: grid;
 		align-content: start;
 		gap: 1.25rem;
-		padding-top: 0;
+		padding: clamp(1.4rem, 2.4vw, 2rem);
+		border: 1px solid rgba(35, 38, 43, 0.1);
+		background: rgba(255, 255, 255, 0.72);
+		box-shadow: 0 20px 55px rgba(15, 17, 21, 0.07);
 		justify-self: stretch;
+	}
+
+	.apartment-plans__details::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: clamp(1.4rem, 2.4vw, 2rem);
+		width: 3.25rem;
+		height: 2px;
+		background: var(--accent-primary);
 	}
 
 	.apartment-plans__price {
@@ -489,7 +532,7 @@ const initialIndex = Math.max(
 	}
 
 	.apartment-plans__apartment-title {
-		margin: 0;
+		margin: 0.2rem 0 0;
 		font-family: var(--font-heading);
 		font-size: clamp(1.6rem, 2.6vw, 2.35rem);
 		line-height: 1.08;
@@ -499,18 +542,25 @@ const initialIndex = Math.max(
 
 	.apartment-plans__specs {
 		display: grid;
-		gap: 0;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.75rem;
 		margin: 0;
-		border-top: 1px solid rgba(35, 38, 43, 0.14);
 	}
 
 	.apartment-plans__spec {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		gap: 1rem;
-		align-items: baseline;
-		padding: 1rem 0;
-		border-bottom: 1px solid rgba(35, 38, 43, 0.14);
+		align-content: start;
+		gap: 0.45rem;
+		min-width: 0;
+		min-height: 6.15rem;
+		padding: 1rem;
+		border: 1px solid rgba(35, 38, 43, 0.09);
+		background: rgba(245, 243, 238, 0.72);
+	}
+
+	.apartment-plans__spec--wide {
+		grid-column: 1 / -1;
+		min-height: auto;
 	}
 
 	.apartment-plans__spec dt,
@@ -519,18 +569,19 @@ const initialIndex = Math.max(
 	}
 
 	.apartment-plans__spec dt {
-		font-size: 0.76rem;
+		font-size: 0.7rem;
 		font-weight: 700;
-		letter-spacing: 0.14em;
+		letter-spacing: 0.13em;
 		text-transform: uppercase;
 		color: rgba(15, 17, 21, 0.5);
 	}
 
 	.apartment-plans__spec dd {
-		font-size: 1rem;
-		line-height: 1.4;
-		text-align: right;
+		font-size: 1.02rem;
+		line-height: 1.42;
+		text-align: left;
 		color: rgba(15, 17, 21, 0.86);
+		overflow-wrap: anywhere;
 	}
 
 	.apartment-plans__cta {
@@ -602,6 +653,14 @@ const initialIndex = Math.max(
 	}
 
 	@media (max-width: 720px) {
+		.apartment-plans {
+			padding-block: 3.25rem;
+		}
+
+		.apartment-plans__top-row {
+			margin-bottom: 1.5rem;
+		}
+
 		.apartment-plans__tabs {
 			display: grid;
 			grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -614,13 +673,45 @@ const initialIndex = Math.max(
 			justify-content: flex-start;
 		}
 
+		.apartment-plans__details {
+			gap: 1.1rem;
+			padding: 1.25rem 1rem 1.1rem;
+		}
+
+		.apartment-plans__details::before {
+			left: 1rem;
+		}
+
+		.apartment-plans__apartment-title {
+			font-size: clamp(1.65rem, 7vw, 2rem);
+		}
+
+		.apartment-plans__specs {
+			gap: 0.6rem;
+		}
+
 		.apartment-plans__spec {
-			grid-template-columns: 1fr;
-			gap: 0.4rem;
+			min-height: 5.7rem;
+			padding: 0.85rem;
+		}
+
+		.apartment-plans__spec--wide {
+			min-height: auto;
+		}
+
+		.apartment-plans__spec dt {
+			font-size: 0.64rem;
+			line-height: 1.35;
 		}
 
 		.apartment-plans__spec dd {
-			text-align: left;
+			font-size: 0.94rem;
+		}
+
+		.apartment-plans__cta {
+			width: 100%;
+			justify-self: stretch;
+			margin-top: 0.15rem;
 		}
 
 		:global(.apartment-plans__switches) {

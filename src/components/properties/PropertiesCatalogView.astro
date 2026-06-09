@@ -308,12 +308,31 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 	}
 
 	@media (max-width: 720px) {
+		.properties-catalog {
+			padding-top: 5.6rem;
+		}
+
 		.properties-catalog__hero {
-			padding-bottom: 1.6rem;
+			padding-bottom: 1.15rem;
+		}
+
+		.properties-catalog__header {
+			gap: 0.65rem;
+		}
+
+		.properties-catalog__title {
+			font-size: clamp(1.95rem, 8vw, 2.45rem);
+			line-height: 1.08;
+		}
+
+		.properties-catalog__lead {
+			font-size: 0.96rem;
+			line-height: 1.62;
 		}
 
 		.properties-catalog__controls {
-			padding-top: 0.8rem;
+			margin-bottom: 1.25rem;
+			padding-top: 0.45rem;
 		}
 
 		.properties-grid {

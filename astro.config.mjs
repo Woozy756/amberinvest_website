@@ -6,6 +6,9 @@ import tailwindcss from "@tailwindcss/vite";
 // https://astro.build/config
 export default defineConfig({
   output: "static",
+  devToolbar: {
+    enabled: false,
+  },
   integrations: [
     react(),
     sanity({
@@ -17,6 +20,9 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      exclude: ["react/jsx-dev-runtime", "react/jsx-runtime"],
+    },
     server: {
       headers: {
         "Cache-Control": "no-store",
