@@ -1,29 +1,32 @@
 ---
 import type { PropertyProject } from "../../sanity/properties";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	project?: PropertyProject;
+	locale?: Locale;
 }
 
-const { project } = Astro.props as Props;
+const { project, locale = "lv" } = Astro.props as Props;
+const isEnglish = locale === "en";
 
 const query = [project?.address?.trim(), project?.city?.trim()].filter(Boolean).join(", ");
 const embedUrl = query
 	? `https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
 	: "";
-const heading = project?.title || "Atrašanās vieta";
+const heading = project?.title || (isEnglish ? "Location" : "Atrašanās vieta");
 ---
 
 {
 	!embedUrl ? (
-		<div class="property-location-map__empty" role="note" aria-label="Kartes dati nav pieejami">
-			<p class="text-sm leading-[1.6]">Adrese šim dzīvoklim vēl nav pievienota.</p>
+		<div class="property-location-map__empty" role="note" aria-label={isEnglish ? "Map data unavailable" : "Kartes dati nav pieejami"}>
+			<p class="text-sm leading-[1.6]">{isEnglish ? "The address for this apartment has not yet been added." : "Adrese šim dzīvoklim vēl nav pievienota."}</p>
 		</div>
 	) : (
 		<div class="property-location-map">
 			<div class="property-location-map__frame gold-frame gold-frame--light">
 				<iframe
-					title={`${heading} karte`}
+					title={isEnglish ? `${heading} map` : `${heading} karte`}
 					src={embedUrl}
 					loading="lazy"
 					referrerpolicy="no-referrer-when-downgrade"

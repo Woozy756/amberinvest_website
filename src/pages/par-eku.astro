@@ -1,878 +1,1173 @@
 ---
+import ContactForm from "../components/home/ContactForm.jsx";
+import { getMessages, type Locale } from "../i18n/translations";
 import Layout from "../layouts/Layout.astro";
-import { getMessages } from "../i18n/translations";
+import { loadHomepage } from "../sanity/homepage";
 
-const locale = "lv";
+const locale = (Astro.props.locale ?? "lv") as Locale;
+const isEnglish = locale === "en";
 const messages = getMessages(locale);
 
 const pageTitle = messages.pages.aboutBuilding;
 const pageDescription =
-	"AmberHome Talsu ielā 3A ēkas konstrukciju, inženiertīklu, drošības un komforta risinājumu apraksts.";
+	isEnglish
+		? "Construction, utilities, safety and comfort features at AmberHome, Talsu Street 3A."
+		: "AmberHome Talsu ielā 3A ēkas konstrukciju, inženiertīklu, drošības un komforta risinājumu apraksts.";
+const homepage = await loadHomepage();
+const homeHeroImage = homepage?.hero.heroBackgroundImage?.asset?.url ?? "/images/hero-night.png";
+const homeMobileHeroImage = "/images/hero-mobile.png";
 
-const highlights = [
-	{ value: "3, 4, 5", label: "istabu plānojumi" },
-	{ value: "550 mm", label: "ārsienu kopējais biezums" },
-	{ value: "300 mm", label: "bēniņu akmens vate" },
-	{ value: "U 1,1", label: "trīskāršais stiklojums" }
+const sectionNav = isEnglish ? [
+	{ href: "#overview", label: "Overview" },
+	{ href: "#construction", label: "Construction" },
+	{ href: "#systems", label: "Utilities" },
+	{ href: "#comfort", label: "Comfort" },
+	{ href: "#consultation", label: "Consultation" },
+] : [
+	{ href: "#overview", label: "Pārskats" },
+	{ href: "#construction", label: "Konstrukcijas" },
+	{ href: "#systems", label: "Inženiertīkli" },
+	{ href: "#comfort", label: "Komforts" },
+	{ href: "#consultation", label: "Konsultācija" },
 ];
 
-const sectionNav = [
-	{ id: "konstrukcijas", label: "Konstrukcijas" },
-	{ id: "udens-un-kanalizacija", label: "Ūdensvads un kanalizācija" },
-	{ id: "apkure", label: "Apkure" },
-	{ id: "elektroapgade", label: "Elektroapgāde" },
-	{ id: "ventilacija", label: "Ventilācija" },
-	{ id: "telekomunikacijas", label: "Telekomunikācijas" },
-	{ id: "drosiba-un-komforts", label: "Drošība un komforts" }
+const overviewSpecs = isEnglish ? [
+	{ label: "Apartment layouts", value: "3, 4 and 5 rooms" },
+	{ label: "External wall thickness", value: "550 mm total thickness" },
+	{ label: "Attic insulation", value: "300 mm stone wool" },
+	{ label: "Windows", value: "Triple-glazed PVC windows with a U-value of 1.1" },
+] : [
+	{ label: "Istabu plānojumi", value: "3, 4 un 5 istabas" },
+	{ label: "Ārsienu biezums", value: "550 mm kopējais biezums" },
+	{ label: "Bēniņu siltinājums", value: "300 mm akmens vate" },
+	{ label: "Logi", value: "PVC logi ar trīskāršo stiklojumu un U vērtību 1,1" },
 ];
 
-const constructionItems = [
+const constructionItems = isEnglish ? [
+	{
+		title: "Foundations and ground-floor slab",
+		body: "Reinforced concrete block foundations insulated with XPS. The ground-floor slab includes 200 mm XPS insulation, underfloor heating and screed concrete.",
+		note: "A stable and insulated base structure for everyday comfort."
+	},
+	{
+		title: "External walls",
+		body: "An outer layer of calcium silicate brickwork with hollow clay bricks internally. The total wall thickness is 550 mm, complemented by 100 mm Paroc stone wool and Ceresit decorative render.",
+		note: "The wall build-up helps retain heat and reduce outside noise."
+	},
+	{
+		title: "Intermediate floors",
+		body: "Precast concrete panels, EPS insulation with integrated underfloor heating and dry screed concrete.",
+		note: "The floor structure supports practical acoustic and thermal comfort between levels."
+	},
+	{
+		title: "Attic and roof",
+		body: "Precast concrete panels with 300 mm stone-wool insulation. The roof is finished in PE-coated galvanized sheet metal.",
+		note: "Attic insulation and a durable roof covering help reduce heat loss."
+	},
+	{
+		title: "Walls between apartments",
+		body: "Masonry construction with double plasterboard lining and mineral-wool infill to improve sound insulation between apartments.",
+		note: "Designed for quieter and more private living."
+	},
+	{
+		title: "Internal partitions",
+		body: "Double plasterboard structures with mineral-wool infill, or masonry walls with plasterboard lining.",
+		note: "Partitions are designed to provide good sound insulation and everyday comfort."
+	},
+	{
+		title: "Windows",
+		body: "High-quality triple-glazed PVC windows with a low U-value of 1.1 provide thermal and acoustic insulation together with generous daylight.",
+		note: "More daylight and better thermal performance in one solution."
+	},
+	{
+		title: "Entrance doors",
+		body: "Aluminium entrance doors with remote opening for convenient and secure access.",
+		note: "Easy everyday access for residents and visitors."
+	},
+] : [
 	{
 		title: "Pamati un pirmā stāva grīda",
-		body: "Ēkas pamati izbūvēti no dzelzsbetona blokiem un siltināti ar XPS. Pirmā stāva grīdā iestrādāts 200 mm XPS siltinājums, zemgrīdas apkures sistēma un estrih betons."
+		body: "Dzelzsbetona bloku pamati siltināti ar XPS. Pirmā stāva grīdā iestrādāts 200 mm XPS siltinājums, zemgrīdas apkures sistēma un estrih betons.",
+		note: "Stabila un siltināta pamatkonstrukcija ikdienas komfortam."
 	},
 	{
 		title: "Ārsienas",
-		body: "Ārējo slāni veido silikāta ķieģeļu mūris, iekšējos slāņus - dobie māla ķieģeļi. Kopējais ārsienas biezums ir 550 mm. Fasādei izmantota 100 mm Paroc akmens vate, stikla šķiedras armējums un dekoratīvais apmetums Ceresit."
+		body: "Silikāta ķieģeļu ārējais mūris un dobie māla ķieģeļi iekšējos slāņos. Kopējais biezums ir 550 mm, papildināts ar 100 mm Paroc akmens vati un Ceresit dekoratīvo apmetumu.",
+		note: "Sienu risinājumi palīdz uzturēt siltumu un samazināt āra trokšņu ietekmi."
 	},
 	{
 		title: "Starpstāvu pārsegums",
-		body: "Starpstāvu pārsegumu veido saliekamie betona paneļi, EPS putu polistirols ar iestrādātu zemgrīdas apkures sistēmu un estrih sausais betons."
+		body: "Saliekamie betona paneļi, EPS putu polistirols ar iestrādātu zemgrīdas apkures sistēmu un estrih sausais betons.",
+		note: "Pārsegumi veidoti ar praktisku skaņas un siltuma komfortu starp stāviem."
 	},
 	{
-		title: "Bēniņu pārsegums un jumts",
-		body: "Bēniņu pārsegums veidots no saliekamā betona paneļiem un 300 mm akmens vates siltinājuma. Jumta segums ir cinkots skārds ar PE pārklājumu."
+		title: "Bēniņi un jumts",
+		body: "Saliekamā betona paneļu pārsegums ar 300 mm akmens vates siltinājumu. Jumta segums veidots no cinkota skārda ar PE pārklājumu.",
+		note: "Bēniņu siltinājums un izturīgs jumta segums palīdz samazināt siltuma zudumus."
 	},
 	{
 		title: "Dzīvokļu nodalošās sienas",
-		body: "Dzīvokļu ārsienas jeb nodalošās sienas veidotas no mūra ar dubultā ģipškartona apšuvumu un minerālvates pildījumu."
+		body: "Mūra konstrukcija ar dubultā ģipškartona apšuvumu un minerālvates pildījumu, kas uzlabo skaņas izolāciju starp dzīvokļiem.",
+		note: "Risinājums paredzēts mierīgākai un privātākai dzīvošanai."
 	},
 	{
 		title: "Dzīvokļu starpsienas",
-		body: "Starpsienas veidotas no dubultā ģipškartona konstrukcijām ar minerālvates pildījumu vai mūra sienām ar ģipškartona apšuvumu, nodrošinot labu skaņas izolāciju un komfortu ikdienā."
+		body: "Dubultā ģipškartona konstrukcijas ar minerālvates pildījumu vai mūra sienas ar ģipškartona apšuvumu.",
+		note: "Starpsienas veidotas, lai nodrošinātu labu skaņas izolāciju un komfortu ikdienā."
 	},
 	{
 		title: "Logi",
-		body: "Dzīvokļos uzstādīti augstas kvalitātes PVC logi ar trīskāršo stiklojumu un zemu U vērtību 1,1. Tie nodrošina siltuma un skaņas izolāciju, kā arī plašu dienasgaismas pieplūdi."
+		body: "Augstas kvalitātes PVC logi ar trīskāršo stiklojumu un zemu U vērtību 1,1 nodrošina siltuma un skaņas izolāciju, kā arī plašu dienasgaismu.",
+		note: "Plašāks dienasgaismas apjoms un labāka siltumnoturība vienā risinājumā."
 	},
 	{
 		title: "Ieejas durvis",
-		body: "Ēkas ieejas durvis veidotas no alumīnija konstrukcijām un aprīkotas ar attālinātas atvēršanas funkciju."
-	}
+		body: "Alumīnija konstrukcijas ar attālinātas atvēršanas funkciju ērtai un drošai piekļuvei ēkai.",
+		note: "Ērta piekļuve ēkai ikdienas lietošanai un apmeklētāju uzņemšanai."
+	},
 ];
 
-const utilitySections = [
+const utilitySections = isEnglish ? [
+	{
+		id: "water-and-sewerage",
+		number: "01",
+		title: "Water and sewerage",
+		lead: "Central municipal networks with individual consumption metering for every apartment.",
+		items: [
+			"The building is connected to the municipal water and sewerage networks.",
+			"Each apartment has hot and cold water supplied from the main network.",
+			"Individual hot and cold water meters are installed in every apartment."
+		]
+	},
+	{
+		id: "heating",
+		number: "02",
+		title: "Heating",
+		lead: "Municipal district heating combined with individually adjustable underfloor heating.",
+		items: [
+			"The building has its own heat substation.",
+			"The temperature can be adjusted separately in every room.",
+			"Heating consumption is metered for the building and for each apartment.",
+			"Common areas are equipped with hydronic underfloor heating."
+		]
+	},
+	{
+		id: "electricity",
+		number: "03",
+		title: "Electricity",
+		lead: "Complete internal electrical installations for lighting and household appliances.",
+		items: [
+			"Electrical distribution and internal wiring are installed.",
+			"Light switches, sockets, lighting points and appliance connections are provided.",
+			"Each apartment has an individual electricity meter."
+		]
+	},
+	{
+		id: "ventilation",
+		number: "04",
+		title: "Ventilation",
+		lead: "Individual mechanical ventilation with heat recovery supplies fresh air without opening windows.",
+		items: [
+			"Every apartment has its own ventilation unit.",
+			"Mechanical ventilation serves living rooms, bedrooms, bathrooms and WCs.",
+			"The kitchen has a dedicated ventilation duct leading to the roof."
+		]
+	},
+	{
+		id: "telecommunications",
+		number: "05",
+		title: "Telecommunications",
+		lead: "Modern data infrastructure for work, leisure and connected devices.",
+		items: [
+			"A Balticom fibre-optic internet connection is installed.",
+			"Every room includes a data socket for connecting equipment."
+		]
+	},
+] : [
 	{
 		id: "udens-un-kanalizacija",
-		number: "02",
+		number: "01",
 		title: "Ūdensvads un kanalizācija",
-		meta: "Centralizēti pilsētas tīkli",
-		metric: "Atsevišķa ūdens uzskaite",
-		lead: "Ēka pieslēgta pilsētas centralizētajiem tīkliem, un patēriņš tiek uzskaitīts katram dzīvoklim atsevišķi.",
+		lead: "Centralizēti pilsētas tīkli ar individuālu patēriņa uzskaiti katram dzīvoklim.",
 		items: [
 			"Ēkai ir pieslēgums centralizētajai pilsētas ūdensapgādei un kanalizācijai.",
 			"Katram dzīvoklim izbūvēta aukstā un karstā ūdens padeve no maģistrālā tīkla.",
-			"Aukstā un karstā ūdens patēriņa skaitītāji uzstādīti katram dzīvoklim."
-		]
+			"Aukstā un karstā ūdens patēriņa skaitītāji uzstādīti katram dzīvoklim.",
+		],
 	},
 	{
 		id: "apkure",
-		number: "03",
+		number: "02",
 		title: "Apkure",
-		meta: "Regulējams siltums",
-		metric: "Zemgrīdas apkure katrai telpai",
-		lead: "Centralizēta pilsētas siltumapgāde apvienota ar individuāli regulējamu zemgrīdas apkuri dzīvokļos.",
+		lead: "Centralizēta pilsētas siltumapgāde apvienota ar individuāli regulējamu zemgrīdas apkuri.",
 		items: [
-			"Ēkai ir centralizētā pilsētas siltumapgāde un savs siltummezgls.",
-			"Dzīvokļos ir iebūvēta ūdens cauruļvadu zemgrīdas apkures sistēma ar iespēju regulēt siltuma režīmu katrai telpai atsevišķi.",
-			"Apkures patēriņš tiek uzskaitīts gan visai mājai kopumā, gan katram dzīvoklim atsevišķi ar skaitītājiem.",
-			"Koplietošanas telpās ir iebūvēta ūdens cauruļvadu zemgrīdas apkures sistēma."
-		]
+			"Ēkai ir savs siltummezgls.",
+			"Siltuma režīmu iespējams regulēt katrai telpai atsevišķi.",
+			"Apkures patēriņš tiek uzskaitīts visai mājai un katram dzīvoklim atsevišķi.",
+			"Koplietošanas telpās ir izbūvēta ūdens cauruļvadu zemgrīdas apkures sistēma.",
+		],
 	},
 	{
 		id: "elektroapgade",
-		number: "04",
+		number: "03",
 		title: "Elektroapgāde",
-		meta: "Gatavi elektrotīkli",
-		metric: "Individuāls elektrības skaitītājs",
-		lead: "Dzīvokļiem sagatavoti iekšējie elektrotīkli ikdienas apgaismojumam, sadzīves tehnikai un ērtai lietošanai.",
+		lead: "Dzīvokļiem sagatavoti pilni iekšējie elektrotīkli ikdienas apgaismojumam un sadzīves tehnikai.",
 		items: [
-			"Katram dzīvoklim izbūvēta elektrības sadale un iekšējie elektrotīkli.",
-			"Ierīkoti gaismas slēdži, rozetes, gaismekļu pieslēguma vietas un pieslēguma punkti elektroierīcēm.",
-			"Katram dzīvoklim ir individuāls elektrības patēriņa skaitītājs."
-		]
+			"Izbūvēta elektrības sadale un iekšējie elektrotīkli.",
+			"Ierīkoti gaismas slēdži, rozetes, gaismekļu un elektroierīču pieslēguma punkti.",
+			"Katram dzīvoklim ir individuāls elektrības patēriņa skaitītājs.",
+		],
 	},
 	{
 		id: "ventilacija",
-		number: "05",
+		number: "04",
 		title: "Ventilācija",
-		meta: "Svaigs gaiss dzīvoklī",
-		metric: "Individuāla rekuperācijas iekārta",
-		lead: "Katram dzīvoklim paredzēta individuāla mehāniskā ventilācija ar siltuma atgūšanu.",
+		lead: "Individuāla mehāniskā ventilācija ar siltuma atgūšanu nodrošina svaigu gaisu bez logu atvēršanas.",
 		items: [
-			"Katram dzīvoklim izbūvēta mehāniskā ventilācija ar rekuperāciju, kas nodrošina svaiga un tīra gaisa pieplūdi bez logu atvēršanas.",
 			"Ventilācijas iekārta ir individuāla katram dzīvoklim.",
 			"Piespiedu ventilācija nodrošināta dzīvojamajās telpās, guļamistabās, vannas istabās un sanitārajos mezglos.",
-			"Virtuvē iebūvēts ventilācijas gaisa vads ar izvadu uz ēkas jumtu."
-		]
+			"Virtuvē izbūvēts ventilācijas gaisa vads ar izvadu uz ēkas jumtu.",
+		],
 	},
 	{
 		id: "telekomunikacijas",
-		number: "06",
+		number: "05",
 		title: "Telekomunikācijas",
-		meta: "Optiskais internets",
-		metric: "Datu rozetes katrā istabā",
-		lead: "Dzīvokļos paredzēta mūsdienīga datu infrastruktūra ikdienas darbam, atpūtai un viedierīcēm.",
+		lead: "Mūsdienīga datu infrastruktūra darbam, atpūtai un viedierīču lietošanai.",
 		items: [
-			"Izbūvēts optiskā interneta pieslēgums, ko nodrošina SIA Balticom.",
-			"Izbūvētas datortīklu rozetes iekārtu pieslēgšanai katrā istabā."
-		]
-	}
+			"Izbūvēts SIA Balticom optiskā interneta pieslēgums.",
+			"Katrā istabā izbūvētas datortīklu rozetes iekārtu pieslēgšanai.",
+		],
+	},
 ];
 
-const safetyItems = [
+const comfortGroups = isEnglish ? [
 	{
-		title: "Drošības pasākumi",
+		title: "Safety",
 		items: [
-			"Teritorijā, pie ēkas ieejas durvīm un kāpņu telpās ir nodrošināta videonovērošana ar datu saglabāšanu.",
-			"Iekļūšana ēkā notiek ar piekļuves kontroles sistēmu jeb čipatslēgām.",
-			"Katrs dzīvoklis aprīkots ar autonomu dūmu detektoru ar bateriju."
+			"Video surveillance around the site, entrances and stairwells.",
+			"Access-control system with electronic keys.",
+			"An autonomous smoke detector in every apartment."
 		]
+	},
+	{
+		title: "EV charging",
+		items: [
+			"Electric-vehicle charging points can be installed in the parking area.",
+			"The required EV charging infrastructure has been prepared."
+		]
+	},
+	{
+		title: "Comfort",
+		items: [
+			"Accessible entry for people with reduced mobility.",
+			"Parking spaces on land belonging to the building.",
+			"Paved courtyard, bicycle parking and landscaped green space."
+		]
+	},
+] : [
+	{
+		title: "Drošība",
+		items: [
+			"Videonovērošana teritorijā, pie ieejas durvīm un kāpņu telpās.",
+			"Piekļuves kontroles sistēma ar čipatslēgām.",
+			"Autonoms dūmu detektors katrā dzīvoklī.",
+		],
 	},
 	{
 		title: "Elektrouzlāde",
 		items: [
-			"Teritorijas stāvvietās iespējams uzstādīt elektroauto uzlādes iekārtas.",
-			"Elektroauto uzlādei ir sagatavota nepieciešamā infrastruktūra."
-		]
+			"Stāvvietās iespējams uzstādīt elektroauto uzlādes iekārtas.",
+			"Elektroauto uzlādei sagatavota nepieciešamā infrastruktūra.",
+		],
 	},
 	{
 		title: "Komforts",
 		items: [
-			"Ēkā nodrošināta piekļuve cilvēkiem ar īpašām vajadzībām.",
-			"Nodrošinātas stāvvietas uz ēkai piesaistītās un piederošās zemes.",
-			"Pagalms ir bruģēts, ar velosipēdu novietni un zaļo zonu."
-		]
-	}
+			"Piekļuve cilvēkiem ar īpašām vajadzībām.",
+			"Stāvvietas uz ēkai piederošās zemes.",
+			"Bruģēts pagalms, velosipēdu novietne un zaļā zona.",
+		],
+	},
 ];
 ---
 
 <Layout
-	title={pageTitle}
+	title={isEnglish ? messages.pages.aboutBuilding : pageTitle}
 	description={pageDescription}
-	canonicalPath="/par-eku"
-	ogImageUrl="/images/hero-night.png"
-	ogImageAlt="AmberHome ēka Talsu ielā 3A"
+	canonicalPath={isEnglish ? "/en/about-the-building" : "/par-eku"}
+	ogImageUrl={homeHeroImage}
+	ogImageAlt={isEnglish ? "AmberHome building at Talsu Street 3A" : "AmberHome ēka Talsu ielā 3A"}
+	overlayHeader
 	footerTone="light"
 	locale={locale}
 >
-	<main class="building-page">
-		<section class="building-hero" aria-labelledby="building-hero-title">
-			<div class="building-hero__image" aria-hidden="true"></div>
-			<div class="building-hero__container">
-				<div class="building-hero__content fade-in">
-					<p class="building-eyebrow">AmberHome Talsu iela 3A</p>
-					<h1 id="building-hero-title">Par Ēku</h1>
-					<p>
-						Gan 3, gan 4 un 5 istabu plānojumi jaunajā projektā veidoti tā, lai ikviens klients varētu atrast savām vajadzībām atbilstošu dzīvokli.
+	<main class="building-guide-page">
+		<section
+			class="building-guide-hero"
+			style={`--building-guide-hero-image: url("${homeHeroImage}"); --building-guide-mobile-hero-image: url("${homeMobileHeroImage}");`}
+		>
+			<div class="building-guide-shell building-guide-hero__layout">
+				<div class="building-guide-hero__content">
+					<p class="building-guide-eyebrow fade-in text-xs font-bold uppercase tracking-widest">
+						{isEnglish ? "About the building" : "Par ēku"}
 					</p>
-					<div class="building-hero__actions">
-						<a href="/properties">Apskatīt dzīvokļus</a>
-						<a href="/contact">Pieteikt apskati</a>
+					<h1
+						class="building-guide-hero__title fade-in text-5xl font-semibold leading-none tracking-tight sm:text-6xl xl:text-7xl"
+						data-reveal-delay="50"
+					>
+						{isEnglish ? "AmberHome, Talsu Street 3A" : "AmberHome Talsu Ielā 3A"}
+					</h1>
+					<div class="building-guide-copy building-guide-hero__lead fade-in text-base leading-relaxed" data-reveal-delay="100">
+						<p>
+							{isEnglish ? "Carefully designed construction, individually adjustable systems and a fully finished environment for comfortable everyday living." : "Pārdomātas konstrukcijas, individuāli regulējamas sistēmas un pilnībā pabeigta vide ērtai ikdienai."}
+						</p>
 					</div>
 				</div>
 
-				<ul class="building-hero__stats fade-in" data-reveal-delay="120" role="list" aria-label="Ēkas galvenie rādītāji">
-					{highlights.map((highlight) => (
-						<li>
-							<strong>{highlight.value}</strong>
-							<span>{highlight.label}</span>
-						</li>
-					))}
-				</ul>
-			</div>
-		</section>
-
-		<section class="building-intro" aria-labelledby="building-intro-title">
-			<div class="building-shell building-intro__layout">
-				<div class="building-intro__content fade-in">
-					<p class="building-eyebrow">Tehniskais apraksts</p>
-					<h2 id="building-intro-title">Pārdomāta konstrukcija, sakārtoti tīkli un ikdienas komforts.</h2>
-					<p>
-						Ēkas risinājumi veidoti ar uzsvaru uz siltumnoturību, skaņas izolāciju, individuālu patēriņa uzskaiti un svaigu gaisu katrā dzīvoklī.
-					</p>
-				</div>
-
-				<nav class="building-section-nav fade-in" data-reveal-delay="100" aria-label="Par Ēku sadaļas">
-					{sectionNav.map((item, index) => (
-						<a href={`#${item.id}`}>
-							<span>{String(index + 1).padStart(2, "0")}</span>
-							{item.label}
-						</a>
-					))}
+				<nav class="building-guide-hero__nav fade-in" data-reveal-delay="140" aria-label={isEnglish ? "About the building sections" : "Par ēku sadaļas"}>
+					<p class="building-guide-hero__nav-label text-xs font-bold uppercase tracking-widest">{isEnglish ? "Sections" : "Sadaļas"}</p>
+					<ul class="building-guide-hero__nav-list" role="list">
+						{sectionNav.map((item, index) => (
+							<li>
+								<a href={item.href} class="text-sm leading-relaxed">
+									<span class="building-guide-number building-guide-hero__nav-index text-xs font-bold uppercase tracking-widest">
+										{String(index + 1).padStart(2, "0")}
+									</span>
+									<span>{item.label}</span>
+									<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+										<path
+											d="M1.75 8h9.5"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.25"
+											stroke-linecap="square"
+										></path>
+										<path
+											d="M7.75 3.75 12 8l-4.25 4.25"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.25"
+											stroke-linecap="square"
+											stroke-linejoin="miter"
+										></path>
+									</svg>
+								</a>
+							</li>
+						))}
+					</ul>
 				</nav>
 			</div>
 		</section>
 
-		<section class="building-section building-section--light" id="konstrukcijas" aria-labelledby="construction-title">
-			<div class="building-shell">
-				<div class="building-section__header fade-in">
-					<p class="building-eyebrow">01 / Konstrukcijas</p>
-					<h2 id="construction-title">Siltināta ēka ar pārdomātiem konstrukciju risinājumiem.</h2>
+		<section class="building-guide-split building-guide-split--light" id="overview">
+			<div class="building-guide-shell building-guide-split__layout">
+				<div class="building-guide-split__media fade-in">
+					<figure class="building-guide-split__frame gold-frame">
+						<img
+							src="/images/interior-kitchen-dining.jpeg"
+							alt={isEnglish ? "Bright AmberHome kitchen and living area" : "AmberHome dzīvokļa gaišā virtuve un dzīvojamā zona"}
+							loading="lazy"
+							decoding="async"
+						/>
+					</figure>
 				</div>
 
-				<div class="building-construction-layout">
-					<div class="building-card-grid building-card-grid--construction">
-						{constructionItems.map((item, index) => (
-							<article class="building-card fade-in" data-reveal-delay={String(80 + index * 35)}>
-								<h3>
-									<span class="building-card__number">{String(index + 1).padStart(2, "0")}</span>
-									{item.title}
-								</h3>
-								<p>{item.body}</p>
-							</article>
+				<div class="building-guide-split__content fade-in" data-reveal-delay="80">
+					<p class="building-guide-eyebrow text-xs font-bold uppercase tracking-widest">{isEnglish ? "AmberHome, Talsu Street 3A" : "AmberHome Talsu iela 3A"}</p>
+					<h2 class="building-guide-section-title mb-6 text-4xl font-semibold leading-none tracking-tight sm:mb-8 sm:text-5xl lg:text-6xl">
+						{isEnglish ? "A home designed for sustainable everyday living." : "Mājoklis, kas veidots ilgtspējīgai ikdienai."}
+					</h2>
+					<div class="building-guide-copy mt-6 text-base leading-relaxed sm:mt-8">
+						<p>
+							{isEnglish ? "The three, four and five-room layouts are designed so everyone can find an apartment suited to their needs." : "Gan 3, gan 4 un 5 istabu plānojumi veidoti tā, lai ikviens varētu atrast savām vajadzībām piemērotu dzīvokli."}
+						</p>
+						<p>
+							{isEnglish ? "The building combines thermal performance, sound insulation, individual utility metering and fresh air in every apartment." : "Ēkas risinājumi apvieno siltumnoturību, skaņas izolāciju, individuālu patēriņa uzskaiti un svaigu gaisu katrā dzīvoklī."}
+						</p>
+					</div>
+
+					<div class="building-guide-specs building-guide-specs--light">
+						{overviewSpecs.map((item) => (
+							<div class="building-guide-specs__row">
+								<p class="text-sm leading-relaxed">{item.label}</p>
+								<p class="text-base leading-relaxed">{item.value}</p>
+							</div>
 						))}
 					</div>
 				</div>
 			</div>
 		</section>
 
-		{utilitySections.map((section, sectionIndex) => (
-			<section
-				class:list={["building-section", sectionIndex % 2 === 0 ? "building-section--dark" : "building-section--light"]}
-				id={section.id}
-				aria-labelledby={`${section.id}-title`}
-			>
-				<div class="building-shell building-detail">
-					<aside class="building-detail__marker fade-in" data-reveal-delay="70">
-						<span>{section.number}</span>
-						<strong>{section.meta}</strong>
-						<p>{section.metric}</p>
-					</aside>
-					<div class="building-detail__heading fade-in">
-						<p class="building-eyebrow">{section.number} / Inženiertīkli</p>
-						<h2 id={`${section.id}-title`}>{section.title}</h2>
-						<p>{section.lead}</p>
+		<section class="building-guide-process" id="construction">
+			<div class="building-guide-shell building-guide-process__layout">
+				<div class="building-guide-process__intro">
+					<div class="building-guide-process__intro-inner fade-in">
+						<p class="building-guide-eyebrow text-xs font-bold uppercase tracking-widest">{isEnglish ? "Construction" : "Konstrukcijas"}</p>
+						<h2 class="building-guide-section-title text-4xl font-semibold leading-none tracking-tight sm:text-5xl lg:text-6xl">
+							{isEnglish ? "Considered from the foundations to the roof." : "Pārdomāts no pamatiem līdz jumtam."}
+						</h2>
+						<div class="building-guide-copy text-base leading-relaxed">
+							<p>{isEnglish ? "Durable materials and carefully selected insulation provide comfort throughout the year." : "Ilgmūžīgi materiāli un rūpīgi izvēlēti siltinājuma risinājumi nodrošina komfortu visos gadalaikos."}</p>
+						</div>
 					</div>
-					<ul class="building-check-list fade-in" data-reveal-delay="100" role="list">
-						{section.items.map((item) => (
-							<li>{item}</li>
-						))}
-					</ul>
-				</div>
-			</section>
-		))}
-
-		<section class="building-section building-section--accent" id="drosiba-un-komforts" aria-labelledby="comfort-title">
-			<div class="building-shell">
-				<div class="building-section__header fade-in">
-					<p class="building-eyebrow">07 / Drošība un komforts</p>
-					<h2 id="comfort-title">Droša ikdiena, sakārtota teritorija un sagatavota infrastruktūra.</h2>
 				</div>
 
-				<div class="building-card-grid building-card-grid--comfort">
-					{safetyItems.map((group, index) => (
-						<article class="building-card building-card--dark fade-in" data-reveal-delay={String(90 + index * 60)}>
-							<h3>
-								<span class="building-card__number">{String(index + 1).padStart(2, "0")}</span>
-								{group.title}
-							</h3>
-							<ul role="list">
-								{group.items.map((item) => (
-									<li>{item}</li>
-								))}
-							</ul>
+				<div class="building-guide-process__list">
+					{constructionItems.map((item, index) => (
+						<article class="building-guide-step fade-in" data-reveal-delay={80 + index * 55}>
+							<div class="building-guide-step__meta">
+								<p class="building-guide-number building-guide-step__number text-xs font-bold uppercase tracking-widest">
+									{String(index + 1).padStart(2, "0")}
+								</p>
+								<div class="building-guide-step__content">
+									<h3 class="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">{item.title}</h3>
+									<div class="building-guide-copy text-base leading-relaxed">
+										<p>{item.body}</p>
+									</div>
+									<p class="building-guide-step__note text-sm leading-relaxed">{item.note}</p>
+								</div>
+							</div>
 						</article>
 					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="building-guide-split building-guide-split--light" id="systems">
+			<div class="building-guide-shell">
+				<div class="building-guide-split__content building-guide-split__content--wide fade-in">
+					<p class="building-guide-eyebrow text-xs font-bold uppercase tracking-widest">{isEnglish ? "Utilities" : "Inženiertīkli"}</p>
+					<h2 class="building-guide-section-title mb-6 text-4xl font-semibold leading-none tracking-tight sm:mb-8 sm:text-5xl lg:text-6xl">
+						{isEnglish ? "Systems designed around your comfort." : "Sistēmas, kas strādā Tavam komfortam."}
+					</h2>
+					<div class="building-guide-copy mt-6 text-base leading-relaxed sm:mt-8">
+						<p>
+							{isEnglish ? "Each apartment has individually metered and adjustable systems for convenient everyday use." : "Katrs dzīvoklis aprīkots ar individuāli uzskaitāmām un regulējamām sistēmām ērtai ikdienas lietošanai."}
+						</p>
+					</div>
+
+					<div class="building-guide-specs building-guide-specs--light">
+						{utilitySections.map((section) => (
+							<div class="building-guide-specs__row" id={section.id}>
+								<p class="text-sm leading-relaxed">
+									<span class="building-guide-number building-guide-specs__number">{section.number}</span>
+									{section.title}
+								</p>
+								<div class="building-guide-specs__details">
+									<p class="text-base leading-relaxed">{section.lead}</p>
+									<ul role="list">
+										{section.items.map((item) => <li>{item}</li>)}
+									</ul>
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="building-guide-faq" id="comfort">
+			<div class="building-guide-shell">
+				<div class="building-guide-faq__intro">
+					<div class="fade-in">
+						<p class="building-guide-eyebrow text-xs font-bold uppercase tracking-widest">{isEnglish ? "Safety and comfort" : "Drošība un komforts"}</p>
+						<h2 class="building-guide-section-title text-4xl font-semibold leading-none tracking-tight sm:text-5xl lg:text-6xl">
+							{isEnglish ? "A well-kept setting for comfortable living." : "Sakārtota vide mājīgai ikdienai."}
+						</h2>
+					</div>
+
+					<div class="building-guide-copy fade-in text-base leading-relaxed" data-reveal-delay="70">
+						<p>{isEnglish ? "From secure access to EV charging and a landscaped courtyard." : "No drošas piekļuves līdz elektroauto uzlādei un labiekārtotam pagalmam."}</p>
+					</div>
+				</div>
+
+				<div class="building-guide-faq__list">
+					{comfortGroups.map((group, index) => (
+						<details class="building-guide-faq__item fade-in" data-reveal-delay={110 + index * 55}>
+							<summary class="text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+								<span>
+									<span class="building-guide-number building-guide-faq__number">{String(index + 1).padStart(2, "0")}</span>
+									{group.title}
+								</span>
+								<span class="building-guide-faq__icon" aria-hidden="true"></span>
+							</summary>
+							<div class="building-guide-faq__answer building-guide-copy text-base leading-relaxed">
+								<ul role="list">
+									{group.items.map((item) => <li>{item}</li>)}
+								</ul>
+							</div>
+						</details>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="contact-section" aria-labelledby="contact-section-title" id="consultation">
+			<div class="contact-section__container">
+				<div class="contact-section__layout">
+					<div class="contact-section__content">
+						<p class="contact-section__eyebrow fade-in">{isEnglish ? "Get in touch" : "Piesakieties"}</p>
+						<h2 id="contact-section-title" class="contact-section__title fade-in" data-reveal-delay="70">
+							{isEnglish ? "Leave your contact details" : "Atstāj savus kontaktus"}
+						</h2>
+						<div class="contact-section__lead fade-in" data-reveal-delay="130">
+							<p>{isEnglish ? "Leave your contact details and we will get in touch to arrange a viewing at a convenient time." : "Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par apskati Tev ērtā laikā."}</p>
+						</div>
+
+						<ul class="contact-section__benefits" role="list">
+							<li class="contact-section__benefit fade-in" data-reveal-delay="190">
+								<span class="contact-section__check" aria-hidden="true">
+									<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+								</span>
+								<span>{isEnglish ? "Apartment viewing with our specialist" : "Dzīvokļu apskate ar mūsu speciālistu"}</span>
+							</li>
+							<li class="contact-section__benefit fade-in" data-reveal-delay="250">
+								<span class="contact-section__check" aria-hidden="true">
+									<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+								</span>
+								<span>{isEnglish ? "We will respond within 24 hours" : "Atbildēsim uz Tavu pieteikumu 24 stundu laikā"}</span>
+							</li>
+							<li class="contact-section__benefit fade-in" data-reveal-delay="310">
+								<span class="contact-section__check" aria-hidden="true">
+									<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
+								</span>
+								<span>{isEnglish ? "We handle your personal data with care." : "Mēs rūpējamies par Tavu datu drošību."}</span>
+							</li>
+						</ul>
+					</div>
+
+					<div class="contact-section__form-wrap">
+						<div class="contact-section__card contact-form-card">
+							<ContactForm
+								client:load
+								locale={locale}
+								title={isEnglish ? "Leave your contact details" : "Atstāj savus kontaktus"}
+								intro=""
+								defaultInformation={isEnglish ? "I would like to book an apartment viewing." : "Vēlos pieteikties dzīvokļa apskatei."}
+								submitLabel={isEnglish ? "Book a viewing" : "Pieteikties apskatei"}
+							/>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
 	</main>
 </Layout>
 
-<style>
-	.building-page {
-		background: #f6f5f1;
-		color: var(--bg-primary);
-		overflow-x: hidden;
-	}
-
-	.building-shell,
-	.building-hero__container {
-		width: min(100%, 1280px);
-		margin-inline: auto;
-		padding-inline: clamp(1.5rem, 4vw, 3rem);
-	}
-
-	.building-eyebrow {
-		margin: 0;
-		color: var(--accent-primary);
-		font-size: 0.72rem;
-		font-weight: 900;
-		letter-spacing: 0.18em;
-		text-transform: uppercase;
-	}
-
-	.building-hero {
-		position: relative;
-		min-height: clamp(40rem, 86svh, 52rem);
-		display: grid;
-		align-items: end;
-		overflow: hidden;
+<style is:global>
+	.building-guide-page {
 		background: var(--bg-primary);
 		color: var(--surface-light);
 	}
 
-	.building-hero__image {
-		position: absolute;
-		inset: 0;
-		background:
-			linear-gradient(180deg, rgba(10, 13, 18, 0.24) 0%, rgba(10, 13, 18, 0.54) 60%, rgba(10, 13, 18, 0.86) 100%),
-			linear-gradient(90deg, rgba(10, 13, 18, 0.82) 0%, rgba(10, 13, 18, 0.34) 58%, rgba(10, 13, 18, 0.2) 100%),
-			url("/images/hero-night.png");
-		background-position: center;
-		background-size: cover;
-		transform: scale(1.02);
+	.building-guide-shell {
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding-inline: clamp(1.5rem, 4vw, 3rem);
 	}
 
-	.building-hero__container {
-		position: relative;
-		z-index: 1;
-		display: grid;
-		gap: clamp(2rem, 5vw, 4rem);
-		padding-top: calc(5.25rem + clamp(3rem, 7vw, 5rem));
-		padding-bottom: clamp(2.5rem, 5vw, 4rem);
-	}
-
-	.building-hero__content {
-		min-width: 0;
-		max-width: 54rem;
-		display: grid;
-		gap: 1.15rem;
-		justify-items: center;
-		margin-inline: auto;
-		text-align: center;
-	}
-
-	.building-hero h1,
-	.building-intro h2,
-	.building-section h2,
-	.building-card h3 {
+	.building-guide-eyebrow {
 		margin: 0;
-		font-family: var(--font-heading);
-		letter-spacing: 0;
-		text-wrap: balance;
-		overflow-wrap: anywhere;
-	}
-
-	.building-hero h1 {
-		font-size: clamp(4rem, 11vw, 9.5rem);
-		font-weight: 900;
-		line-height: 0.9;
-		text-shadow: 0 12px 36px rgba(0, 0, 0, 0.42);
-	}
-
-	.building-hero__content p:not(.building-eyebrow) {
-		max-width: 45rem;
-		margin: 0;
-		color: rgba(245, 243, 238, 0.9);
-		font-size: clamp(1.05rem, 1.6vw, 1.35rem);
-		line-height: 1.7;
-		overflow-wrap: anywhere;
-	}
-
-	.building-hero__actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.85rem;
-		justify-content: center;
-		margin-top: 0.5rem;
-	}
-
-	.building-hero__actions a {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 3.35rem;
-		padding: 0.9rem 1.45rem;
-		border: 1px solid rgba(245, 243, 238, 0.58);
-		border-radius: 999px;
-		color: var(--surface-light);
-		font-size: 0.78rem;
-		font-weight: 900;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		text-decoration: none;
-		transition:
-			background-color 220ms var(--ease-premium),
-			border-color 220ms var(--ease-premium),
-			color 220ms var(--ease-premium),
-			transform 220ms var(--ease-premium);
-	}
-
-	.building-hero__actions a:first-child {
-		border-color: var(--accent-primary);
-		background: var(--accent-primary);
-		color: var(--bg-primary);
-	}
-
-	.building-hero__actions a:hover,
-	.building-hero__actions a:focus-visible {
-		border-color: var(--accent-primary);
-		background: var(--accent-primary);
-		color: var(--bg-primary);
-		outline: none;
-		transform: translateY(-2px);
-	}
-
-	.building-hero__stats {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		border-top: 1px solid rgba(245, 243, 238, 0.22);
-	}
-
-	.building-hero__stats li {
-		display: grid;
-		gap: 0.35rem;
-		justify-items: center;
-		padding: 1.15rem clamp(0.8rem, 2vw, 1.4rem);
-		border-left: 1px solid rgba(245, 243, 238, 0.18);
-		text-align: center;
-	}
-
-	.building-hero__stats li:first-child {
-		border-left: 0;
-	}
-
-	.building-hero__stats strong {
 		color: var(--accent-primary);
-		font-size: clamp(1.55rem, 3vw, 2.35rem);
+	}
+
+	.building-guide-section-title,
+	.building-guide-hero__title {
+		font-family: var(--font-heading);
+		text-wrap: balance;
+	}
+
+	.building-guide-hero__title {
+		max-width: 12ch;
+		margin: 0.9rem 0 0;
+	}
+
+	.building-guide-section-title {
+		max-width: 13ch;
+		margin: 0;
+	}
+
+	.building-guide-copy {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.building-guide-copy p,
+	.building-guide-step__note,
+	.building-guide-specs__row p,
+	.building-guide-faq__answer p,
+	.contact-section__benefit span {
+		margin: 0;
+		color: var(--text-secondary);
+	}
+
+	.building-guide-number {
+		color: var(--accent-primary);
+		font-size: 0.95rem;
 		line-height: 1;
 	}
 
-	.building-hero__stats span {
-		color: rgba(245, 243, 238, 0.76);
-		font-size: 0.78rem;
-		font-weight: 900;
-		letter-spacing: 0.11em;
-		text-transform: uppercase;
-	}
-
-	.building-intro,
-	.building-section {
-		padding: clamp(4.5rem, 8vw, 7rem) 0;
-	}
-
-	.building-intro {
-		background:
-			linear-gradient(90deg, rgba(0, 119, 182, 0.07) 0, transparent 38%),
-			#f6f5f1;
-	}
-
-	.building-intro__layout {
-		display: grid;
-		grid-template-columns: minmax(0, 0.94fr) minmax(20rem, 0.72fr);
-		gap: clamp(2.5rem, 6vw, 5rem);
-		align-items: start;
-	}
-
-	.building-intro__content,
-	.building-section__header,
-	.building-detail__heading {
-		min-width: 0;
-		display: grid;
-		gap: 1rem;
-		justify-items: center;
-		text-align: center;
-	}
-
-	.building-intro h2,
-	.building-section h2 {
-		font-size: clamp(2.25rem, 5vw, 5rem);
-		font-weight: 900;
-		line-height: 1.02;
-	}
-
-	.building-intro p:not(.building-eyebrow),
-	.building-detail__heading p:not(.building-eyebrow) {
-		max-width: 42rem;
-		margin: 0 auto;
-		color: rgba(15, 17, 21, 0.68);
-		font-size: clamp(1rem, 1.35vw, 1.18rem);
-		line-height: 1.78;
-	}
-
-	.building-detail__heading {
-		justify-items: start;
-		text-align: left;
-	}
-
-	.building-detail__heading p:not(.building-eyebrow) {
-		margin: 0;
-	}
-
-	.building-detail__heading h2 {
-		font-size: clamp(2.45rem, 3.35vw, 3rem);
-		overflow-wrap: normal;
-		word-break: normal;
-	}
-
-	.building-section-nav {
-		min-width: 0;
-		display: grid;
-		border-top: 1px solid rgba(35, 38, 43, 0.12);
-	}
-
-	.building-section-nav a {
-		display: grid;
-		grid-template-columns: 3rem minmax(0, 1fr);
-		gap: 1rem;
+	.building-guide-hero {
+		position: relative;
+		overflow: clip;
+		display: flex;
 		align-items: center;
+		min-height: 100svh;
+		padding: clamp(8.5rem, 12vw, 10rem) 0 clamp(4.5rem, 7vw, 6rem);
+		background:
+			linear-gradient(180deg, rgba(8, 10, 14, 0.72) 0%, rgba(10, 13, 18, 0.78) 48%, rgba(15, 17, 21, 0.92) 100%),
+			var(--building-guide-hero-image, none);
+		background-position: center;
+		background-size: cover;
+		background-repeat: no-repeat;
+	}
+
+	.building-guide-hero::before,
+	.contact-section::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(199, 150, 67, 0.08) 0%, transparent 20%),
+			repeating-linear-gradient(
+				90deg,
+				rgba(138, 144, 152, 0.04) 0,
+				rgba(138, 144, 152, 0.04) 1px,
+				transparent 1px,
+				transparent 120px
+			);
+		opacity: 0.34;
+		pointer-events: none;
+	}
+
+	.building-guide-hero__layout,
+	.building-guide-split__layout,
+	.contact-section__layout {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-columns: minmax(0, 1.06fr) minmax(18rem, 0.52fr);
+		gap: clamp(2.5rem, 5vw, 5rem);
+		align-items: center;
+	}
+
+	.building-guide-hero__layout {
+		align-items: start;
+		max-width: 1080px;
+		grid-template-columns: minmax(0, 0.82fr) minmax(18rem, 0.5fr);
+		gap: clamp(1.5rem, 3vw, 2.75rem);
+	}
+
+	.building-guide-hero__content {
+		max-width: 39rem;
+		display: grid;
 		justify-items: center;
-		padding: 1rem 0;
-		border-bottom: 1px solid rgba(35, 38, 43, 0.12);
-		color: var(--bg-primary);
-		font-weight: 900;
 		text-align: center;
+	}
+
+	.building-guide-hero__lead {
+		max-width: 34rem;
+		margin-top: 1.5rem;
+	}
+
+	.building-guide-hero__lead p {
+		color: rgba(255, 255, 255, 0.92);
+	}
+
+	.building-guide-hero__nav {
+		align-self: center;
+		justify-self: start;
+		width: min(100%, 21rem);
+		padding: 0.25rem 0 0.25rem 1.25rem;
+		border-left: 1px solid rgba(199, 150, 67, 0.5);
+		background: transparent;
+		backdrop-filter: none;
+	}
+
+	.building-guide-hero__nav-label {
+		margin: 0;
+		color: var(--accent-primary);
+	}
+
+	.building-guide-hero__nav-list {
+		list-style: none;
+		display: grid;
+		gap: 0;
+		margin: 0.9rem 0 0;
+		padding: 0;
+	}
+
+	.building-guide-hero__nav-list li {
+		border-top: 1px solid rgba(138, 144, 152, 0.14);
+	}
+
+	.building-guide-hero__nav-list li:first-child {
+		border-top: 0;
+	}
+
+	.building-guide-hero__nav-list a {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		padding: 0.92rem 0;
+		color: rgba(245, 243, 238, 0.88);
 		text-decoration: none;
 		transition:
-			color 220ms var(--ease-premium),
-			transform 220ms var(--ease-premium);
+			color 180ms var(--ease-premium),
+			transform 180ms var(--ease-premium);
 	}
 
-	.building-section-nav a:hover,
-	.building-section-nav a:focus-visible {
+	.building-guide-hero__nav-list a:hover,
+	.building-guide-hero__nav-list a:focus-visible {
 		color: var(--accent-primary);
 		outline: none;
-		transform: translateX(0.35rem);
+		transform: translateX(3px);
 	}
 
-	.building-section-nav span {
-		color: var(--accent-primary);
-		font-size: 0.72rem;
-		letter-spacing: 0.16em;
+	.building-guide-hero__nav-index {
+		flex: 0 0 auto;
+		min-width: 1.95rem;
 	}
 
-	.building-section--light {
-		background: #fff;
+	.building-guide-hero__nav-list svg {
+		width: 0.85rem;
+		height: 0.85rem;
+		margin-left: auto;
+		color: rgba(199, 150, 67, 0.8);
 	}
 
-	.building-section--dark {
-		background: #111821;
-		color: var(--surface-light);
+	.building-guide-split {
+		padding: clamp(4.85rem, 8vw, 6.75rem) 0;
 	}
 
-	.building-section--accent {
-		background:
-			linear-gradient(135deg, rgba(15, 17, 21, 0.96), rgba(18, 31, 44, 0.95)),
-			var(--bg-primary);
-		color: var(--surface-light);
+	.building-guide-split--light,
+	.building-guide-faq,
+	.building-guide-process {
+		background: var(--surface-light);
+		color: var(--bg-primary);
 	}
 
-	.building-section__header {
-		max-width: 56rem;
-		margin: 0 auto clamp(2rem, 4vw, 3rem);
+	.building-guide-split__layout,
+	.building-guide-split__layout--reverse {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	}
 
-	.building-construction-layout {
+	.building-guide-split__content {
+		max-width: 36rem;
+	}
+
+	.building-guide-split__content--wide {
+		max-width: 58rem;
+	}
+
+	.building-guide-split__frame {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		min-height: 0;
+		margin: 0;
+		overflow: hidden;
+	}
+
+	.building-guide-split__frame img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.building-guide-specs {
+		margin-top: 2rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+		border-bottom: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.building-guide-specs__row {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr);
-		gap: clamp(1.5rem, 4vw, 3rem);
-		align-items: start;
+		grid-template-columns: minmax(0, 0.36fr) minmax(0, 1fr);
+		gap: 1.25rem;
+		padding: 1rem 0;
+		border-bottom: 1px solid rgba(35, 38, 43, 0.12);
+		scroll-margin-top: 6rem;
 	}
 
-	.building-section--dark .building-detail__heading p:not(.building-eyebrow),
-	.building-section--accent .building-card--dark li,
-	.building-section--accent .building-card--dark p {
-		color: rgba(245, 243, 238, 0.76);
+	.building-guide-specs__row:last-child {
+		border-bottom: 0;
 	}
 
-	.building-card-grid {
-		display: grid;
-		gap: 1px;
-		background: rgba(35, 38, 43, 0.12);
-		border: 1px solid rgba(35, 38, 43, 0.12);
+	.building-guide-specs--light .building-guide-specs__row p:first-child {
+		color: rgba(15, 17, 21, 0.54);
 	}
 
-	.building-card-grid--construction {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+	.building-guide-specs--light .building-guide-specs__row p:last-child,
+	.building-guide-specs__details p {
+		color: rgba(15, 17, 21, 0.9);
 	}
 
-	.building-card-grid--comfort {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		background: rgba(245, 243, 238, 0.16);
-		border-color: rgba(245, 243, 238, 0.14);
+	.building-guide-specs__row > p:first-child {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		font-weight: 700;
 	}
 
-	.building-card {
-		min-width: 0;
-		display: grid;
-		align-content: center;
-		gap: 0.85rem;
-		justify-items: center;
-		min-height: 18rem;
-		padding: clamp(1.35rem, 2.5vw, 2rem);
-		background: #fff;
+	.building-guide-specs__number {
+		flex: 0 0 auto;
+		min-width: 1.9rem;
 		text-align: center;
 	}
 
-	.building-card--dark {
-		background: rgba(245, 243, 238, 0.06);
-		border: 1px solid rgba(245, 243, 238, 0.1);
+	.building-guide-specs__details {
+		display: grid;
+		gap: 0.85rem;
 	}
 
-	.building-card__number {
-		color: var(--accent-primary);
-		font-size: 0.72rem;
-		font-weight: 900;
-		letter-spacing: 0.18em;
-	}
-
-	.building-card h3 {
-		font-size: clamp(1.18rem, 1.8vw, 1.55rem);
-		line-height: 1.16;
-	}
-
-	.building-card h3 .building-card__number {
-		display: inline-block;
-		margin-right: 0.45rem;
-		vertical-align: 0.12em;
-	}
-
-	.building-card p,
-	.building-card li {
-		margin: 0;
-		color: rgba(15, 17, 21, 0.66);
-		font-size: 0.96rem;
-		line-height: 1.68;
-	}
-
-	.building-card ul {
+	.building-guide-specs__details ul,
+	.building-guide-faq__answer ul {
 		list-style: none;
+		display: grid;
+		gap: 0.65rem;
 		margin: 0;
 		padding: 0;
-		display: grid;
-		gap: 0.7rem;
-		justify-self: stretch;
 	}
 
-	.building-card li {
+	.building-guide-specs__details li,
+	.building-guide-faq__answer li {
 		position: relative;
 		padding-left: 1rem;
-		text-align: left;
+		color: rgba(15, 17, 21, 0.68);
+		line-height: 1.65;
 	}
 
-	.building-card li::before {
+	.building-guide-specs__details li::before,
+	.building-guide-faq__answer li::before {
 		content: "";
 		position: absolute;
 		left: 0;
-		top: 0.73em;
-		width: 0.35rem;
-		height: 0.35rem;
+		top: 0.75em;
+		width: 0.28rem;
+		height: 0.28rem;
 		border-radius: 50%;
 		background: var(--accent-primary);
 	}
 
-	.building-detail {
+	.building-guide-process {
+		padding: clamp(5rem, 8vw, 7rem) 0;
+	}
+
+	.building-guide-process__layout {
 		display: grid;
-		grid-template-columns: minmax(9.5rem, 0.28fr) minmax(20rem, 0.92fr) minmax(20rem, 1fr);
-		gap: clamp(1.5rem, 3.5vw, 3.25rem);
+		grid-template-columns: minmax(17rem, 0.58fr) minmax(0, 1fr);
+		gap: clamp(2rem, 5vw, 5rem);
 		align-items: start;
 	}
 
-	.building-detail__marker {
-		min-width: 0;
+	.building-guide-process__intro {
+		position: sticky;
+		top: 7rem;
+		align-self: start;
+		height: fit-content;
+	}
+
+	.building-guide-process__intro-inner {
 		display: grid;
-		gap: 0.8rem;
-		justify-items: start;
-		padding: 1.25rem 1rem 1.35rem;
-		border-top: 3px solid var(--accent-primary);
-		text-align: left;
+		gap: 1rem;
+		color: var(--bg-primary);
 	}
 
-	.building-detail__marker span {
-		color: var(--accent-primary);
-		font-size: clamp(2.4rem, 5vw, 4.8rem);
-		font-weight: 900;
-		line-height: 0.92;
+	.building-guide-process__list {
+		display: grid;
+		gap: 1.6rem;
 	}
 
-	.building-detail__marker strong,
-	.building-detail__marker p {
+	.building-guide-step {
+		display: grid;
+		gap: 1.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.building-guide-step__meta {
+		display: grid;
+		grid-template-columns: 2.5rem minmax(0, 1fr);
+		gap: 1.2rem;
+		align-items: start;
+	}
+
+	.building-guide-step__number {
+		align-self: start;
+		margin: 1rem 0 0;
+		text-align: center;
+	}
+
+	.building-guide-step__content {
+		display: grid;
+		gap: 0.7rem;
+	}
+
+	.building-guide-step__content h3 {
+		margin: 0.75rem 0 0.6rem;
+		font-family: var(--font-heading);
+		color: inherit;
+	}
+
+	.building-guide-process .building-guide-copy p,
+	.building-guide-step__content .building-guide-copy p,
+	.building-guide-step__note,
+	.building-guide-faq__intro .building-guide-copy p,
+	.building-guide-split--light .building-guide-copy p {
+		color: rgba(15, 17, 21, 0.68);
+	}
+
+	.building-guide-step__note {
+		padding-top: 0.95rem;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.building-guide-faq {
+		padding: clamp(4.75rem, 8vw, 6.5rem) 0;
+	}
+
+	.building-guide-faq__intro {
+		display: grid;
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.9fr);
+		gap: clamp(1.6rem, 4vw, 4.5rem);
+		align-items: end;
+	}
+
+	.building-guide-faq__list {
+		display: grid;
+		margin-top: clamp(2rem, 4vw, 3rem);
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.building-guide-faq__item {
+		border-bottom: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.building-guide-faq__item summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1.2rem 0;
+		cursor: pointer;
+		list-style: none;
+		font-family: var(--font-heading);
+	}
+
+	.building-guide-faq__item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.building-guide-faq__item summary > span:first-child {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.9rem;
+	}
+
+	.building-guide-faq__number {
+		flex: 0 0 auto;
+		min-width: 1.9rem;
+		text-align: center;
+	}
+
+	.building-guide-faq__icon {
+		position: relative;
+		flex: 0 0 auto;
+		width: 1rem;
+		height: 1rem;
+	}
+
+	.building-guide-faq__icon::before,
+	.building-guide-faq__icon::after {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 100%;
+		height: 1px;
+		background: rgba(15, 17, 21, 0.65);
+		transform: translate(-50%, -50%);
+		transition: transform 200ms var(--ease-premium);
+	}
+
+	.building-guide-faq__icon::after {
+		transform: translate(-50%, -50%) rotate(90deg);
+	}
+
+	.building-guide-faq__item[open] .building-guide-faq__icon::after {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+
+	.building-guide-faq__answer {
+		max-width: 48rem;
+		padding: 0 0 1.4rem;
+	}
+
+	.contact-section {
+		position: relative;
+		overflow: clip;
+		background:
+			radial-gradient(circle at top left, rgba(199, 150, 67, 0.14), transparent 34%),
+			linear-gradient(180deg, #0f1115 0%, #131821 100%);
+		color: var(--surface-light);
+		padding: clamp(5rem, 10vw, 8rem) 0;
+		scroll-margin-top: 5.5rem;
+	}
+
+	.contact-section::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(199, 150, 67, 0.1) 0%, transparent 18%),
+			repeating-linear-gradient(
+				90deg,
+				rgba(138, 144, 152, 0.04) 0,
+				rgba(138, 144, 152, 0.04) 1px,
+				transparent 1px,
+				transparent 120px
+			);
+		opacity: 0.35;
+		pointer-events: none;
+	}
+
+	.contact-section__container {
+		position: relative;
+		z-index: 1;
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding: 0 clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.contact-section__layout {
+		display: grid;
+		grid-template-columns: minmax(0, 0.95fr) minmax(20rem, 0.9fr);
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: center;
+	}
+
+	.contact-section__content {
+		max-width: 34rem;
+	}
+
+	.contact-section__eyebrow {
 		margin: 0;
-	}
-
-	.building-detail__marker strong {
-		font-size: 0.78rem;
-		font-weight: 900;
-		letter-spacing: 0.13em;
+		color: var(--accent-primary);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
 		text-transform: uppercase;
 	}
 
-	.building-detail__marker p {
-		color: rgba(15, 17, 21, 0.62);
+	.contact-section__title {
+		max-width: 13ch;
+		margin: 1rem 0 0;
+		font-family: var(--font-heading);
+		font-size: clamp(2.15rem, 4.2vw, 4rem);
+		line-height: 1.06;
+		letter-spacing: -0.02em;
+		text-wrap: balance;
+	}
+
+	.contact-section__lead {
+		display: grid;
+		gap: 1rem;
+		max-width: 43ch;
+		margin: 1.25rem 0 0;
+	}
+
+	.contact-section__lead p {
+		margin: 0;
+		color: rgba(245, 243, 238, 0.72);
+		font-size: clamp(1rem, 1.3vw, 1.1rem);
+		line-height: 1.75;
+	}
+
+	.contact-section__benefits {
+		list-style: none;
+		display: grid;
+		gap: 0.95rem;
+		margin: 2rem 0 0;
+		padding: 0;
+	}
+
+	.contact-section__benefit {
+		display: flex;
+		align-items: center;
+		gap: 0.9rem;
+		color: rgba(245, 243, 238, 0.92);
+		font-size: 0.96rem;
 		line-height: 1.55;
 	}
 
-	.building-section--dark .building-detail__marker p {
-		color: rgba(245, 243, 238, 0.66);
+	.contact-section__check {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 0.95rem;
+		height: 0.95rem;
 	}
 
-	.building-check-list {
+	.contact-section__check img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	.contact-section__form-wrap {
 		min-width: 0;
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		border-top: 1px solid currentColor;
-		border-color: rgba(15, 17, 21, 0.14);
-	}
-
-	.building-section--dark .building-check-list {
-		border-color: rgba(245, 243, 238, 0.18);
-	}
-
-	.building-check-list li {
-		position: relative;
-		margin: 0;
-		padding: 1.05rem 0 1.05rem 2rem;
-		border-bottom: 1px solid rgba(15, 17, 21, 0.14);
-		color: rgba(15, 17, 21, 0.72);
-		line-height: 1.72;
-		text-align: left;
-	}
-
-	.building-section--dark .building-check-list li {
-		border-color: rgba(245, 243, 238, 0.18);
-		color: rgba(245, 243, 238, 0.78);
-	}
-
-	.building-check-list li::before {
-		content: "";
-		position: absolute;
-		left: 0;
-		top: 1.65rem;
-		width: 0.58rem;
-		height: 0.58rem;
-		border: 2px solid var(--accent-primary);
-		transform: rotate(45deg);
 	}
 
 	@media (max-width: 1080px) {
-		.building-card-grid--construction {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
-
-	@media (max-width: 860px) {
-		.building-hero {
-			min-height: min(42rem, 88svh);
-			align-items: center;
-		}
-
-		.building-hero__stats,
-		.building-intro__layout,
-		.building-detail,
-		.building-card-grid--comfort {
+		.building-guide-hero__layout,
+		.building-guide-split__layout,
+		.contact-section__layout,
+		.building-guide-process__layout,
+		.building-guide-faq__intro {
 			grid-template-columns: 1fr;
 		}
 
-		.building-hero__stats li,
-		.building-hero__stats li:first-child {
-			border-left: 0;
-			border-top: 1px solid rgba(245, 243, 238, 0.18);
+		.building-guide-process__intro {
+			position: static;
+			top: auto;
 		}
 
-		.building-detail__marker {
-			align-items: center;
-		}
-	}
-
-	@media (max-width: 640px) {
-		.building-shell,
-		.building-hero__container {
-			padding-inline: 1.25rem;
-		}
-
-		.building-intro,
-		.building-section {
-			padding: 3.35rem 0;
-		}
-
-		.building-hero__container {
-			gap: 1.65rem;
-			padding-top: 6.4rem;
-			padding-bottom: 2.4rem;
-		}
-
-		.building-hero h1 {
-			font-size: clamp(3.15rem, 15vw, 3.9rem);
-			line-height: 0.94;
-		}
-
-		.building-hero__content p:not(.building-eyebrow) {
-			font-size: 1rem;
-			line-height: 1.62;
-		}
-
-		.building-hero__actions {
-			display: grid;
-			grid-template-columns: minmax(0, 1fr);
-		}
-
-		.building-hero__actions a {
+		.building-guide-hero__nav {
+			justify-self: start;
 			width: 100%;
-			min-height: 3.15rem;
-			padding-inline: 1rem;
-			text-align: center;
-		}
-
-		.building-intro h2,
-		.building-section h2 {
-			font-size: clamp(1.85rem, 8.2vw, 2.45rem);
-			line-height: 1.08;
-			overflow-wrap: normal;
-		}
-
-		.building-intro__content,
-		.building-section__header {
-			gap: 0.85rem;
-		}
-
-		.building-detail__heading h2 {
-			font-size: clamp(1.85rem, 8.8vw, 2.35rem);
-			line-height: 1.08;
-			overflow-wrap: anywhere;
-			word-break: normal;
-		}
-
-		.building-detail__heading p:not(.building-eyebrow) {
-			max-width: 100%;
-			font-size: 0.98rem;
-			line-height: 1.65;
-		}
-
-		.building-section-nav a {
-			grid-template-columns: 2.5rem minmax(0, 1fr);
-			gap: 0.75rem;
-		}
-
-		.building-card-grid--construction {
-			grid-template-columns: 1fr;
-		}
-
-		.building-card {
-			min-height: auto;
+			max-width: 24rem;
 		}
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		.building-hero__actions a,
-		.building-section-nav a {
-			transition: none;
+	@media (max-width: 720px) {
+		.building-guide-hero {
+			min-height: auto;
+			padding-top: 6.7rem;
+			padding-bottom: 4.75rem;
+			background:
+				linear-gradient(180deg, rgba(8, 10, 14, 0.72) 0%, rgba(10, 13, 18, 0.78) 48%, rgba(15, 17, 21, 0.92) 100%),
+				var(--building-guide-mobile-hero-image, var(--building-guide-hero-image, none));
+			background-position: center center;
+			background-size: cover;
+			background-repeat: no-repeat;
+		}
+
+		.building-guide-hero__nav {
+			max-width: none;
+		}
+
+		.building-guide-specs__row {
+			grid-template-columns: 1fr;
+		}
+
+		.building-guide-faq__item summary > span:first-child {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.7rem;
 		}
 	}
 </style>

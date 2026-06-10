@@ -1,5 +1,17 @@
 ---
-const locationBullets = [
+import type { Locale } from "../../i18n/translations";
+
+interface Props {
+	locale?: Locale;
+}
+
+const { locale = "lv" } = Astro.props;
+const isEnglish = locale === "en";
+const locationBullets = isEnglish ? [
+	"Kindergartens, schools, shops and everyday services nearby",
+	"Convenient access to central Ventspils, the sea and key city destinations",
+	"A well-kept and peaceful setting for families and professionals"
+] : [
 	"Tuvumā bērnudārzi, skolas, veikali un dažādi ikdienā nepieciešamie pakalpojumi",
 	"Ērta nokļūšana līdz Ventspils centram, jūrai un pilsētas ikdienas galamērķiem",
 	"Sakārtota, mierīga vide jaunām ģimenēm un speciālistiem"
@@ -12,10 +24,12 @@ const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
 <section id="project-location" class="project-location" aria-labelledby="project-location-title">
 	<div class="project-location__container project-location__grid">
 		<div class="project-location__copy fade-in">
-			<p class="project-location__eyebrow">Talsu iela 3A, Ventspils</p>
-			<h2 id="project-location-title">Ideāla atrašanās vieta</h2>
+			<p class="project-location__eyebrow">{isEnglish ? "Talsu Street 3A, Ventspils" : "Talsu iela 3A, Ventspils"}</p>
+			<h2 id="project-location-title">{isEnglish ? "An ideal location" : "Ideāla atrašanās vieta"}</h2>
 			<p>
-				Talsu iela 3A atrodas Ventspilī, ērtā un ikdienai praktiskā vietā ar piekļuvi pilsētas pakalpojumiem, izglītības iestādēm, veikaliem un atpūtas iespējām.
+				{isEnglish
+					? "Talsu Street 3A is located in a convenient part of Ventspils, with easy access to city services, schools, shops and leisure opportunities."
+					: "Talsu iela 3A atrodas Ventspilī, ērtā un ikdienai praktiskā vietā ar piekļuvi pilsētas pakalpojumiem, izglītības iestādēm, veikaliem un atpūtas iespējām."}
 			</p>
 			<ul class="project-location__list" role="list">
 				{locationBullets.map((item) => (
@@ -26,7 +40,7 @@ const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
 
 		<div class="project-location__map fade-in" data-reveal-delay="140">
 			<iframe
-				title="Talsu iela 3A, Ventspils Google Maps"
+				title={isEnglish ? "Talsu Street 3A, Ventspils on Google Maps" : "Talsu iela 3A, Ventspils Google Maps"}
 				src={googleMapsEmbedUrl}
 				loading="lazy"
 				referrerpolicy="no-referrer-when-downgrade"

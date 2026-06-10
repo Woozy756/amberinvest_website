@@ -1,18 +1,21 @@
 ---
 import type { HomepageEditorialContent } from "../../sanity/homepage";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	content?: HomepageEditorialContent | null;
+	locale?: Locale;
 }
 
-const { content } = Astro.props;
+const { content, locale = "lv" } = Astro.props;
+const isEnglish = locale === "en";
 
 if (!content) {
 	return null;
 }
 
 const images = content.editorialImages
-	?.map((item) => {
+	?.map((item, index) => {
 		const image = item.image?.asset?.url;
 		const alt = item.alt?.trim();
 
@@ -22,7 +25,7 @@ const images = content.editorialImages
 
 		return {
 			image,
-			alt,
+			alt: isEnglish ? `AmberHome project interior ${index + 1}` : alt,
 			label: item.label?.trim() ?? "",
 			orientation: item.orientation === "portrait" ? "portrait" : "landscape"
 		};
@@ -44,10 +47,10 @@ const rows = [
 ];
 ---
 
-<section class="editorial-gallery" aria-label={content.editorialRowAriaLabel?.trim() || "Interjera galerija"}>
+<section class="editorial-gallery" aria-label={isEnglish ? "Interior gallery" : content.editorialRowAriaLabel?.trim() || "Interjera galerija"}>
 	<div class="editorial-gallery__container">
 		{images.length > 0 && (
-			<div class="editorial-gallery__rows" aria-label={content.editorialRowAriaLabel?.trim() || undefined}>
+			<div class="editorial-gallery__rows" aria-label={isEnglish ? "Project image gallery" : content.editorialRowAriaLabel?.trim() || undefined}>
 				{
 					rows.map((row, rowIndex) => (
 						<div
@@ -69,7 +72,7 @@ const rows = [
 										}}
 										data-gallery-item
 										data-item-index={String(itemIndex)}
-										href="/properties"
+										href={isEnglish ? "/en/apartments" : "/dzīvokļi"}
 										aria-label={item.alt}
 									>
 										<figure class="editorial-gallery__figure">

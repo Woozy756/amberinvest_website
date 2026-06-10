@@ -1,6 +1,12 @@
 ---
 import PropertyCard from "./PropertyCard.astro";
-import { getPropertyCategoryHref, type Property, type PropertyCategory } from "../../sanity/properties";
+import {
+	getPropertyCategoryHrefForLocale,
+	getPropertyCategoryLabel,
+	type Property,
+	type PropertyCategory
+} from "../../sanity/properties";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	title: string;
@@ -8,9 +14,12 @@ interface Props {
 	properties: Property[];
 	categories: PropertyCategory[];
 	activeCategory?: string | "all";
+	locale?: Locale;
 }
 
-const { title, lead, properties, categories, activeCategory = "all" } = Astro.props as Props;
+const { title, lead, properties, categories, activeCategory = "all", locale = "lv" } = Astro.props as Props;
+const isEnglish = locale === "en";
+const catalogHref = isEnglish ? "/en/apartments" : "/dzīvokļi";
 const catalogTotalCount = categories.reduce((sum, category) => sum + category.propertyCount, 0);
 
 const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
@@ -29,18 +38,18 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 	<section class="properties-catalog__listing">
 		<div class="properties-catalog__container">
 			<div class="properties-catalog__controls fade-in" data-reveal-delay="120">
-				<nav class="properties-filters" aria-label="Dzīvokļu kategorijas">
-					<a href="/properties" aria-current={activeCategory === "all" ? "page" : undefined}>
-						<span>Visi dzīvokļi</span>
+				<nav class="properties-filters" aria-label={isEnglish ? "Apartment categories" : "Dzīvokļu kategorijas"}>
+					<a href={catalogHref} aria-current={activeCategory === "all" ? "page" : undefined}>
+						<span>{isEnglish ? "All apartments" : "Visi dzīvokļi"}</span>
 						<strong>{catalogTotalCount}</strong>
 					</a>
 					{
 						categories.map((category) => (
 							<a
-								href={getPropertyCategoryHref(category)}
+								href={getPropertyCategoryHrefForLocale(category, locale)}
 								aria-current={activeCategory === category.slug ? "page" : undefined}
 							>
-								<span>{category.shortLabel}</span>
+								<span>{getPropertyCategoryLabel(category, locale, true)}</span>
 								<strong>{category.propertyCount}</strong>
 							</a>
 						))
@@ -54,17 +63,17 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 						{
 							sortedProperties.map((property, index) => (
 								<li>
-									<PropertyCard property={property} index={index} />
+									<PropertyCard property={property} index={index} locale={locale} />
 								</li>
 							))
 						}
 					</ul>
 				) : (
 					<div class="properties-empty fade-in" data-reveal-delay="140">
-						<p class="properties-empty__eyebrow">Atlase tiek atjaunota</p>
-						<h2>Šobrīd šajā kategorijā nav publicētu dzīvokļu.</h2>
-						<p>Pārskatiet visu katalogu vai sazinieties ar mums, lai saņemtu jaunākos piedāvājumus.</p>
-						<a href="/properties">Skatīt visu katalogu</a>
+						<p class="properties-empty__eyebrow">{isEnglish ? "Listings are being updated" : "Atlase tiek atjaunota"}</p>
+						<h2>{isEnglish ? "There are currently no published apartments in this category." : "Šobrīd šajā kategorijā nav publicētu dzīvokļu."}</h2>
+						<p>{isEnglish ? "Browse the full catalogue or contact us for the latest availability." : "Pārskatiet visu katalogu vai sazinieties ar mums, lai saņemtu jaunākos piedāvājumus."}</p>
+						<a href={catalogHref}>{isEnglish ? "View full catalogue" : "Skatīt visu katalogu"}</a>
 					</div>
 				)
 			}

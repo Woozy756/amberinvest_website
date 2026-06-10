@@ -2,7 +2,8 @@ import { useState } from "react";
 
 import PropertyGalleryModal from "./PropertyGalleryModal";
 
-export default function PropertyGallery({ images = [], title }) {
+export default function PropertyGallery({ images = [], title, locale = "lv" }) {
+	const isEnglish = locale === "en";
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isZoomOpen, setIsZoomOpen] = useState(false);
 	const activeImage = images[activeIndex] ?? images[0];
@@ -20,7 +21,7 @@ export default function PropertyGallery({ images = [], title }) {
 		setActiveIndex(selectedIndex);
 		setIsZoomOpen(false);
 	};
-	const activeImageLabel = activeImage.label || "Foto galerija";
+	const activeImageLabel = activeImage.label || (isEnglish ? "Photo gallery" : "Foto galerija");
 
 	return (
 		<div
@@ -34,7 +35,7 @@ export default function PropertyGallery({ images = [], title }) {
 					className="property-gallery__zoom-trigger"
 					type="button"
 					onClick={() => setIsZoomOpen(true)}
-					aria-label={`Palielināt attēlu ${activeIndex + 1}`}
+					aria-label={`${isEnglish ? "Enlarge image" : "Palielināt attēlu"} ${activeIndex + 1}`}
 				>
 					<img
 						className="property-gallery__image"
@@ -56,7 +57,11 @@ export default function PropertyGallery({ images = [], title }) {
 			</div>
 
 			{hasMultipleImages ? (
-				<div className="property-gallery__thumbs" role="list" aria-label={`${title} attēlu izvēle`}>
+				<div
+					className="property-gallery__thumbs"
+					role="list"
+					aria-label={`${title} ${isEnglish ? "image selection" : "attēlu izvēle"}`}
+				>
 					{images.map((image, index) => (
 						<button
 							key={image.src}
@@ -64,7 +69,7 @@ export default function PropertyGallery({ images = [], title }) {
 							type="button"
 							onClick={() => setActiveIndex(index)}
 							aria-pressed={index === activeIndex}
-							aria-label={`Rādīt attēlu ${index + 1}`}
+							aria-label={`${isEnglish ? "Show image" : "Rādīt attēlu"} ${index + 1}`}
 						>
 							<img src={image.thumbSrc || image.src} alt="" width="360" height="360" loading="lazy" />
 						</button>
@@ -78,6 +83,7 @@ export default function PropertyGallery({ images = [], title }) {
 					activeIndex={activeIndex}
 					onClose={closeZoom}
 					title={title}
+					locale={locale}
 				/>
 			) : null}
 		</div>

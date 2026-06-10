@@ -1,23 +1,33 @@
 ---
 import type { SiteSettings } from "../sanity/siteSettings";
 import { splitLines, toPhoneHref } from "../lib/formatting";
+import { localizeInternalHref } from "../lib/routes";
+import type { Locale } from "../i18n/translations";
 
 interface Props {
 	siteSettings?: SiteSettings | null;
 	tone?: "dark" | "light";
+	locale?: Locale;
 }
 
-const { siteSettings = null, tone = "dark" } = Astro.props;
+const { siteSettings = null, tone = "dark", locale = "lv" } = Astro.props;
+const isEnglish = locale === "en";
 
-const footerNavigation = siteSettings?.footerNavigation ?? [];
+const footerNavigation = isEnglish
+	? [
+			{ label: "Home", href: "/en" },
+			{ label: "Apartments", href: "/en/apartments" },
+			{ label: "About the building", href: "/en/about-the-building" },
+			{ label: "Contact", href: "/en/contact" }
+		]
+	: (siteSettings?.footerNavigation ?? []).map((item) => ({
+			...item,
+			href: localizeInternalHref(item.href, locale)
+		}));
 const hasAboutBuildingFooterLink = footerNavigation.some((item) => item.href.trim().toLowerCase() === "/par-eku");
-const footerNavigationItems = hasAboutBuildingFooterLink
+const footerNavigationItems = isEnglish || hasAboutBuildingFooterLink
 	? footerNavigation
-	: [
-			...footerNavigation.slice(0, 2),
-			{ label: "Par Ēku", href: "/par-eku" },
-			...footerNavigation.slice(2)
-		];
+	: [...footerNavigation.slice(0, 2), { label: "Par Ēku", href: "/par-eku" }, ...footerNavigation.slice(2)];
 const visibleFooterNavigation = footerNavigationItems.filter(
 	(item) => item.href.trim().toLowerCase() !== "/faq"
 );
@@ -44,13 +54,25 @@ const socialLinks = [
 ];
 const siteTitle = siteSettings?.siteTitle?.trim() ?? "";
 const footerTitle = siteSettings?.footerTitle ?? "";
-const footerDescription = siteSettings?.footerDescription ?? "";
+const footerDescription = isEnglish
+	? "AmberHome is a new residential project in Ventspils with modern layouts and quality finishes. We help you choose the right apartment, understand financing and complete the purchase with confidence."
+	: siteSettings?.footerDescription ?? "";
 
 const phone = siteSettings?.phone?.trim();
 const phoneHref = toPhoneHref(phone);
 const contactEmail = siteSettings?.contactEmail?.trim();
-const addressLines = splitLines(siteSettings?.address);
+const addressLines = splitLines(siteSettings?.address).map((line) =>
+	isEnglish
+		? line
+				.replace(/^Juridiskā adrese:\s*/i, "Registered address: ")
+				.replace(/\bRīga\b/g, "Riga")
+				.replace(/\bLiedaga iela\b/g, "Liedaga Street")
+		: line
+);
 const businessHours = siteSettings?.businessHours?.trim();
+const localizedBusinessHours = isEnglish
+	? businessHours?.replace(/^P\.?\s*-\s*Pk\.?/i, "Mon-Fri")
+	: businessHours;
 const hasContacts = Boolean(phone || contactEmail || addressLines.length || businessHours);
 const currentYear = new Date().getFullYear();
 ---
@@ -65,8 +87,8 @@ const currentYear = new Date().getFullYear();
 			</div>
 
 			{visibleFooterNavigation.length > 0 ? (
-				<nav class="site-footer__nav fade-in" aria-label="Kājenes navigācija" data-reveal-delay="80">
-					<p class="site-footer__label">Navigācija</p>
+				<nav class="site-footer__nav fade-in" aria-label={isEnglish ? "Footer navigation" : "Kājenes navigācija"} data-reveal-delay="80">
+					<p class="site-footer__label">{isEnglish ? "Navigation" : "Navigācija"}</p>
 					<ul class="site-footer__list" role="list">
 						{visibleFooterNavigation.map((item) => (
 							<li><a href={item.href}>{item.label}</a></li>
@@ -77,21 +99,21 @@ const currentYear = new Date().getFullYear();
 
 			{hasContacts ? (
 				<div class="site-footer__contacts fade-in" data-reveal-delay="140">
-					<p class="site-footer__label">Kontakti</p>
+					<p class="site-footer__label">{isEnglish ? "Contact" : "Kontakti"}</p>
 					<ul class="site-footer__list" role="list">
 						{phone && phoneHref ? <li><a href={phoneHref}>{phone}</a></li> : null}
 						{contactEmail ? <li><a href={`mailto:${contactEmail}`}>{contactEmail}</a></li> : null}
 						{addressLines.map((line) => (
 							<li>{line}</li>
 						))}
-						{businessHours ? <li>{businessHours}</li> : null}
+						{localizedBusinessHours ? <li>{localizedBusinessHours}</li> : null}
 					</ul>
 				</div>
 			) : null}
 
 			{socialLinks.length > 0 ? (
 				<div class="site-footer__socials fade-in" data-reveal-delay="200">
-					<p class="site-footer__label">Seko mums</p>
+					<p class="site-footer__label">{isEnglish ? "Follow us" : "Seko mums"}</p>
 					<div class="site-footer__social-list">
 						{socialLinks.map((socialLink) => (
 							<a
@@ -99,7 +121,7 @@ const currentYear = new Date().getFullYear();
 								href={socialLink.url}
 								target="_blank"
 								rel="noopener noreferrer"
-								aria-label={`Atvērt ${socialLink.platform}`}
+								aria-label={`${isEnglish ? "Open" : "Atvērt"} ${socialLink.platform}`}
 							>
 								<span class="site-footer__social-icon" aria-hidden="true">
 									{socialLink.platform.trim().toLowerCase() === "facebook" ? (
@@ -138,9 +160,9 @@ const currentYear = new Date().getFullYear();
 		</div>
 
 		<div class="site-footer__bottom">
-			<p class="site-footer__copyright">© {currentYear} {siteTitle}. Visas tiesības aizsargātas.</p>
+			<p class="site-footer__copyright">© {currentYear} {siteTitle}. {isEnglish ? "All rights reserved." : "Visas tiesības aizsargātas."}</p>
 			<p class="site-footer__credit">
-				Mājaslapu izstrādāja
+				{isEnglish ? "Website by" : "Mājaslapu izstrādāja"}
 				<a href="https://200iq.eu" target="_blank" rel="noopener">200iq.eu</a>
 			</p>
 		</div>

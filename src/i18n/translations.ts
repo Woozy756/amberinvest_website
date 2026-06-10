@@ -1,4 +1,4 @@
-export const locales = ["lv"] as const;
+export const locales = ["lv", "en"] as const;
 
 export type Locale = (typeof locales)[number];
 
@@ -83,7 +83,7 @@ type Messages = {
 	};
 };
 
-const translations: Record<Locale, Messages> = {
+const translations: Record<"lv", Messages> = {
 	lv: {
 		site: {
 			defaultTitle: "Amberinvest"
@@ -206,7 +206,7 @@ const translations: Record<Locale, Messages> = {
 						imageKey: "plan2room",
 						imageAlt: "Divu istabu dzīvokļa plāns",
 						ctaText: "Piesaki apskati",
-						ctaLink: "/contact",
+						ctaLink: "/kontakti",
 						specs: [
 							{ label: "Kopējā platība", value: "48.7 m²" },
 							{ label: "Dzīvojamā istaba + virtuve", value: "23.8 m²" },
@@ -223,7 +223,7 @@ const translations: Record<Locale, Messages> = {
 						imageKey: "plan3room",
 						imageAlt: "Trīs istabu dzīvokļa plāns",
 						ctaText: "Saņemt piedāvājumu",
-						ctaLink: "/contact",
+						ctaLink: "/kontakti",
 						specs: [
 							{ label: "Kopējā platība", value: "67.9 m²" },
 							{ label: "Dzīvojamā istaba + virtuve", value: "27.6 m²" },
@@ -247,6 +247,50 @@ const translations: Record<Locale, Messages> = {
 	}
 };
 
+const englishMessages: Messages = {
+	...translations.lv,
+	site: {
+		defaultTitle: "AmberHome"
+	},
+	brand: {
+		...translations.lv.brand,
+		homeAriaLabel: "AmberHome home page"
+	},
+	header: {
+		navAriaLabel: "Main navigation",
+		mobileNavAriaLabel: "Mobile navigation",
+		menuOpenLabel: "Open menu",
+		cta: "Send an enquiry",
+		home: "Home",
+		properties: "Apartments",
+		propertiesListing: "All apartments",
+		propertyDetail: "Apartment details",
+		aboutBuilding: "About the building",
+		aboutUs: "About us",
+		howToBuy: "How to buy",
+		contact: "Contact"
+	},
+	home: {
+		...translations.lv.home,
+		title: "AmberHome | Apartments in Ventspils",
+		heroTitle: "Modern, fully finished apartments with carefully considered layouts",
+		heroLead:
+			"Explore the available apartments at Talsu Street 3A and find a home that suits your everyday needs and budget.",
+		primaryCta: "View apartments",
+		secondaryCta: "Book a viewing",
+		availabilityTitle: "Current availability",
+		availabilityCta: "Available apartments"
+	},
+	pages: {
+		properties: "AmberHome | Apartments",
+		propertyDetail: "AmberHome | Apartment details",
+		aboutBuilding: "AmberHome | About the building",
+		aboutUs: "AmberHome | About us",
+		howToBuy: "AmberHome | How to buy",
+		contact: "AmberHome | Contact"
+	}
+};
+
 export function getMessages(locale: Locale = "lv") {
-	return translations[locale];
+	return locale === "en" ? englishMessages : translations.lv;
 }

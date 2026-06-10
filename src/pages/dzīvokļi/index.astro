@@ -1,0 +1,30 @@
+---
+import PropertiesCatalogView from "../../components/properties/PropertiesCatalogView.astro";
+import { getAllProperties, getPropertyCategories } from "../../sanity/properties";
+import Layout from "../../layouts/Layout.astro";
+import type { Locale } from "../../i18n/translations";
+
+const locale = (Astro.props.locale ?? "lv") as Locale;
+const isEnglish = locale === "en";
+const [properties, categories] = await Promise.all([getAllProperties(), getPropertyCategories()]);
+const catalogLead = isEnglish
+	? "Explore the available apartments at Talsu Street 3A and find a home that suits your everyday needs and budget."
+	: "Apskati pieejamos dzīvokļus Talsu ielā 3A un atrodi mājokli, kas atbilst Tavām ikdienas vajadzībām un budžetam.";
+---
+
+<Layout
+	title={isEnglish ? "AmberHome | Apartments" : "Amberinvest | Dzīvokļi"}
+	description={catalogLead}
+	canonicalPath={isEnglish ? "/en/apartments" : "/dzīvokļi"}
+	footerTone="dark"
+	locale={locale}
+>
+	<PropertiesCatalogView
+		title={isEnglish ? "All apartments" : "Visi dzīvokļi"}
+		lead={catalogLead}
+		properties={properties}
+		categories={categories}
+		activeCategory="all"
+		locale={locale}
+	/>
+</Layout>

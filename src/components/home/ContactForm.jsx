@@ -29,22 +29,27 @@ function rememberContactSubmit() {
 	window.localStorage.setItem(contactCooldownStorageKey, String(Date.now()));
 }
 
-function validate(values) {
+function validate(values, locale) {
 	const errors = {};
+	const isEnglish = locale === "en";
 
-	if (!values.firstName.trim()) errors.firstName = "Lūdzu, ievadiet vārdu.";
-	if (!values.lastName.trim()) errors.lastName = "Lūdzu, ievadiet uzvārdu.";
+	if (!values.firstName.trim()) errors.firstName = isEnglish ? "Please enter your first name." : "Lūdzu, ievadiet vārdu.";
+	if (!values.lastName.trim()) errors.lastName = isEnglish ? "Please enter your last name." : "Lūdzu, ievadiet uzvārdu.";
 	if (!values.phone.trim() || values.phone.trim() === "+371") {
-		errors.phone = "Lūdzu, ievadiet telefona numuru.";
+		errors.phone = isEnglish ? "Please enter your phone number." : "Lūdzu, ievadiet telefona numuru.";
 	}
 
 	if (!values.email.trim()) {
-		errors.email = "Lūdzu, ievadiet e-pasta adresi.";
+		errors.email = isEnglish ? "Please enter your email address." : "Lūdzu, ievadiet e-pasta adresi.";
 	} else if (!emailPattern.test(values.email.trim())) {
-		errors.email = "Lūdzu, ievadiet korektu e-pasta adresi.";
+		errors.email = isEnglish ? "Please enter a valid email address." : "Lūdzu, ievadiet korektu e-pasta adresi.";
 	}
 
-	if (!values.consent) errors.consent = "Nepieciešama piekrišana personas datu apstrādei.";
+	if (!values.consent) {
+		errors.consent = isEnglish
+			? "Consent to the processing of personal data is required."
+			: "Nepieciešama piekrišana personas datu apstrādei.";
+	}
 
 	return errors;
 }
@@ -57,8 +62,10 @@ export default function ContactForm({
 	sourceProject = "",
 	sourceProperty = "",
 	sourcePropertyCode = "",
-	sourceUrl = ""
+	sourceUrl = "",
+	locale = "lv"
 }) {
+	const isEnglish = locale === "en";
 	const id = useId();
 	const normalizedSourceProject = asTrimmedString(sourceProject);
 	const normalizedSourceProperty = asTrimmedString(sourceProperty);
@@ -66,7 +73,7 @@ export default function ContactForm({
 	const normalizedSourceUrl = asTrimmedString(sourceUrl);
 	const [values, setValues] = useState(() => ({
 		...initialValues,
-		information: defaultInformation
+		information: ""
 	}));
 	const [errors, setErrors] = useState({});
 	const [status, setStatus] = useState(null);
@@ -97,12 +104,14 @@ export default function ContactForm({
 		if (cooldownRemainingMs > 0) {
 			setStatus({
 				type: "error",
-				message: `Lūdzu, uzgaidiet ${Math.ceil(cooldownRemainingMs / 1000)} sekundes pirms atkārtotas nosūtīšanas.`
+				message: isEnglish
+					? `Please wait ${Math.ceil(cooldownRemainingMs / 1000)} seconds before submitting again.`
+					: `Lūdzu, uzgaidiet ${Math.ceil(cooldownRemainingMs / 1000)} sekundes pirms atkārtotas nosūtīšanas.`
 			});
 			return;
 		}
 
-		const nextErrors = validate(values);
+		const nextErrors = validate(values, locale);
 		if (Object.keys(nextErrors).length) {
 			setErrors(nextErrors);
 			return;
@@ -133,23 +142,29 @@ export default function ContactForm({
 			const payload = await response.json().catch(() => null);
 
 			if (!response.ok) {
-				throw new Error(payload?.message || "Neizdevās nosūtīt pieprasījumu.");
+				throw new Error(
+					isEnglish
+						? "Your enquiry could not be sent. Please email info@amberhome.lv."
+						: payload?.message || "Neizdevās nosūtīt pieprasījumu. Rakstiet uz info@amberhome.lv."
+				);
 			}
 
 			setStatus({
 				type: "success",
-				message: payload?.message || "Paldies. Sazināsimies ar jums tuvākajā laikā."
+				message: isEnglish
+					? "Thank you. Your enquiry was sent to info@amberhome.lv."
+					: payload?.message || "Paldies. Jūsu pieprasījums nosūtīts uz info@amberhome.lv."
 			});
 			rememberContactSubmit();
 			setValues({
 				...initialValues,
-				information: defaultInformation
+				information: ""
 			});
 			setErrors({});
 		} catch (error) {
 			setStatus({
 				type: "error",
-				message: error instanceof Error ? error.message : "Radās kļūda. Mēģiniet vēlreiz."
+				message: error instanceof Error ? error.message : (isEnglish ? "Something went wrong. Please try again." : "Radās kļūda. Mēģiniet vēlreiz.")
 			});
 		} finally {
 			setIsSubmitting(false);
@@ -157,7 +172,14 @@ export default function ContactForm({
 	};
 
 	return (
-		<form className="contact-form" onSubmit={handleSubmit} noValidate>
+		<form
+			className="contact-form"
+			action="/api/contact"
+			method="post"
+			onSubmit={handleSubmit}
+			noValidate
+		>
+			<input type="hidden" name="recipient" value="info@amberhome.lv" />
 			<div className="contact-form__header">
 				<h3 className="contact-form__title text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
 					{title}
@@ -168,7 +190,7 @@ export default function ContactForm({
 			<div className="contact-form__grid">
 				<div className="contact-form__field">
 					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-firstName`}>
-						Vārds
+						{isEnglish ? "First name" : "Vārds"}
 					</label>
 					<input
 						className="contact-form__control"
@@ -177,7 +199,7 @@ export default function ContactForm({
 						type="text"
 						value={values.firstName}
 						onChange={handleChange}
-						placeholder="Ievadi savu vārdu"
+						placeholder={isEnglish ? "Enter your first name" : "Ievadi savu vārdu"}
 						aria-invalid={errors.firstName ? "true" : "false"}
 						aria-describedby={errors.firstName ? `${id}-firstName-error` : undefined}
 						autoComplete="given-name"
@@ -192,7 +214,7 @@ export default function ContactForm({
 
 				<div className="contact-form__field">
 					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-lastName`}>
-						Uzvārds
+						{isEnglish ? "Last name" : "Uzvārds"}
 					</label>
 					<input
 						className="contact-form__control"
@@ -201,7 +223,7 @@ export default function ContactForm({
 						type="text"
 						value={values.lastName}
 						onChange={handleChange}
-						placeholder="Ievadi savu uzvārdu"
+						placeholder={isEnglish ? "Enter your last name" : "Ievadi savu uzvārdu"}
 						aria-invalid={errors.lastName ? "true" : "false"}
 						aria-describedby={errors.lastName ? `${id}-lastName-error` : undefined}
 						autoComplete="family-name"
@@ -216,7 +238,7 @@ export default function ContactForm({
 
 				<div className="contact-form__field">
 					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-phone`}>
-						Telefona numurs
+						{isEnglish ? "Phone number" : "Telefona numurs"}
 					</label>
 					<input
 						className="contact-form__control"
@@ -240,7 +262,7 @@ export default function ContactForm({
 
 				<div className="contact-form__field">
 					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-email`}>
-						E-pasts
+						{isEnglish ? "Email" : "E-pasts"}
 					</label>
 					<input
 						className="contact-form__control"
@@ -249,7 +271,7 @@ export default function ContactForm({
 						type="email"
 						value={values.email}
 						onChange={handleChange}
-						placeholder="Ievadi savu e-pastu"
+						placeholder={isEnglish ? "Enter your email" : "Ievadi savu e-pastu"}
 						aria-invalid={errors.email ? "true" : "false"}
 						aria-describedby={errors.email ? `${id}-email-error` : undefined}
 						autoComplete="email"
@@ -264,7 +286,7 @@ export default function ContactForm({
 
 				<div className="contact-form__field contact-form__field--full">
 					<label className="contact-form__label text-xs font-bold uppercase tracking-widest" htmlFor={`${id}-information`}>
-						Papildu informācija
+						{isEnglish ? "Additional information" : "Papildu informācija"}
 					</label>
 					<textarea
 						className="contact-form__control contact-form__control--textarea"
@@ -272,7 +294,7 @@ export default function ContactForm({
 						name="information"
 						value={values.information}
 						onChange={handleChange}
-						placeholder="Pastāsti, ko vēlies noskaidrot"
+						placeholder={defaultInformation || (isEnglish ? "Tell us what you would like to know" : "Pastāsti, ko vēlies noskaidrot")}
 						rows="4"
 					/>
 				</div>
@@ -290,7 +312,9 @@ export default function ContactForm({
 							required
 						/>
 						<label className="text-sm leading-relaxed" htmlFor={`${id}-consent`}>
-							Piekrītu, ka mani dati tiek izmantoti saziņai par pieteikumu
+							{isEnglish
+								? "I agree that my data may be used to contact me about this enquiry"
+								: "Piekrītu, ka mani dati tiek izmantoti saziņai par pieteikumu"}
 						</label>
 					</div>
 					{errors.consent ? (
@@ -311,7 +335,7 @@ export default function ContactForm({
 			) : null}
 
 			<button className="contact-form__submit text-xs font-bold uppercase tracking-widest" type="submit" disabled={isSubmitting}>
-				{isSubmitting ? "Nosūtām..." : submitLabel}
+				{isSubmitting ? (isEnglish ? "Sending..." : "Nosūtām...") : submitLabel}
 			</button>
 		</form>
 	);

@@ -20,7 +20,7 @@ export const propertyTypeDocument = defineType({
       name: 'slug',
       title: 'Saīsne (slug)',
       type: 'slug',
-      description: 'Izmanto filtru URL, piemēram: /properties/divistabu.',
+      description: 'Izmanto filtru URL, piemēram: /dzīvokļi/3-istabas.',
       options: {source: 'title', maxLength: 96},
       group: 'content',
       validation: (rule) => rule.required(),

@@ -15,7 +15,7 @@ export const ctaType = defineType({
       name: 'href',
       title: 'Saite',
       type: 'string',
-      description: 'Lieto iekšējās adreses, piemēram, /properties, vai pilnas URL adreses.',
+      description: 'Lieto iekšējās adreses, piemēram, /dzīvokļi, vai pilnas URL adreses.',
       validation: (rule) => rule.required(),
     }),
   ],

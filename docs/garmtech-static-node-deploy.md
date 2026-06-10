@@ -19,7 +19,6 @@ CONTACT_SMTP_PORT=465
 CONTACT_SMTP_SECURE=true
 CONTACT_SMTP_USER=your-mailbox@your-domain.tld
 CONTACT_SMTP_PASS=your-mailbox-password
-CONTACT_TO_EMAIL=your-mailbox@your-domain.tld
 CONTACT_FROM_EMAIL=your-mailbox@your-domain.tld
 REBUILD_WEBHOOK_TOKEN=replace-with-a-long-random-secret
 ```
@@ -37,6 +36,7 @@ After that:
 
 - the static site is served from `dist/`
 - the form submits to `/api/contact`
+- every form enquiry is delivered to `info@amberhome.lv`
 - the rebuild webhook is available at `/api/rebuild`
 - rebuild status is available at `/api/rebuild/status`
 

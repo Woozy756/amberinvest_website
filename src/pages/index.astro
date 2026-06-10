@@ -5,11 +5,12 @@ import EditorialGallery from "../components/home/EditorialGallery.astro";
 import ProjectLocation from "../components/home/ProjectLocation.astro";
 import ContactSection from "../components/home/ContactSection.astro";
 import Layout from '../layouts/Layout.astro';
-import { getMessages } from "../i18n/translations";
+import { getMessages, type Locale } from "../i18n/translations";
 import { loadHomepage } from "../sanity/homepage";
 import { getAllProperties, type Property } from "../sanity/properties";
 
-const locale = "lv";
+const locale = (Astro.props.locale ?? "lv") as Locale;
+const isEnglish = locale === "en";
 const messages = getMessages(locale);
 const featuredPropertySlugs = [
 	"talsu-3a-dzivoklis-nr4",
@@ -23,21 +24,21 @@ const featuredProperties = featuredPropertySlugs
 ---
 
 <Layout
-	title={homepage?.seo?.metaTitle || messages.home.title}
-	description={homepage?.seo?.metaDescription || homepage?.hero.heroLead || messages.home.heroLead}
-	canonicalPath="/"
+	title={isEnglish ? messages.home.title : homepage?.seo?.metaTitle || messages.home.title}
+	description={isEnglish ? messages.home.heroLead : homepage?.seo?.metaDescription || homepage?.hero.heroLead || messages.home.heroLead}
+	canonicalPath={isEnglish ? "/en" : "/"}
 	ogImageUrl={homepage?.seo?.ogImage?.src || homepage?.hero.heroBackgroundImage?.asset?.url}
-	ogImageAlt={homepage?.seo?.ogImage?.alt || homepage?.hero.heroBackgroundImage?.alt || messages.home.heroTitle}
+	ogImageAlt={isEnglish ? "AmberHome apartment building at Talsu Street 3A" : homepage?.seo?.ogImage?.alt || homepage?.hero.heroBackgroundImage?.alt || messages.home.heroTitle}
 	noIndex={homepage?.seo?.noIndex}
 	overlayHeader={true}
 	footerTone="light"
 	locale={locale}
 >
 		<main>
-			<HeroAvailability content={homepage?.hero} />
+			<HeroAvailability content={homepage?.hero} locale={locale} />
 			<ProjectHighlights locale={locale} content={homepage?.highlights} featuredProperties={featuredProperties} />
-			<EditorialGallery content={homepage?.editorial} />
-			<ProjectLocation />
-		<ContactSection content={homepage?.contact} />
+			<EditorialGallery content={homepage?.editorial} locale={locale} />
+			<ProjectLocation locale={locale} />
+		<ContactSection content={homepage?.contact} locale={locale} />
 	</main>
 </Layout>

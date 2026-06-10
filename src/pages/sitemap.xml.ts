@@ -2,6 +2,7 @@ import {
 	getAllProperties,
 	getPropertyCategories,
 	getPropertyCategoryHref,
+	getPropertyCategoryHrefForLocale,
 	getPropertyHref,
 } from "../sanity/properties";
 
@@ -26,10 +27,29 @@ function sitemapEntry(path: string): string {
 
 export async function GET() {
 	const [properties, categories] = await Promise.all([getAllProperties(), getPropertyCategories()]);
-	const staticPaths = ["/", "/properties", "/par-eku", "/about-us", "/how-to-buy", "/contact"];
-	const categoryPaths = categories.map((category) => getPropertyCategoryHref(category));
-	const propertyPaths = properties.map((property) => getPropertyHref(property));
-	const paths = [...staticPaths, ...categoryPaths, ...propertyPaths];
+	const staticPaths = [
+		"/",
+		"/dzīvokļi",
+		"/par-eku",
+		"/par-mums",
+		"/kā-iegādāties",
+		"/kontakti",
+		"/en",
+		"/en/apartments",
+		"/en/about-the-building",
+		"/en/about-us",
+		"/en/how-to-buy",
+		"/en/contact",
+	];
+	const categoryPaths = categories.flatMap((category) => [
+		getPropertyCategoryHref(category),
+		getPropertyCategoryHrefForLocale(category, "en"),
+	]);
+	const propertyPaths = properties.flatMap((property) => [
+		getPropertyHref(property),
+		getPropertyHref(property, "en"),
+	]);
+	const paths = [...new Set([...staticPaths, ...categoryPaths, ...propertyPaths])];
 	const body = [
 		'<?xml version="1.0" encoding="UTF-8"?>',
 		'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

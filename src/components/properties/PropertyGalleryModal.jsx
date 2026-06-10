@@ -40,7 +40,9 @@ export default function PropertyGalleryModal({
 	imageFit = "cover",
 	preserveAspectRatio = false,
 	enlargedZoom = ENLARGED_ZOOM,
+	locale = "lv",
 }) {
+	const isEnglish = locale === "en";
 	const [isMounted, setIsMounted] = useState(false);
 	const [modalIndex, setModalIndex] = useState(activeIndex);
 	const [zoomLevel, setZoomLevel] = useState(DEFAULT_ZOOM);
@@ -319,7 +321,7 @@ export default function PropertyGalleryModal({
 			}`}
 			role="dialog"
 			aria-modal="true"
-			aria-label={`${title} attēlu galerija`}
+			aria-label={`${title} ${isEnglish ? "image gallery" : "attēlu galerija"}`}
 			onClick={closeModal}
 		>
 			<div className="property-gallery-modal__shell">
@@ -339,7 +341,7 @@ export default function PropertyGalleryModal({
 							stopModalClose(event);
 							closeModal();
 						}}
-						aria-label="Aizvērt galeriju"
+						aria-label={isEnglish ? "Close gallery" : "Aizvērt galeriju"}
 					>
 						<Icon name="close" />
 					</button>
@@ -358,7 +360,7 @@ export default function PropertyGalleryModal({
 								stopModalClose(event);
 								showPreviousImage();
 							}}
-							aria-label="Iepriekšējais attēls"
+							aria-label={isEnglish ? "Previous image" : "Iepriekšējais attēls"}
 						>
 							<Icon name="previous" />
 						</button>
@@ -390,7 +392,7 @@ export default function PropertyGalleryModal({
 									stopModalClose(event);
 									showPreviousImage();
 								}}
-								aria-label="Iepriekšējais attēls"
+								aria-label={isEnglish ? "Previous image" : "Iepriekšējais attēls"}
 							>
 								<img src={previousImage.zoomSrc || previousImage.src} alt="" width="2400" height="2400" />
 							</button>
@@ -405,7 +407,7 @@ export default function PropertyGalleryModal({
 									stopModalClose(event);
 									showNextImage();
 								}}
-								aria-label="Nākamais attēls"
+								aria-label={isEnglish ? "Next image" : "Nākamais attēls"}
 							>
 								<img src={nextImage.zoomSrc || nextImage.src} alt="" width="2400" height="2400" />
 							</button>
@@ -413,7 +415,11 @@ export default function PropertyGalleryModal({
 						<button
 							className="property-gallery-modal__image-button"
 							type="button"
-							aria-label={zoomLevel > DEFAULT_ZOOM ? "Samazināt attēlu" : "Palielināt attēlu"}
+							aria-label={
+								zoomLevel > DEFAULT_ZOOM
+									? isEnglish ? "Zoom out" : "Samazināt attēlu"
+									: isEnglish ? "Zoom in" : "Palielināt attēlu"
+							}
 						>
 							<img
 								key={`${activeImage.zoomSrc || activeImage.src}-${turnDirection}`}
@@ -443,7 +449,7 @@ export default function PropertyGalleryModal({
 								stopModalClose(event);
 								showNextImage();
 							}}
-							aria-label="Nākamais attēls"
+							aria-label={isEnglish ? "Next image" : "Nākamais attēls"}
 						>
 							<Icon name="next" />
 						</button>

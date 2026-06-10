@@ -1,6 +1,11 @@
 ---
 import { getMessages, type Locale } from "../i18n/translations";
-import { getPropertyCategories, getPropertyCategoryHref } from "../sanity/properties";
+import { getAlternateLocaleHref, localizeInternalHref } from "../lib/routes";
+import {
+	getPropertyCategories,
+	getPropertyCategoryHrefForLocale,
+	getPropertyCategoryLabel
+} from "../sanity/properties";
 import type { SiteLink, SiteSettings } from "../sanity/siteSettings";
 
 interface Props {
@@ -11,24 +16,31 @@ interface Props {
 
 const { overlay = false, locale = "lv", siteSettings = null } = Astro.props;
 const messages = getMessages(locale);
+const isEnglish = locale === "en";
 const propertyCategories = await getPropertyCategories();
+const homeHref = isEnglish ? "/en" : "/";
+const propertiesHref = isEnglish ? "/en/apartments" : "/dzīvokļi";
+const contactHref = isEnglish ? "/en/contact" : "/kontakti";
+const aboutBuildingHref = isEnglish ? "/en/about-the-building" : "/par-eku";
+const languageHref = getAlternateLocaleHref(Astro.url.pathname, isEnglish ? "lv" : "en");
+const languageLabel = isEnglish ? "LV" : "EN";
 
 const isPropertiesLink = (item: SiteLink) => {
 	const href = item.href.trim().toLowerCase();
-	return href === "/properties" || href.startsWith("/properties?");
+	return href === propertiesHref || href.startsWith(`${propertiesHref}?`);
 };
 
 const isFaqLink = (item: SiteLink) => item.href.trim().toLowerCase() === "/faq";
-const isContactLink = (item: SiteLink) => item.href.trim().toLowerCase() === "/contact";
+const isContactLink = (item: SiteLink) => item.href.trim().toLowerCase() === contactHref;
 const normalizeNavHref = (href: string) => {
 	const normalizedHref = href.trim().toLowerCase().replace(/\/+$/, "");
 	return normalizedHref || "/";
 };
 const mainNavOrder = new Map([
-	["/", 0],
-	["/how-to-buy", 1],
-	["/about-us", 2],
-	["/par-eku", 3]
+	[homeHref, 0],
+	[isEnglish ? "/en/how-to-buy" : "/kā-iegādāties", 1],
+	[isEnglish ? "/en/about-us" : "/par-mums", 2],
+	[aboutBuildingHref, 3]
 ]);
 const orderMainNavItems = (items: SiteLink[]) =>
 	[...items].sort((a, b) => {
@@ -37,20 +49,23 @@ const orderMainNavItems = (items: SiteLink[]) =>
 		return aOrder - bOrder;
 	});
 
-const configuredNavItems = siteSettings?.headerNavigation ?? [];
+const configuredNavItems = (isEnglish ? [] : siteSettings?.headerNavigation ?? []).map((item) => ({
+	...item,
+	href: localizeInternalHref(item.href, locale)
+}));
 const defaultNavItems: SiteLink[] = [
-	{ label: messages.header.home, href: "/" },
-	{ label: messages.header.howToBuy, href: "/how-to-buy" },
-	{ label: messages.header.aboutUs, href: "/about-us" },
-	{ label: messages.header.aboutBuilding, href: "/par-eku" }
+	{ label: messages.header.home, href: homeHref },
+	{ label: messages.header.howToBuy, href: isEnglish ? "/en/how-to-buy" : "/kā-iegādāties" },
+	{ label: messages.header.aboutUs, href: isEnglish ? "/en/about-us" : "/par-mums" },
+	{ label: messages.header.aboutBuilding, href: aboutBuildingHref }
 ];
 const baseNavItems = configuredNavItems.length > 0 ? configuredNavItems : defaultNavItems;
-const hasAboutBuildingLink = baseNavItems.some((item) => item.href.trim().toLowerCase() === "/par-eku");
+const hasAboutBuildingLink = baseNavItems.some((item) => item.href.trim().toLowerCase() === aboutBuildingHref);
 const navigationItems = hasAboutBuildingLink
 	? baseNavItems
 	: [
 			...baseNavItems.slice(0, 1),
-			{ label: messages.header.aboutBuilding, href: "/par-eku" },
+			{ label: messages.header.aboutBuilding, href: aboutBuildingHref },
 			...baseNavItems.slice(1)
 		];
 
@@ -61,16 +76,16 @@ const mainNavItems = orderMainNavItems(visibleNavItems.filter((item) => !isPrope
 const leadingNavItems = mainNavItems.slice(0, 1);
 const trailingNavItems = mainNavItems.slice(1);
 
-const homeAriaLabel = siteSettings?.siteTitle ?? "Sākumlapa";
+const homeAriaLabel = siteSettings?.siteTitle ?? (isEnglish ? "Home page" : "Sākumlapa");
 const logo = siteSettings?.logo;
 const logoAlt = logo?.alt || siteSettings?.siteTitle || "";
-const headerCtaLabel = "Sazinies ar mums";
+const headerCtaLabel = isEnglish ? "Contact us" : "Sazinies ar mums";
 
 const propertiesItems = [
-	{ href: "/properties", label: messages.header.propertiesListing },
+	{ href: propertiesHref, label: messages.header.propertiesListing },
 	...propertyCategories.map((category) => ({
-		href: getPropertyCategoryHref(category),
-		label: category.label
+		href: getPropertyCategoryHrefForLocale(category, locale),
+		label: getPropertyCategoryLabel(category, locale)
 	}))
 ];
 ---
@@ -78,7 +93,7 @@ const propertiesItems = [
 <header class="site-header" data-header data-overlay={overlay} data-scrolled="false" data-menu-open="false" data-properties-open="false">
 	<div class="site-header__shell">
 		<div class="site-header__inner">
-			<a class:list={["brand", { "brand--with-image": Boolean(logo?.url) }]} href="/" aria-label={homeAriaLabel}>
+			<a class:list={["brand", { "brand--with-image": Boolean(logo?.url) }]} href={homeHref} aria-label={homeAriaLabel}>
 				<span class:list={["brand__mark", { "brand__mark--image": Boolean(logo?.url) }]} aria-hidden={logo?.url ? "false" : "true"}>
 					{logo?.url ? (
 						<img class="brand__mark-image" src={logo.url} alt={logoAlt} loading="eager" decoding="async" />
@@ -130,7 +145,10 @@ const propertiesItems = [
 			</nav>
 
 			<div class="site-header__actions">
-				<a class="header-cta" href="/contact">{headerCtaLabel}</a>
+				<a class="header-cta" href={contactHref}>{headerCtaLabel}</a>
+				<a class="language-switch" href={languageHref} hreflang={isEnglish ? "lv" : "en"} aria-label={isEnglish ? "Latviešu valoda" : "English"}>
+					{languageLabel}
+				</a>
 				<button
 					class="menu-toggle"
 					type="button"
@@ -187,7 +205,12 @@ const propertiesItems = [
 				))
 			}
 			<li class="mobile-nav__item mobile-nav__item--cta">
-				<a class="mobile-nav__link mobile-nav__link--cta" href="/contact">{headerCtaLabel}</a>
+				<a class="mobile-nav__link" href={languageHref} hreflang={isEnglish ? "lv" : "en"}>
+					{isEnglish ? "Latviešu" : "English"}
+				</a>
+			</li>
+			<li class="mobile-nav__item mobile-nav__item--cta">
+				<a class="mobile-nav__link mobile-nav__link--cta" href={contactHref}>{headerCtaLabel}</a>
 			</li>
 		</ul>
 	</nav>
@@ -523,6 +546,26 @@ const propertiesItems = [
 		display: flex;
 		align-items: center;
 		gap: 0.85rem;
+	}
+
+	.language-switch {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2.6rem;
+		min-height: 2.9rem;
+		color: var(--surface-light);
+		text-decoration: none;
+		font-size: 0.7rem;
+		font-weight: 800;
+		letter-spacing: 0.12em;
+		border-bottom: 1px solid rgba(199, 150, 67, 0.65);
+	}
+
+	.language-switch:hover,
+	.language-switch:focus-visible {
+		color: var(--accent-primary);
+		outline: none;
 	}
 
 	.header-cta {

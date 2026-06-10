@@ -2,11 +2,39 @@
 interface Props {
 	placement?: "home" | "product";
 	class?: string;
+	locale?: "lv" | "en";
 }
 
-const { placement = "home", class: className = "", ...attrs } = Astro.props as Props & Record<string, unknown>;
+const { placement = "home", class: className = "", locale = "lv", ...attrs } = Astro.props as Props & Record<string, unknown>;
+const isEnglish = locale === "en";
 
-const benefits = [
+const benefits = isEnglish ? [
+	{
+		lines: ["A-category", "energy efficiency"],
+		icon: "/images/benefits/energy-efficiency.png",
+		description: "≥45 kWh per m² annually."
+	},
+	{
+		lines: ["Adjustable", "underfloor heating"],
+		icon: "/images/benefits/heated-floors.png",
+		description: "In every room."
+	},
+	{
+		lines: ["Heat-recovery ventilation", "for fresh indoor air"],
+		icon: "/images/benefits/ventilation.png",
+		description: "Fresh air every day."
+	},
+	{
+		lines: ["Fully finished", "interior"],
+		icon: "/images/benefits/finished-interior.png",
+		description: "Fitted bathroom with sanitary ware."
+	},
+	{
+		lines: ["On-site", "parking"],
+		icon: "/images/benefits/parking.png",
+		description: "Convenient parking by the building."
+	}
+] : [
 	{
 		lines: ["A kategorijas", "energoefektivitāte"],
 		icon: "/images/benefits/energy-efficiency.png",
@@ -39,7 +67,7 @@ const rootClass = ["benefits-strip", `benefits-strip--${placement}`, className].
 
 <div {...attrs} class={rootClass} data-benefits-scroll>
 	<div class="benefits-strip__sticky" data-benefits-sticky>
-		<ul class="benefits-strip__track" role="list" aria-label="Projekta priekšrocības" data-benefits-track>
+		<ul class="benefits-strip__track" role="list" aria-label={isEnglish ? "Project benefits" : "Projekta priekšrocības"} data-benefits-track>
 			{
 				benefits.map((benefit) => (
 					<li class="benefits-strip__item">

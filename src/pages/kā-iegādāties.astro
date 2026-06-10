@@ -1,16 +1,17 @@
 ---
 import ContactForm from "../components/home/ContactForm.jsx";
-import { getMessages } from "../i18n/translations";
+import { getMessages, type Locale } from "../i18n/translations";
 import Layout from "../layouts/Layout.astro";
 import { loadHowToBuyPage } from "../sanity/howToBuy";
 
-const locale = "lv";
+const locale = (Astro.props.locale ?? "lv") as Locale;
+const isEnglish = locale === "en";
 const messages = getMessages(locale);
 const sanityContent = await loadHowToBuyPage();
 if (!sanityContent) {
 	throw new Error("How To Buy Page content is missing in Sanity.");
 }
-const content = {
+const latvianContent = {
 	...sanityContent,
 	title: "Kā iegādāties dzīvokli",
 	heroEyebrow: "Kā iegādāties",
@@ -139,7 +140,114 @@ const content = {
 	contactDefaultInformation: "Vēlos pieteikties dzīvokļa apskatei.",
 	contactSubmitLabel: "Pieteikties apskatei"
 };
-const sectionNav = [
+const englishContent = {
+	...sanityContent,
+	title: "How to buy an apartment",
+	heroEyebrow: "How to buy",
+	heroTitle: "How to buy an apartment in our development",
+	heroLead: "From choosing an apartment to receiving the keys, we make every step clear and unhurried.",
+	heroLeadParagraphs: [
+		"From choosing an apartment to receiving the keys, we make every step clear and unhurried.",
+		"If you have questions about viewings, reservations, financing or documents, our team will explain what happens next and how to prepare."
+	],
+	stepsTitle: "From the first viewing to the keys to your apartment.",
+	stepsLead: "",
+	stepsLeadParagraphs: [],
+	steps: [
+		{
+			title: "Choose your apartment",
+			body: "We review the available apartments by room count, area, floor and budget. We help compare layouts so you can understand which option will work best in everyday life.",
+			bodyParagraphs: ["We review the available apartments by room count, area, floor and budget. We help compare layouts so you can understand which option will work best in everyday life."],
+			supportingNote: "Before the viewing, we can prepare several suitable options."
+		},
+		{
+			title: "Arrange a viewing",
+			body: "We agree on a convenient time to meet at Talsu Street 3A and show you the apartment, finishes, layout and building features.",
+			bodyParagraphs: ["We agree on a convenient time to meet at Talsu Street 3A and show you the apartment, finishes, layout and building features."],
+			supportingNote: "During the viewing, you can ask us about the building, costs and availability."
+		},
+		{
+			title: "Reserve your chosen apartment",
+			body: "Once you have found the right apartment, we arrange a reservation so you can complete the next steps with peace of mind.",
+			bodyParagraphs: ["Once you have found the right apartment, we arrange a reservation so you can complete the next steps with peace of mind."],
+			supportingNote: "We explain all reservation terms before you make any commitment."
+		},
+		{
+			title: "Arrange financing",
+			body: "We provide the documents required by banks and other credit institutions. If you are purchasing without a loan, we agree on a clear payment and document schedule.",
+			bodyParagraphs: ["We provide the documents required by banks and other credit institutions. If you are purchasing without a loan, we agree on a clear payment and document schedule."],
+			supportingNote: "Our aim is to ensure you always know what is required and by when."
+		},
+		{
+			title: "Complete the purchase",
+			body: "We conclude the purchase agreement, with or without a financial institution if bank financing is required. Once the documents are complete, we arrange the handover.",
+			bodyParagraphs: ["We conclude the purchase agreement, with or without a financial institution if bank financing is required. Once the documents are complete, we arrange the handover."],
+			supportingNote: "At handover, we also explain the practical details of using your new home."
+		}
+	],
+	financingEyebrow: "Financing",
+	financingTitle: "We help arrange financing",
+	financingLead: "We provide the documents required by credit institutions and help you understand the next steps.",
+	financingLeadParagraphs: ["We provide the documents required by credit institutions and help you understand the next steps."],
+	financingHighlights: [
+		{ label: "Property information", value: "We prepare information about your chosen apartment." },
+		{ label: "Timelines", value: "We coordinate the reservation with the bank's assessment process." },
+		{ label: "Payment sequence", value: "We explain the deposit and final payment process." },
+		{ label: "Consultation", value: "We answer your questions before you make a decision." }
+	],
+	documentsEyebrow: "Completing the purchase",
+	documentsTitle: "We conclude the purchase agreement",
+	documentsLead: "Once the apartment, payment terms and timeline are agreed, we conclude the purchase agreement with or without the involvement of a financial institution.",
+	documentsLeadParagraphs: ["Once the apartment, payment terms and timeline are agreed, we conclude the purchase agreement with or without the involvement of a financial institution."],
+	documentItems: [
+		{ label: "Transaction documents", value: "We prepare the documents according to the agreed purchase and payment process." },
+		{ label: "Transfer of ownership", value: "We transfer the apartment into your ownership and explain each signing step." },
+		{ label: "Payment sequence", value: "We agree when and how payments are made so the process is clear to both parties." },
+		{ label: "Apartment handover", value: "Once the documents are complete, we arrange the handover and explain practical details." }
+	],
+	faqEyebrow: "Frequently asked questions",
+	faqTitle: "What buyers most often ask",
+	faqLead: "If you do not find the answer here, contact us and we will explain the details for your chosen apartment.",
+	faqLeadParagraphs: ["If you do not find the answer here, contact us and we will explain the details for your chosen apartment."],
+	faqItems: [
+		{
+			question: "How long can an apartment be reserved?",
+			answer: "The reservation period is agreed individually, taking into account the apartment and financing process.",
+			answerParagraphs: ["The reservation period is agreed individually, taking into account the apartment and financing process."]
+		},
+		{
+			question: "Do you help with the bank process?",
+			answer: "Yes. We prepare the apartment information required by the bank and explain which documents are usually needed.",
+			answerParagraphs: ["Yes. We prepare the apartment information required by the bank and explain which documents are usually needed."]
+		},
+		{
+			question: "What is included in the apartment price?",
+			answer: "The apartments are fully finished. We explain the exact specification of each apartment during a viewing or consultation.",
+			answerParagraphs: ["The apartments are fully finished. We explain the exact specification of each apartment during a viewing or consultation."]
+		}
+	],
+	contactEyebrow: "Get in touch",
+	contactTitle: "Leave your contact details",
+	contactLead: "Leave your contact details and we will contact you to arrange a viewing at a convenient time.",
+	contactLeadParagraphs: ["Leave your contact details and we will contact you to arrange a viewing at a convenient time."],
+	contactBenefits: [
+		"Apartment viewing with our specialist",
+		"We will respond within 24 hours",
+		"We handle your personal data with care"
+	],
+	contactFormTitle: "Leave your contact details",
+	contactFormIntro: "",
+	contactDefaultInformation: "I would like to book an apartment viewing.",
+	contactSubmitLabel: "Book a viewing"
+};
+const content = isEnglish ? englishContent : latvianContent;
+const sectionNav = isEnglish ? [
+	{ href: "#process", label: "Step by step" },
+	{ href: "#financing", label: "Financing" },
+	{ href: "#documents", label: "Completing the purchase" },
+	{ href: "#faq", label: "Frequently asked questions" },
+	{ href: "#consultation", label: "Consultation" },
+] : [
 	{ href: "#process", label: "Soli pa solim" },
 	{ href: "#financing", label: "Finansējums" },
 	{ href: "#documents", label: "Darījuma noslēgšana" },
@@ -164,11 +272,11 @@ const faqStructuredData =
 ---
 
 <Layout
-	title={content.seo?.metaTitle || content.title || messages.pages.howToBuy}
-	description={content.seo?.metaDescription || content.heroLead || content.faqLead}
-	canonicalPath="/how-to-buy"
+	title={isEnglish ? messages.pages.howToBuy : content.seo?.metaTitle || content.title || messages.pages.howToBuy}
+	description={isEnglish ? content.heroLead : content.seo?.metaDescription || content.heroLead || content.faqLead}
+	canonicalPath={isEnglish ? "/en/how-to-buy" : "/kā-iegādāties"}
 	ogImageUrl={content.seo?.ogImage?.src || content.heroImage?.src}
-	ogImageAlt={content.seo?.ogImage?.alt || content.heroImage?.alt || content.heroTitle}
+	ogImageAlt={isEnglish ? "How to buy an AmberHome apartment" : content.seo?.ogImage?.alt || content.heroImage?.alt || content.heroTitle}
 	noIndex={content.seo?.noIndex}
 	structuredData={faqStructuredData ? faqStructuredData : undefined}
 	locale={locale}
@@ -193,8 +301,8 @@ const faqStructuredData =
 
 				</div>
 
-				<nav class="how-to-buy-hero__nav fade-in" data-reveal-delay="140" aria-label="Kā iet uz sadaļām">
-					<p class="how-to-buy-hero__nav-label text-xs font-bold uppercase tracking-widest">Sadaļas</p>
+				<nav class="how-to-buy-hero__nav fade-in" data-reveal-delay="140" aria-label={isEnglish ? "Page sections" : "Kā iet uz sadaļām"}>
+					<p class="how-to-buy-hero__nav-label text-xs font-bold uppercase tracking-widest">{isEnglish ? "Sections" : "Sadaļas"}</p>
 					<ul class="how-to-buy-hero__nav-list" role="list">
 						{sectionNav.map((item, index) => (
 							<li>
@@ -412,10 +520,11 @@ const faqStructuredData =
 						) : null}
 					</div>
 
-					<div class="contact-section__form-wrap fade-in" data-reveal-delay="180">
+					<div class="contact-section__form-wrap">
 						<div class="contact-section__card contact-form-card">
 							<ContactForm
-								client:idle
+								client:load
+								locale={locale}
 								title={content.contactFormTitle}
 								intro={content.contactFormIntro}
 								defaultInformation={content.contactDefaultInformation}
@@ -627,6 +736,16 @@ const faqStructuredData =
 
 	.how-to-buy-step__number {
 		color: var(--accent-primary);
+		font-size: 0.95rem;
+		line-height: 1;
+		align-self: start;
+		margin: 1rem 0 0;
+		text-align: center;
+	}
+
+	.how-to-buy-hero__nav-index {
+		font-size: 0.95rem;
+		line-height: 1;
 	}
 
 	.how-to-buy-faq__intro {
@@ -693,7 +812,7 @@ const faqStructuredData =
 
 	.how-to-buy-step__meta {
 		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-columns: 2.5rem minmax(0, 1fr);
 		gap: 1.2rem;
 		align-items: start;
 	}
@@ -1008,8 +1127,7 @@ const faqStructuredData =
 			max-width: none;
 		}
 
-		.how-to-buy-specs__row,
-		.how-to-buy-step__meta {
+		.how-to-buy-specs__row {
 			grid-template-columns: 1fr;
 		}
 

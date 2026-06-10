@@ -65,15 +65,103 @@ export interface Property {
   seo?: SanitySeo
 }
 
-export function getPropertyCategoryHref(category: Pick<PropertyCategory, 'slug'> | string): string {
+const localizedPropertyCategorySlugs: Record<string, string> = {
+  '3-rooms': '3-istabas',
+  '4-rooms': '4-istabas',
+  '5-rooms': '5-istabas',
+}
+
+export function getPropertyCategoryRouteSlug(
+  category: Pick<PropertyCategory, 'slug'> | string,
+): string {
   const slug = typeof category === 'string' ? category : category.slug
-  return `/properties/${slug}`
+  return localizedPropertyCategorySlugs[slug] ?? slug
+}
+
+export function getPropertyCategoryHref(category: Pick<PropertyCategory, 'slug'> | string): string {
+  return getPropertyCategoryHrefForLocale(category, 'lv')
+}
+
+export function getPropertyCategoryHrefForLocale(
+  category: Pick<PropertyCategory, 'slug'> | string,
+  locale: 'lv' | 'en' = 'lv',
+): string {
+  const slug = typeof category === 'string' ? category : category.slug
+  return locale === 'en'
+    ? `/en/apartments/${slug}`
+    : `/dzīvokļi/${getPropertyCategoryRouteSlug(slug)}`
 }
 
 export function getPropertyHref(
   property: Pick<Property, 'slug' | 'category'> & {category: Pick<PropertyCategory, 'slug'>},
+  locale: 'lv' | 'en' = 'lv',
 ): string {
-  return `${getPropertyCategoryHref(property.category)}/${property.slug}`
+  return `${getPropertyCategoryHrefForLocale(property.category, locale)}/${property.slug}`
+}
+
+export function getPropertyCategoryLabel(
+  category: Pick<PropertyCategory, 'slug' | 'label' | 'shortLabel'>,
+  locale: 'lv' | 'en' = 'lv',
+  short = false,
+): string {
+  if (locale === 'lv') {
+    return short ? category.shortLabel : category.label
+  }
+
+  const rooms = getFirstNumberFromSlug(category.slug)
+  if (!rooms) return short ? category.shortLabel : category.label
+  return short ? `${rooms} rooms` : `${rooms}-room apartments`
+}
+
+export function getLocalizedPropertyTitle(property: Pick<Property, 'title'>, locale: 'lv' | 'en' = 'lv'): string {
+  if (locale === 'lv') return property.title
+
+  const apartmentMatch = property.title.match(/^(.*?)\s*Dzīvoklis Nr\.?\s*(\d+)$/i)
+  if (!apartmentMatch) {
+    return property.title.replace(/Dzīvoklis Nr\.?\s*/i, 'Apartment No. ')
+  }
+
+  const [, address, apartmentNumber] = apartmentMatch
+  const localizedAddress = address.trim().replace(/^Talsu 3A$/i, 'Talsu Street 3A')
+  return `Apartment No. ${apartmentNumber}, ${localizedAddress}`
+}
+
+export function getLocalizedPropertyImageText(value: string | undefined, locale: 'lv' | 'en' = 'lv'): string | undefined {
+  if (!value || locale === 'lv') return value
+
+  const replacements: Array<[RegExp, string]> = [
+    [/Dzīvokļa plāns/gi, 'Apartment plan'],
+    [/Stāva plāns/gi, 'Floor plan'],
+    [/Foto galerija/gi, 'Photo gallery'],
+    [/Dzīvojamā telpa/gi, 'Living area'],
+    [/Vannas istaba/gi, 'Bathroom'],
+    [/Bērna istaba|Bērnistaba/gi, "Child's room"],
+    [/Guļamistaba/gi, 'Bedroom'],
+    [/Priekštelpa/gi, 'Entrance hall'],
+    [/Papildus/gi, 'Additional feature'],
+    [/Gaitenis/gi, 'Hallway'],
+    [/Virtuve/gi, 'Kitchen'],
+    [/Lodžija/gi, 'Loggia'],
+    [/Tualete/gi, 'WC'],
+    [/Ofiss/gi, 'Office'],
+    [/dzīvokļa plāns/gi, 'apartment plan'],
+  ]
+
+  return replacements.reduce(
+    (localizedValue, [pattern, replacement]) => localizedValue.replace(pattern, replacement),
+    value,
+  )
+}
+
+export function getLocalizedPropertyDescription(
+  property: Pick<Property, 'rooms' | 'area' | 'shortDescription'>,
+  locale: 'lv' | 'en' = 'lv',
+): string {
+  if (locale === 'lv') return property.shortDescription
+
+  const bedrooms = Math.max(property.rooms - 1, 0)
+  const bedroomText = bedrooms === 1 ? 'one bedroom' : `${bedrooms} bedrooms`
+  return `${property.rooms}-room apartment with a total area of ${formatDescriptionArea(property.area)} m². The layout includes an open-plan living room and kitchen, ${bedroomText}, a bathroom and a separate WC. The apartment has heat-recovery ventilation, individually adjustable underfloor heating in every room and a fully finished interior with fitted sanitary ware. Each apartment has individual electricity, heating and water meters, and residents have access to on-site parking.`
 }
 
 export const propertyStatusMeta: Record<

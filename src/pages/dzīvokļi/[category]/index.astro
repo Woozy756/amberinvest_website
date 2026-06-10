@@ -1,0 +1,60 @@
+---
+import PropertiesCatalogView from "../../../components/properties/PropertiesCatalogView.astro";
+import {
+	getPropertyCategoryHref,
+	getPropertyCategoryHrefForLocale,
+	getPropertyCategoryLabel,
+	getPropertyCategoryRouteSlug,
+	getPropertiesByCategory,
+	getPropertyCategories,
+	type PropertyCategory
+} from "../../../sanity/properties";
+import Layout from "../../../layouts/Layout.astro";
+import type { Locale } from "../../../i18n/translations";
+
+export async function getStaticPaths() {
+	const categories = await getPropertyCategories();
+
+	return categories.map((category) => ({
+		params: { category: getPropertyCategoryRouteSlug(category) },
+		props: { category }
+	}));
+}
+
+interface Props {
+	category: PropertyCategory;
+	locale?: Locale;
+}
+
+const { category, locale = "lv" } = Astro.props as Props;
+const isEnglish = locale === "en";
+const categoryLabel = getPropertyCategoryLabel(category, locale);
+const categoryDescription = isEnglish
+	? `Browse the available ${categoryLabel.toLowerCase()} at AmberHome, Talsu Street 3A in Ventspils.`
+	: category.description;
+
+const [properties, categories] = await Promise.all([
+	getPropertiesByCategory(category.slug),
+	getPropertyCategories()
+]);
+---
+
+<Layout
+	title={isEnglish ? `AmberHome | ${categoryLabel}` : category.seo?.metaTitle || `Amberinvest | ${category.label}`}
+	description={isEnglish ? categoryDescription : category.seo?.metaDescription || category.description}
+	canonicalPath={getPropertyCategoryHrefForLocale(category, locale)}
+	ogImageUrl={category.seo?.ogImage?.src}
+	ogImageAlt={isEnglish ? `${categoryLabel} at AmberHome` : category.seo?.ogImage?.alt}
+	noIndex={category.seo?.noIndex}
+	footerTone="dark"
+	locale={locale}
+>
+	<PropertiesCatalogView
+		title={categoryLabel}
+		lead={categoryDescription}
+		properties={properties}
+		categories={categories}
+		activeCategory={category.slug}
+		locale={locale}
+	/>
+</Layout>

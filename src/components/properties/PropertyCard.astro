@@ -1,6 +1,12 @@
 ---
-import { getPropertyHref, propertyStatusMeta, type Property } from "../../sanity/properties";
+import {
+	getLocalizedPropertyTitle,
+	getPropertyHref,
+	propertyStatusMeta,
+	type Property
+} from "../../sanity/properties";
 import { formatCurrency } from "../../lib/formatting";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	property: Property;
@@ -8,23 +14,32 @@ interface Props {
 	ctaLabel?: string;
 	showPrice?: boolean;
 	index?: number;
+	locale?: Locale;
 }
 
-const { property, ctaHref, ctaLabel = "Skatīt detaļas", showPrice = true, index = 0 } = Astro.props as Props;
-const status = propertyStatusMeta[property.status];
+const { property, ctaHref, ctaLabel, showPrice = true, index = 0, locale = "lv" } = Astro.props as Props;
+const isEnglish = locale === "en";
+const localizedTitle = getLocalizedPropertyTitle(property, locale);
+const localizedCtaLabel = ctaLabel || (isEnglish ? "View details" : "Skatīt detaļas");
+const status = {
+	...propertyStatusMeta[property.status],
+	label: isEnglish
+		? { available: "Available", reserved: "Reserved", sold: "Sold" }[property.status]
+		: propertyStatusMeta[property.status].label
+};
 const priceLabel = formatCurrency(property.price, property.currency);
-const propertyHref = getPropertyHref(property);
+const propertyHref = getPropertyHref(property, locale);
 const cardCtaHref = ctaHref || propertyHref;
-const locationLabel = property.project?.city || "Dzīvoklis";
+const locationLabel = property.project?.city || (isEnglish ? "Apartment" : "Dzīvoklis");
 const imageLoading = index < 2 ? "eager" : "lazy";
 const imageFetchPriority = index < 2 ? "high" : "auto";
 ---
 
 <article class="property-card fade-in" data-reveal-delay={String(80 + index * 45)}>
-	<a class="property-card__media" href={propertyHref} aria-label={`Skatīt ${property.title} detaļas`}>
+	<a class="property-card__media" href={propertyHref} aria-label={isEnglish ? `View details for ${localizedTitle}` : `Skatīt ${property.title} detaļas`}>
 		<img
 			src={property.image}
-			alt={property.title}
+			alt={localizedTitle}
 			loading={imageLoading}
 			fetchpriority={imageFetchPriority}
 			decoding="async"
@@ -35,7 +50,7 @@ const imageFetchPriority = index < 2 ? "high" : "auto";
 	</a>
 
 	<div class="property-card__body">
-		<p class="property-card__location" aria-label="Objekta atrašanās vieta">
+		<p class="property-card__location" aria-label={isEnglish ? "Property location" : "Objekta atrašanās vieta"}>
 			<svg class="property-card__location-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 				<path
 					d="M12 2.5c-3.86 0-7 3.14-7 7 0 4.8 5.69 11.1 6.33 11.8a.9.9 0 0 0 1.34 0C13.31 20.6 19 14.3 19 9.5c0-3.86-3.14-7-7-7Zm0 9.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"
@@ -45,29 +60,29 @@ const imageFetchPriority = index < 2 ? "high" : "auto";
 			<span>{locationLabel}</span>
 		</p>
 			<h2 class="property-card__title">
-				<a href={propertyHref}>{property.title}</a>
+				<a href={propertyHref}>{localizedTitle}</a>
 			</h2>
 			<div class="property-card__spacer" aria-hidden="true"></div>
 
 		<div class="property-card__meta">
-			<dl class="property-card__details" aria-label={`${property.title} pamatinformācija`}>
+			<dl class="property-card__details" aria-label={isEnglish ? `${localizedTitle} key details` : `${property.title} pamatinformācija`}>
 				<div>
-					<dt>Istabas</dt>
+					<dt>{isEnglish ? "Rooms" : "Istabas"}</dt>
 					<dd>{property.rooms}</dd>
 				</div>
 				<div>
-					<dt>Platība</dt>
+					<dt>{isEnglish ? "Area" : "Platība"}</dt>
 					<dd>{property.area.toFixed(1)} m²</dd>
 				</div>
 				<div>
-					<dt>Stāvs</dt>
-					<dd>{property.floor}.</dd>
+					<dt>{isEnglish ? "Floor" : "Stāvs"}</dt>
+					<dd>{isEnglish ? property.floor : `${property.floor}.`}</dd>
 				</div>
 			</dl>
 
 			<div class="property-card__footer" data-has-price={showPrice ? "true" : "false"}>
 				{showPrice ? <p class="property-card__price">{priceLabel}</p> : null}
-				<a class="property-card__cta" href={cardCtaHref}>{ctaLabel}</a>
+				<a class="property-card__cta" href={cardCtaHref}>{localizedCtaLabel}</a>
 			</div>
 		</div>
 	</div>

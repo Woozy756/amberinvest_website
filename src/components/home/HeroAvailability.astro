@@ -1,31 +1,44 @@
 ---
 import type { HomepageHeroContent } from "../../sanity/homepage";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	content?: HomepageHeroContent | null;
+	locale?: Locale;
 }
 
-const { content } = Astro.props;
+const { content, locale = "lv" } = Astro.props;
+const isEnglish = locale === "en";
 const heroFallbackImage = "/images/hero-night.png";
 const mobileHeroImage = "/images/hero-mobile.png";
 const heroImage = content?.heroBackgroundImage?.asset?.url ?? heroFallbackImage;
-const availabilityMetrics =
-	content?.metrics?.map((metric) =>
+const availabilityMetrics = isEnglish
+	? [
+			{ label: "Available apartments", value: "15" },
+			{ label: "Number of rooms", value: "3, 4, 5" },
+			{ label: "Apartment area", value: "53–90 m²" },
+			{ label: "Project", value: "2026" }
+		]
+	: content?.metrics?.map((metric) =>
 		metric.label.toLowerCase().includes("istabu")
 			? { ...metric, value: "3, 4, 5" }
 			: metric
 	) ?? [];
-const primaryCtaLabel = "APSKATIES DZĪVOKĻUS";
-const primaryCtaHref = "/properties";
-const contactCtaLabel = "Sazinies ar mums";
-const contactCtaHref = "/contact";
-const heroProjectKicker = "Jaunais daudzīvokļu projekts";
-const heroProjectLocation = '"AmberHome" Talsu iela 3A';
-const heroTitlePrefix = "Iepazīsties un";
-const heroTitleMain = "Atrodi savas jaunās mājas";
-const mobileHeroLead = "Apskati dzīvokļus Talsu ielā 3A un atrodi sev piemērotāko mājokli.";
+const primaryCtaLabel = isEnglish ? "VIEW APARTMENTS" : "APSKATIES DZĪVOKĻUS";
+const primaryCtaHref = isEnglish ? "/en/apartments" : "/dzīvokļi";
+const contactCtaLabel = isEnglish ? "Contact us" : "Sazinies ar mums";
+const contactCtaHref = isEnglish ? "/en/contact" : "/kontakti";
+const heroProjectKicker = isEnglish ? "New apartment development" : "Jaunais daudzīvokļu projekts";
+const heroProjectLocation = isEnglish ? '"AmberHome" Talsu Street 3A' : '"AmberHome" Talsu iela 3A';
+const heroTitlePrefix = isEnglish ? "Discover and" : "Iepazīsties un";
+const heroTitleMain = isEnglish ? "Find your new home" : "Atrodi savas jaunās mājas";
+const mobileHeroLead = isEnglish
+	? "Explore apartments at Talsu Street 3A and find the home that suits you."
+	: "Apskati dzīvokļus Talsu ielā 3A un atrodi sev piemērotāko mājokli.";
 const heroLead =
-	"Apskati pieejamos dzīvokļus Talsu ielā 3A un atrodi mājokli, kas atbilst Tavām ikdienas vajadzībām un budžetam.";
+	isEnglish
+		? "Explore the available apartments at Talsu Street 3A and find a home that suits your everyday needs and budget."
+		: "Apskati pieejamos dzīvokļus Talsu ielā 3A un atrodi mājokli, kas atbilst Tavām ikdienas vajadzībām un budžetam.";
 ---
 
 {
@@ -45,11 +58,11 @@ const heroLead =
 								<strong class="hero__project-heading hero__project-heading--desktop">{heroProjectLocation}</strong>
 								<strong class="hero__project-heading hero__project-heading--mobile">
 									<span>“AmberHome”</span>
-									<span>Talsu ielā 3A</span>
+									<span>{isEnglish ? "Talsu Street 3A" : "Talsu ielā 3A"}</span>
 								</strong>
 								<span class="hero__intro-line hero__intro-line--desktop">{heroTitlePrefix}</span>
 								<strong class="hero__intro-main hero__intro-main--desktop">{heroTitleMain}</strong>
-								<span class="hero__mobile-supporting">Iepazīsties un atrodi savas jaunās mājas</span>
+								<span class="hero__mobile-supporting">{isEnglish ? "Discover and find your new home" : "Iepazīsties un atrodi savas jaunās mājas"}</span>
 							</h1>
 							<p class="hero__lead">
 								<span class="hero__lead-desktop">{heroLead}</span>
@@ -61,14 +74,14 @@ const heroLead =
 								</a>
 								<a class="button button--secondary" href={contactCtaHref}>
 									<span class="button__label-desktop">{contactCtaLabel}</span>
-									<span class="button__label-mobile">Sazināties</span>
+									<span class="button__label-mobile">{isEnglish ? "Contact" : "Sazināties"}</span>
 								</a>
 							</div>
 						</div>
 					</div>
 
 					<div class="availability" aria-labelledby="availability-title">
-						<h2 id="availability-title" class="sr-only">{content.availabilityTitle}</h2>
+						<h2 id="availability-title" class="sr-only">{isEnglish ? "Available apartments" : content.availabilityTitle}</h2>
 						<div class="availability__container fade-in" data-reveal-delay="160">
 							<dl class="availability__grid">
 								{

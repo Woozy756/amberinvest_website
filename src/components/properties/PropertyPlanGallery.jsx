@@ -13,12 +13,24 @@ function Icon({ name }) {
 	);
 }
 
-export default function PropertyPlanGallery({ images = [], fallbackImage, fallbackAlt, title }) {
+export default function PropertyPlanGallery({
+	images = [],
+	fallbackImage,
+	fallbackAlt,
+	title,
+	locale = "lv",
+}) {
+	const isEnglish = locale === "en";
 	const normalizedImages =
 		images.length > 0
 			? images
 			: fallbackImage
-				? [{ src: fallbackImage, zoomSrc: fallbackImage, alt: fallbackAlt || title, label: "Plānojums" }]
+				? [{
+						src: fallbackImage,
+						zoomSrc: fallbackImage,
+						alt: fallbackAlt || title,
+						label: isEnglish ? "Floor plan" : "Plānojums",
+					}]
 				: [];
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -50,7 +62,7 @@ export default function PropertyPlanGallery({ images = [], fallbackImage, fallba
 				className="apartment-plans__image-trigger"
 				type="button"
 				onClick={() => setIsZoomOpen(true)}
-				aria-label={`Palielināt plānojuma attēlu ${activeIndex + 1}`}
+				aria-label={`${isEnglish ? "Enlarge floor plan image" : "Palielināt plānojuma attēlu"} ${activeIndex + 1}`}
 			>
 				<img
 					className="apartment-plans__image"
@@ -63,12 +75,15 @@ export default function PropertyPlanGallery({ images = [], fallbackImage, fallba
 			</button>
 
 			{hasMultipleImages ? (
-				<div className="apartment-plans__switches" aria-label={`${title} plānojuma attēlu izvēle`}>
+				<div
+					className="apartment-plans__switches"
+					aria-label={`${title} ${isEnglish ? "floor plan image selection" : "plānojuma attēlu izvēle"}`}
+				>
 					<button
 						className="apartment-plans__switch apartment-plans__switch--previous"
 						type="button"
 						onClick={showPreviousImage}
-						aria-label="Iepriekšējais plānojuma attēls"
+						aria-label={isEnglish ? "Previous floor plan image" : "Iepriekšējais plānojuma attēls"}
 					>
 						<Icon name="previous" />
 					</button>
@@ -76,7 +91,7 @@ export default function PropertyPlanGallery({ images = [], fallbackImage, fallba
 						className="apartment-plans__switch apartment-plans__switch--next"
 						type="button"
 						onClick={showNextImage}
-						aria-label="Nākamais plānojuma attēls"
+						aria-label={isEnglish ? "Next floor plan image" : "Nākamais plānojuma attēls"}
 					>
 						<Icon name="next" />
 					</button>
@@ -89,9 +104,10 @@ export default function PropertyPlanGallery({ images = [], fallbackImage, fallba
 					activeIndex={activeIndex}
 					onClose={closeZoom}
 					title={title}
-					labelFallback="Plānojums"
+					labelFallback={isEnglish ? "Floor plan" : "Plānojums"}
 					imageFit="contain"
 					preserveAspectRatio
+					locale={locale}
 					enlargedZoom={(imageIndex) =>
 						imageIndex === 1 ? SECOND_PLAN_MODAL_ZOOM : PLAN_MODAL_ZOOM
 					}

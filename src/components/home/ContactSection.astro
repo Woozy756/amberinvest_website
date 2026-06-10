@@ -1,18 +1,27 @@
 ---
 import ContactForm from "./ContactForm.jsx";
 import type { HomepageContactContent } from "../../sanity/homepage";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	content?: HomepageContactContent | null;
+	locale?: Locale;
 }
 
-const { content } = Astro.props;
+const { content, locale = "lv" } = Astro.props;
+const isEnglish = locale === "en";
 
-const fallbackEyebrow = "Piesakieties";
-const fallbackTitle = "Atstāj savus kontaktus";
+const fallbackEyebrow = isEnglish ? "Get in touch" : "Piesakieties";
+const fallbackTitle = isEnglish ? "Leave your contact details" : "Atstāj savus kontaktus";
 const fallbackLead =
-	"Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par apskati Tev ērtā laikā.";
-const fallbackBenefits = [
+	isEnglish
+		? "Leave your contact details and we will get in touch to arrange a viewing at a convenient time."
+		: "Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par apskati Tev ērtā laikā.";
+const fallbackBenefits = isEnglish ? [
+	"Apartment viewing with our specialist",
+	"We will respond within 24 hours",
+	"We handle your personal data with care"
+] : [
 	"Dzīvokļu apskate ar mūsu speciālistu",
 	"Atbildēsim uz Tavu pieteikumu 24 stundu laikā",
 	"Mēs rūpējamies par Tavu datu drošību."
@@ -50,13 +59,14 @@ const benefits = fallbackBenefits;
 				)}
 			</div>
 
-			<div class="contact-section__form-wrap fade-in" data-reveal-delay="180">
+			<div class="contact-section__form-wrap">
 				<div class="contact-section__card contact-form-card">
 					<ContactForm
-						client:idle
-						title="Atstāj savus kontaktus"
+						client:load
+						locale={locale}
+						title={isEnglish ? "Leave your contact details" : "Atstāj savus kontaktus"}
 						intro=""
-						submitLabel="Pieteikties apskatei"
+						submitLabel={isEnglish ? "Book a viewing" : "Pieteikties apskatei"}
 					/>
 				</div>
 			</div>
@@ -68,6 +78,7 @@ const benefits = fallbackBenefits;
 	.contact-section {
 		position: relative;
 		overflow: clip;
+		scroll-margin-top: 5.5rem;
 		background:
 			radial-gradient(circle at top left, rgba(199, 150, 67, 0.14), transparent 34%),
 			linear-gradient(180deg, #0f1115 0%, #131821 100%);

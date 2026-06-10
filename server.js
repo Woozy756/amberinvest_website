@@ -21,6 +21,7 @@ const contactRateLimitWindowMs = 15 * 60_000;
 const contactRateLimitMax = 3;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const defaultSmtpPort = 465;
+const contactRecipient = "info@amberhome.lv";
 const contactRateLimitBuckets = new Map();
 let nodemailerModule = null;
 let rebuildTimer = null;
@@ -171,7 +172,7 @@ function normalizeContactPayload(body) {
 		sourceProperty: typeof input.sourceProperty === "string" ? input.sourceProperty.trim() : "",
 		sourcePropertyCode: typeof input.sourcePropertyCode === "string" ? input.sourcePropertyCode.trim() : "",
 		sourceUrl: typeof input.sourceUrl === "string" ? input.sourceUrl.trim() : "",
-		consent: input.consent === true
+		consent: input.consent === true || input.consent === "true" || input.consent === "on"
 	};
 }
 
@@ -245,16 +246,15 @@ async function createContactTransport() {
 
 async function sendContactEmail(payload) {
 	const transporter = await createContactTransport();
-	const toEmail = process.env.CONTACT_TO_EMAIL;
 	const fromEmail = process.env.CONTACT_FROM_EMAIL ?? process.env.CONTACT_SMTP_USER;
 
-	if (!transporter || !toEmail || !fromEmail) {
+	if (!transporter || !fromEmail) {
 		throw new Error("Contact email is not configured.");
 	}
 
 	await transporter.sendMail({
 		from: fromEmail,
-		to: toEmail,
+		to: contactRecipient,
 		replyTo: payload.email,
 		subject: "Jauns pieprasījums no kontaktformas",
 		text: [

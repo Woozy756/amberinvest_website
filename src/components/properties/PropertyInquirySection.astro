@@ -1,45 +1,49 @@
 ---
 import ContactForm from "../home/ContactForm.jsx";
-import { getPropertyHref, type Property } from "../../sanity/properties";
+import { getLocalizedPropertyTitle, getPropertyHref, type Property } from "../../sanity/properties";
 import { loadSiteSettings } from "../../sanity/siteSettings";
 import { toPhoneHref } from "../../lib/formatting";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	property: Property;
+	locale?: Locale;
 }
 
-const { property } = Astro.props as Props;
+const { property, locale = "lv" } = Astro.props as Props;
+const isEnglish = locale === "en";
+const localizedTitle = getLocalizedPropertyTitle(property, locale);
 const siteSettings = await loadSiteSettings();
 const inquiryPhone = siteSettings?.phone?.trim();
 const inquiryPhoneHref = toPhoneHref(inquiryPhone);
 const inquiryEmail = siteSettings?.contactEmail?.trim();
-const propertyHref = getPropertyHref(property);
+const propertyHref = getPropertyHref(property, locale);
 ---
 
 <section class="property-inquiry" id="property-inquiry" aria-labelledby="property-inquiry-title">
 	<div class="property-inquiry__container">
 		<div class="property-inquiry__layout">
 			<div class="property-inquiry__content">
-				<p class="property-inquiry__eyebrow fade-in">Piesakieties</p>
+				<p class="property-inquiry__eyebrow fade-in">{isEnglish ? "Get in touch" : "Piesakieties"}</p>
 				<h2 id="property-inquiry-title" class="property-inquiry__title fade-in" data-reveal-delay="60">
-					Atstāj savus kontaktus
+					{isEnglish ? "Leave your contact details" : "Atstāj savus kontaktus"}
 				</h2>
 				<p class="property-inquiry__lead fade-in" data-reveal-delay="120">
-					Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par <strong>{property.title}</strong> apskati Tev ērtā laikā.
+					{isEnglish ? "Leave your contact details and we will arrange a viewing of " : "Atstāj savu kontaktinformāciju, un mēs sazināsimies, lai vienotos par "}<strong>{localizedTitle}</strong>{isEnglish ? " at a convenient time." : " apskati Tev ērtā laikā."}
 				</p>
 
 				<ul class="property-inquiry__benefits" role="list">
 					<li class="property-inquiry__benefit fade-in" data-reveal-delay="180">
 						<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-						<span>Dzīvokļu apskate ar mūsu speciālistu</span>
+						<span>{isEnglish ? "Apartment viewing with our specialist" : "Dzīvokļu apskate ar mūsu speciālistu"}</span>
 					</li>
 					<li class="property-inquiry__benefit fade-in" data-reveal-delay="230">
 						<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-						<span>Atbildēsim uz Tavu pieteikumu 24 stundu laikā</span>
+						<span>{isEnglish ? "We will respond within 24 hours" : "Atbildēsim uz Tavu pieteikumu 24 stundu laikā"}</span>
 					</li>
 					<li class="property-inquiry__benefit fade-in" data-reveal-delay="280">
 						<img src="/check-mark.svg" alt="" loading="lazy" width="14" height="14" />
-						<span>Mēs rūpējamies par Tavu datu drošību.</span>
+						<span>{isEnglish ? "We handle your personal data with care." : "Mēs rūpējamies par Tavu datu drošību."}</span>
 					</li>
 				</ul>
 
@@ -51,18 +55,19 @@ const propertyHref = getPropertyHref(property);
 				) : null}
 			</div>
 
-			<div class="property-inquiry__form-wrap fade-in" data-reveal-delay="170">
+			<div class="property-inquiry__form-wrap">
 				<div class="property-inquiry__card contact-form-card">
 					<ContactForm
-						client:idle
-						title="Atstāj savus kontaktus"
+						client:load
+						locale={locale}
+						title={isEnglish ? "Leave your contact details" : "Atstāj savus kontaktus"}
 						intro=""
-						defaultInformation="Apskate"
+						defaultInformation={isEnglish ? "I would like to book a viewing." : "Apskate"}
 						sourceProject={property.project?.title}
-						sourceProperty={property.title}
+						sourceProperty={localizedTitle}
 						sourcePropertyCode={property.propertyCode}
 						sourceUrl={propertyHref}
-						submitLabel="Pieteikties apskatei"
+						submitLabel={isEnglish ? "Book a viewing" : "Pieteikties apskatei"}
 					/>
 				</div>
 			</div>

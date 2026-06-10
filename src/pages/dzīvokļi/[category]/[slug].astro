@@ -1,0 +1,1440 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PropertyCard from "../../../components/properties/PropertyCard.astro";
+import PropertyGallery from "../../../components/properties/PropertyGallery.jsx";
+import PropertyInquirySection from "../../../components/properties/PropertyInquirySection.astro";
+import PropertyLocationMap from "../../../components/properties/PropertyLocationMap.astro";
+import BenefitsStrip from "../../../components/shared/BenefitsStrip.astro";
+import FloorPlansSection from "../../../components/shared/FloorPlansSection.astro";
+import {
+	getAllProperties,
+	getLocalizedPropertyDescription,
+	getLocalizedPropertyImageText,
+	getLocalizedPropertyTitle,
+	getPropertyCategoryHref,
+	getPropertyCategoryHrefForLocale,
+	getPropertyCategoryLabel,
+	getPropertyCategoryRouteSlug,
+	getPropertyHref,
+	getSimilarProperties,
+	type Property
+} from "../../../sanity/properties";
+import { loadSiteSettings } from "../../../sanity/siteSettings";
+import { toPhoneHref } from "../../../lib/formatting";
+import { createPropertyPageViewModel } from "../../../lib/propertyPage";
+import type { Locale } from "../../../i18n/translations";
+
+export async function getStaticPaths() {
+	const properties = await getAllProperties();
+
+	return properties.map((property) => ({
+		params: {
+			category: getPropertyCategoryRouteSlug(property.category),
+			slug: property.slug
+		},
+		props: { property }
+	}));
+}
+
+const { property, locale = "lv" } = Astro.props as { property: Property; locale?: Locale };
+const isEnglish = locale === "en";
+const localizedTitle = getLocalizedPropertyTitle(property, locale);
+const localizedDescription = getLocalizedPropertyDescription(property, locale);
+const categoryLabel = getPropertyCategoryLabel(property.category, locale);
+
+const {
+	status,
+	priceLabel,
+	pricePerSquareMeterLabel,
+	locationLabel,
+	keyFacts,
+	floorPlans
+} =
+	createPropertyPageViewModel(property, locale);
+const [similarProperties, siteSettings] = await Promise.all([
+	getSimilarProperties(property.id, property.category.slug, 3),
+	loadSiteSettings()
+]);
+const gallery = property.gallery.map((image, index) => ({
+	...image,
+	alt: isEnglish ? `${localizedTitle} image ${index + 1}` : image.alt,
+	label: getLocalizedPropertyImageText(image.label, locale)
+}));
+const contactPhone = siteSettings?.phone?.trim();
+const contactPhoneHref = toPhoneHref(contactPhone);
+const contactEmail = siteSettings?.contactEmail?.trim();
+const locationBullets = isEnglish ? [
+	"Kindergartens, schools, shops and everyday services nearby",
+	"Convenient access to central Ventspils, the sea and key city destinations",
+	"A well-kept and peaceful setting for families and professionals"
+] : [
+	"Tuvumā bērnudārzi, skolas, veikali un dažādi ikdienā nepieciešamie pakalpojumi",
+	"Ērta nokļūšana līdz Ventspils centram, jūrai un pilsētas ikdienas galamērķiem",
+	"Sakārtota, mierīga vide jaunām ģimenēm un speciālistiem"
+];
+const propertyProjectFacts = isEnglish ? [
+	"Each apartment has individual electricity, heating and water meters.",
+	"The building is insulated and designed for energy-efficient everyday use.",
+	"The land beneath the building is privately owned; each apartment includes a proportional undivided share of the land."
+] : [
+	"Katram dzīvoklim ir savi elektrības, apkures un ūdens skaitītāji.",
+	"Ēka ir siltināta un veidota energoefektīvai ikdienas lietošanai.",
+	"Zeme zem mājas ir privāts īpašums; iegādājoties dzīvokli, īpašumā ietilpst arī domājamā daļa no zemes, kas tiek noteikta proporcionāli dzīvokļa platībai."
+];
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL ?? "https://amberhome.lv").replace(/\/+$/, "");
+const propertyUrl = new URL(getPropertyHref(property, locale), `${siteUrl}/`).toString();
+const propertyAvailability = {
+	available: "https://schema.org/InStock",
+	reserved: "https://schema.org/LimitedAvailability",
+	sold: "https://schema.org/SoldOut"
+}[property.status];
+const propertyStructuredData = {
+	"@context": "https://schema.org",
+	"@type": "Apartment",
+	name: localizedTitle,
+	description: localizedDescription,
+	url: propertyUrl,
+	image: gallery.length > 0 ? gallery.map((image) => image.src) : property.image ? [property.image] : undefined,
+	numberOfRooms: property.rooms,
+	floorSize: {
+		"@type": "QuantitativeValue",
+		value: property.area,
+		unitCode: "MTK"
+	},
+	address: property.project
+		? {
+				"@type": "PostalAddress",
+				addressLocality: property.project.city,
+				streetAddress: property.project.address
+			}
+		: undefined,
+	offers: {
+		"@type": "Offer",
+		price: property.price,
+		priceCurrency: property.currency,
+		availability: propertyAvailability,
+		url: propertyUrl
+	}
+};
+---
+
+<Layout
+	title={isEnglish ? `AmberHome | ${localizedTitle}` : property.seo?.metaTitle || `Amberinvest | ${property.title}`}
+	description={isEnglish ? localizedDescription : property.seo?.metaDescription || property.shortDescription}
+	canonicalPath={getPropertyHref(property, locale)}
+	ogImageUrl={property.seo?.ogImage?.src || property.image || gallery[0]?.src}
+	ogImageAlt={isEnglish ? localizedTitle : property.seo?.ogImage?.alt || property.title}
+	noIndex={property.seo?.noIndex}
+	structuredData={propertyStructuredData}
+	locale={locale}
+>
+	<main class="property-page">
+		<section class="property-hero">
+			<div class="property-page__container">
+				<nav class="property-breadcrumbs fade-in text-xs font-bold tracking-[0.13em] uppercase" aria-label={isEnglish ? "Breadcrumb" : "Ceļa karte"}>
+					<a href={isEnglish ? "/en" : "/"}>{isEnglish ? "Home" : "Sākums"}</a>
+					<span aria-hidden="true">/</span>
+					<a href={isEnglish ? "/en/apartments" : "/dzīvokļi"}>{isEnglish ? "Apartments" : "Dzīvokļi"}</a>
+					<span aria-hidden="true">/</span>
+					<a href={getPropertyCategoryHrefForLocale(property.category, locale)}>{categoryLabel}</a>
+					<span aria-hidden="true">/</span>
+					<span aria-current="page">{localizedTitle}</span>
+				</nav>
+
+				<div class="property-hero__grid">
+					<div class="property-hero__gallery fade-in" data-reveal-delay="70">
+						<PropertyGallery client:idle images={gallery} title={localizedTitle} locale={locale} />
+					</div>
+
+					<div class="property-hero__summary fade-in" data-reveal-delay="130">
+						<p class="property-page__eyebrow property-hero__location text-xs font-bold tracking-[0.16em] uppercase">
+							<svg
+								class="property-hero__location-icon"
+								viewBox="0 0 24 24"
+								aria-hidden="true"
+								focusable="false"
+							>
+								<path
+									d="M12 2.5c-3.86 0-7 3.14-7 7 0 4.8 5.69 11.1 6.33 11.8a.9.9 0 0 0 1.34 0C13.31 20.6 19 14.3 19 9.5c0-3.86-3.14-7-7-7Zm0 9.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"
+									fill="currentColor"
+								/>
+							</svg>
+							<span>{locationLabel}</span>
+						</p>
+						<h1 class="property-hero__title font-brand-heading text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.02] tracking-[-0.025em]">
+							{localizedTitle}
+						</h1>
+
+						<div class="property-hero__headline-row">
+							<div class="property-hero__price-group">
+								<p class="property-hero__price font-brand-heading text-4xl md:text-5xl leading-[1] tracking-[0em]">
+									{priceLabel}
+								</p>
+								<p class="property-hero__price-note text-sm font-medium leading-[1.4]">
+									<span>{pricePerSquareMeterLabel} / m²</span>
+								</p>
+							</div>
+							<p class="property-status-badge text-xs font-bold tracking-[0.14em] uppercase" data-tone={status.tone}>
+								{status.label}
+							</p>
+						</div>
+
+						<p class="property-hero__lead text-base leading-[1.78]">{localizedDescription}</p>
+
+						<dl class="property-hero__facts" aria-label={isEnglish ? `${localizedTitle} key details` : `${property.title} pamatinformācija`}>
+							{
+								keyFacts.map((fact) => (
+									<div>
+										<dt class="text-xs font-bold tracking-[0.14em] uppercase">{fact.label}</dt>
+										<dd class="text-base leading-[1.5]">{fact.value}</dd>
+									</div>
+								))
+							}
+						</dl>
+
+						<div class="property-hero__actions">
+							<a class="property-hero__cta text-xs font-bold tracking-[0.15em] uppercase" href="#property-inquiry">
+								{isEnglish ? "Book a viewing" : "Piesaki apskati"}
+							</a>
+							<p class="property-hero__cta-note text-sm leading-[1.65]">
+								{isEnglish ? "We will respond within 24 hours and prepare the most suitable offer." : "Atbildēsim tuvāko 24 stundu laikā un sagatavosim izdevīgāko piedāvājumu."}
+							</p>
+						</div>
+
+						{
+							contactPhone || contactEmail ? (
+								<div class="property-hero__contact-row" aria-label={isEnglish ? "Contact" : "Kontakti"}>
+									{contactPhone && contactPhoneHref ? (
+										<a class="text-xs font-bold tracking-[0.14em] uppercase" href={contactPhoneHref}>
+											{contactPhone}
+										</a>
+									) : null}
+									{contactEmail ? (
+										<a class="text-xs font-bold tracking-[0.14em] uppercase" href={`mailto:${contactEmail}`}>
+											{contactEmail}
+										</a>
+									) : null}
+								</div>
+							) : null
+						}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<BenefitsStrip placement="product" locale={locale} class="fade-in" data-reveal-delay="180" />
+
+		<FloorPlansSection
+				eyebrow=""
+				title={isEnglish ? `${property.rooms}-room apartment plan` : property.floorPlanSectionTitle || `${property.rooms} istabu dzīvokļa plāns`}
+				lead=""
+				tabsAriaLabel={isEnglish ? "Apartment layout selection" : "Dzīvokļu plānojumu izvēle"}
+			specsAriaLabel={isEnglish ? "Layout specification" : "Plānojuma specifikācija"}
+			plans={floorPlans}
+			initialTabId={property.category.slug}
+			showTabs={false}
+			showPrice={false}
+			locale={locale}
+		/>
+
+		<section class="property-section property-location-section" id="property-location">
+			<div class="property-page__container">
+				<div class="property-about property-about--location fade-in">
+					<div class="property-about__content">
+						<div class="property-section__heading property-section__heading--about">
+							<p class="property-page__eyebrow property-location-section__eyebrow text-xs font-bold tracking-[0.16em] uppercase">
+								<span>{isEnglish ? "APARTMENT LOCATION" : "DZĪVOKĻA ATRAŠANĀS VIETA"}</span>
+								<span>{isEnglish ? "Talsu Street 3A" : property.project?.address || "Talsu iela 3A"}, {property.project?.city || "Ventspils"}</span>
+							</p>
+							<h2 class="font-brand-heading text-3xl md:text-4xl lg:text-5xl leading-[1.12] tracking-[-0.025em]">
+								{isEnglish ? "An ideal location" : "Ideāla atrašanās vieta"}
+							</h2>
+						</div>
+
+						<div class="property-about__description">
+							<p class="text-lg leading-[1.82]">
+								{isEnglish ? "Talsu Street 3A is located in a convenient part of Ventspils, with easy access to city services, schools, shops and leisure opportunities." : "Talsu iela 3A atrodas Ventspilī, ērtā un ikdienai praktiskā vietā ar piekļuvi pilsētas pakalpojumiem, izglītības iestādēm, veikaliem un atpūtas iespējām."}
+							</p>
+							<ul class="property-location-section__list" role="list">
+								{locationBullets.map((item) => (
+									<li>{item}</li>
+								))}
+							</ul>
+							<ul class="property-location-section__facts" role="list" aria-label={isEnglish ? "Additional property information" : "Papildu īpašuma informācija"}>
+								{propertyProjectFacts.map((item) => (
+									<li>{item}</li>
+								))}
+							</ul>
+						</div>
+					</div>
+
+					<div class="property-about__map">
+						<PropertyLocationMap project={property.project} locale={locale} />
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<PropertyInquirySection property={property} locale={locale} />
+
+		{
+			similarProperties.length ? (
+				<section class="property-section property-section--similar">
+					<div class="property-page__container">
+						<div class="property-section__heading property-section__heading--wide fade-in">
+								<div>
+									<p class="property-page__eyebrow text-xs font-bold tracking-[0.16em] uppercase">{isEnglish ? "Similar apartments" : "Līdzīgi dzīvokļi"}</p>
+									<h2 class="font-brand-heading text-3xl md:text-4xl lg:text-5xl leading-[1.06] tracking-[-0.025em]">
+										{isEnglish ? "Available apartments" : "Pieejamie dzīvokļi"}
+									</h2>
+								</div>
+							</div>
+
+						<ul class="property-related__grid" role="list">
+							{
+								similarProperties.map((relatedProperty, index) => (
+									<li>
+										<PropertyCard property={relatedProperty} index={index} locale={locale} />
+									</li>
+								))
+							}
+						</ul>
+					</div>
+				</section>
+			) : null
+		}
+	</main>
+</Layout>
+
+<style is:global>
+	.property-page {
+		padding-top: clamp(7rem, 9vw, 9rem);
+		background:
+			radial-gradient(circle at top left, rgba(199, 150, 67, 0.08), transparent 26%),
+			linear-gradient(180deg, #f7f4ed 0%, var(--surface-light) 34%, #f1ece2 100%);
+		color: var(--bg-primary);
+	}
+
+	.property-page__container {
+		width: min(100%, 1280px);
+		margin: 0 auto;
+		padding-inline: clamp(1.5rem, 4vw, 3rem);
+	}
+
+	.property-page__eyebrow {
+		margin: 0;
+		color: var(--accent-primary);
+	}
+
+	.property-hero__location {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.42rem;
+	}
+
+	.property-hero__location-icon {
+		width: 1rem;
+		height: 1rem;
+		min-width: 1rem;
+		min-height: 1rem;
+		max-width: 1rem;
+		max-height: 1rem;
+		color: var(--accent-primary);
+		flex: 0 0 auto;
+		display: block;
+	}
+
+	.property-breadcrumbs {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.55rem;
+		margin-bottom: clamp(1.5rem, 2.6vw, 2rem);
+	}
+
+	.property-breadcrumbs a,
+	.property-breadcrumbs span {
+		color: rgba(15, 17, 21, 0.46);
+		text-decoration: none;
+	}
+
+	.property-breadcrumbs a:hover,
+	.property-breadcrumbs a:focus-visible {
+		color: var(--accent-primary);
+		outline: none;
+	}
+
+	.property-hero {
+		padding-bottom: clamp(2.2rem, 4vw, 3.25rem);
+	}
+
+	.property-hero__grid {
+		display: grid;
+		grid-template-columns: auto minmax(19rem, 1fr);
+		gap: clamp(2rem, 4vw, 4rem);
+		align-items: start;
+	}
+
+	.property-hero__gallery {
+		position: sticky;
+		top: 6.75rem;
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.property-hero__summary {
+		display: grid;
+		gap: 1.35rem;
+		padding-left: clamp(1rem, 2vw, 1.6rem);
+		border-left: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.property-hero__title,
+	.property-section__heading h2 {
+		margin: 0;
+	}
+
+	.property-hero__title {
+		max-width: 12ch;
+		text-wrap: balance;
+	}
+
+	.property-hero__headline-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: end;
+		justify-content: space-between;
+		gap: 0.9rem 1rem;
+		padding-block: 0.55rem 1.2rem;
+		border-bottom: 1px solid rgba(35, 38, 43, 0.1);
+	}
+
+	.property-hero__price-group {
+		display: flex;
+		align-items: flex-end;
+		flex-wrap: wrap;
+		gap: 0.55rem 1rem;
+		min-width: 0;
+	}
+
+	.property-hero__price {
+		margin: 0;
+		font-variant-numeric: lining-nums tabular-nums;
+	}
+
+	.property-hero__price-note {
+		margin: 0;
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.15rem;
+		width: fit-content;
+		padding: 0.36rem 0.65rem;
+		border-left: 1px solid rgba(199, 150, 67, 0.42);
+		color: rgba(15, 17, 21, 0.52);
+		letter-spacing: 0;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.property-hero__price-note span {
+		display: block;
+		color: rgba(15, 17, 21, 0.68);
+		font-size: 0.92em;
+		font-weight: 700;
+		letter-spacing: 0;
+		white-space: nowrap;
+	}
+
+	.property-status-badge {
+		display: inline-flex;
+		align-items: center;
+		justify-self: end;
+		margin-bottom: 0.15rem;
+		min-height: 2rem;
+		padding: 0.35rem 0.72rem;
+		border: 1px solid transparent;
+		background: rgba(255, 255, 255, 0.76);
+	}
+
+	.property-status-badge[data-tone="available"] {
+		border-color: rgba(80, 129, 96, 0.18);
+		color: #3f6d4b;
+	}
+
+	.property-status-badge[data-tone="reserved"] {
+		border-color: rgba(199, 150, 67, 0.24);
+		color: #966f29;
+	}
+
+	.property-status-badge[data-tone="sold"] {
+		border-color: rgba(118, 124, 134, 0.18);
+		color: #5c6169;
+	}
+
+	@media (max-width: 560px) {
+		.property-hero__headline-row {
+			grid-template-columns: 1fr;
+		}
+
+		.property-status-badge {
+			justify-self: start;
+			margin-bottom: 0;
+		}
+	}
+
+	.property-hero__lead {
+		margin: 0;
+		max-width: 42ch;
+		color: rgba(15, 17, 21, 0.66);
+	}
+
+	.property-hero__facts {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.85rem;
+		margin: 0;
+	}
+
+	.property-hero__facts div {
+		padding: 0.95rem 0.95rem 1rem;
+		border: 1px solid rgba(35, 38, 43, 0.1);
+		background: rgba(255, 255, 255, 0.7);
+	}
+
+	.property-hero__facts dt {
+		margin: 0;
+		color: rgba(15, 17, 21, 0.46);
+	}
+
+	.property-hero__facts dd {
+		margin: 0.45rem 0 0;
+		color: var(--bg-primary);
+	}
+
+	.property-hero__actions {
+		display: grid;
+		gap: 0.8rem;
+		padding-top: 0.2rem;
+	}
+
+	.property-hero__cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: fit-content;
+		min-height: 3.55rem;
+		padding: 0.85rem 1.55rem;
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+		text-decoration: none;
+		transition:
+			background-color 180ms var(--ease-premium),
+			transform 180ms var(--ease-premium);
+	}
+
+	.property-hero__cta:hover,
+	.property-hero__cta:focus-visible {
+		background: var(--accent-hover);
+		transform: translateY(-2px);
+		outline: none;
+	}
+
+	.property-hero__cta-note {
+		margin: 0;
+		max-width: 34ch;
+		color: rgba(15, 17, 21, 0.56);
+	}
+
+	.property-hero__contact-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.9rem clamp(1.6rem, 3vw, 2.4rem);
+		padding: 1.2rem clamp(0.85rem, 1.8vw, 1.15rem) 0;
+		border-top: 1px solid rgba(35, 38, 43, 0.1);
+	}
+
+	.property-hero__contact-row a {
+		color: var(--bg-primary);
+		text-decoration: none;
+	}
+
+	.property-hero__contact-row a:hover,
+	.property-hero__contact-row a:focus-visible {
+		color: var(--accent-primary);
+		outline: none;
+	}
+
+	.property-gallery {
+		--gallery-gap: clamp(0.7rem, 1.2vw, 1rem);
+		--gallery-thumb-size: clamp(4.4rem, 7.2vw, 6.2rem);
+		--gallery-thumb-gap: 0.7rem;
+		--gallery-thumb-fit-size: var(--gallery-thumb-size);
+		--gallery-viewport-offset: clamp(10.5rem, 15svh, 13rem);
+		display: grid;
+		grid-template-rows: minmax(0, auto) auto;
+		gap: var(--gallery-gap);
+		width: calc(100svh - var(--gallery-viewport-offset) - var(--gallery-thumb-size) - var(--gallery-gap));
+		max-width: 100%;
+		max-height: calc(100svh - var(--gallery-viewport-offset));
+		align-content: start;
+	}
+
+	.property-gallery__stage {
+		position: relative;
+		overflow: clip;
+		width: 100%;
+		aspect-ratio: 1;
+		background: rgba(15, 17, 21, 0.06);
+	}
+
+	.property-gallery__zoom-trigger {
+		display: block;
+		width: 100%;
+		height: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: zoom-in;
+		overflow: hidden;
+	}
+
+	.property-gallery__zoom-trigger:focus-visible {
+		outline: 2px solid var(--accent-primary);
+		outline-offset: 3px;
+	}
+
+	.property-gallery__image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 1.2s var(--ease-premium);
+	}
+
+	.property-gallery__stage:hover .property-gallery__image {
+		transform: scale(1.025);
+	}
+
+	.property-gallery__meta {
+		position: absolute;
+		right: 1rem;
+		bottom: 1rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.7rem;
+		padding: 0.55rem 0.75rem;
+		background: rgba(15, 17, 21, 0.7);
+		color: var(--surface-light);
+		backdrop-filter: blur(8px);
+	}
+
+	.property-gallery__meta span,
+	.property-gallery-modal__meta span {
+		display: block;
+		max-width: min(32ch, 52vw);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.property-gallery__meta strong {
+		color: var(--accent-primary);
+	}
+
+	.property-gallery__thumbs {
+		display: flex;
+		justify-content: center;
+		gap: var(--gallery-thumb-gap);
+		width: 100%;
+		max-height: var(--gallery-thumb-size);
+		overflow-x: hidden;
+		overflow-y: hidden;
+	}
+
+	.property-gallery__thumb {
+		flex: 0 1 min(var(--gallery-thumb-size), var(--gallery-thumb-fit-size));
+		width: min(var(--gallery-thumb-size), var(--gallery-thumb-fit-size));
+		aspect-ratio: 1;
+		min-width: 0;
+		padding: 0;
+		border: 1px solid rgba(35, 38, 43, 0.12);
+		background: rgba(255, 255, 255, 0.72);
+		overflow: clip;
+		cursor: pointer;
+		transition:
+			transform 0.35s var(--ease-premium),
+			border-color 0.35s var(--ease-premium),
+			opacity 0.35s var(--ease-premium);
+	}
+
+	.property-gallery__thumb[aria-pressed="true"] {
+		border-color: rgba(199, 150, 67, 0.65);
+	}
+
+	.property-gallery__thumb:hover,
+	.property-gallery__thumb:focus-visible {
+		transform: translateY(-2px);
+		border-color: rgba(199, 150, 67, 0.42);
+		outline: none;
+	}
+
+	.property-gallery__thumb img {
+		width: 100%;
+		height: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		opacity: 0.82;
+		transition: opacity 0.3s var(--ease-premium);
+	}
+
+	.property-gallery__thumb[aria-pressed="true"] img,
+	.property-gallery__thumb:hover img,
+	.property-gallery__thumb:focus-visible img {
+		opacity: 1;
+	}
+
+	.property-gallery-modal {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		--gallery-modal-padding: clamp(1rem, 2.6vw, 2rem);
+		--gallery-modal-toolbar: 3.2rem;
+		--gallery-modal-gap: clamp(1rem, 2vw, 1.35rem);
+		display: grid;
+		place-items: center;
+		padding: var(--gallery-modal-padding);
+		background: rgba(8, 22, 38, 0.58);
+		backdrop-filter: blur(6px) saturate(1.02);
+		animation: gallery-modal-fade 0.28s var(--ease-premium);
+	}
+
+	.property-gallery-modal__shell {
+		display: grid;
+		grid-template-rows: auto minmax(0, 1fr);
+		gap: var(--gallery-modal-gap);
+		width: min(100%, 100rem);
+		height: min(100%, calc(100svh - (var(--gallery-modal-padding) * 2)));
+	}
+
+	.property-gallery-modal__toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.property-gallery-modal__meta {
+		margin: 0;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.7rem;
+		width: fit-content;
+		padding: 0.55rem 0.75rem;
+		background: rgba(15, 17, 21, 0.64);
+		color: var(--surface-light);
+		backdrop-filter: blur(8px);
+	}
+
+	.property-gallery-modal__meta strong {
+		color: var(--accent-primary);
+	}
+
+	.property-gallery-modal__close,
+	.property-gallery-modal__switch {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 3rem;
+		height: 3rem;
+		padding: 0;
+		border: 1px solid rgba(245, 243, 238, 0.22);
+		background: rgba(245, 243, 238, 0.12);
+		color: var(--surface-light);
+		backdrop-filter: blur(8px);
+		cursor: pointer;
+		font-size: 1.15rem;
+		font-weight: 700;
+		line-height: 1;
+		transition:
+			background-color 0.3s var(--ease-premium),
+			border-color 0.3s var(--ease-premium),
+			color 0.3s var(--ease-premium),
+			transform 0.3s var(--ease-premium),
+			box-shadow 0.3s var(--ease-premium);
+	}
+
+	.property-gallery-modal__close svg,
+	.property-gallery-modal__switch svg {
+		width: 1.25rem;
+		height: 1.25rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.8;
+		stroke-linecap: square;
+		stroke-linejoin: miter;
+	}
+
+	.property-gallery-modal__close:hover,
+	.property-gallery-modal__close:focus-visible,
+	.property-gallery-modal__switch:hover,
+	.property-gallery-modal__switch:focus-visible {
+		border-color: rgba(199, 150, 67, 0.5);
+		background: rgba(245, 243, 238, 0.86);
+		color: var(--accent-primary);
+		box-shadow: 0 0.8rem 2rem rgba(15, 17, 21, 0.1);
+		transform: translateY(-2px);
+		outline: none;
+	}
+
+	.property-gallery-modal__stage {
+		display: grid;
+		grid-template-columns: 3rem minmax(0, 1fr) 3rem;
+		align-items: center;
+		justify-items: center;
+		gap: clamp(0.85rem, 1.4vw, 1.15rem);
+		min-height: 0;
+	}
+
+	.property-gallery-modal__stage--single {
+		grid-template-columns: minmax(0, 1fr);
+		justify-items: center;
+	}
+
+	.property-gallery-modal__image-frame {
+		position: relative;
+		width: min(
+			100%,
+			calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap)),
+			72vw
+		);
+		height: min(
+			100%,
+			calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap)),
+			72vw
+		);
+		max-width: min(100%, 84rem);
+		max-height: min(100%, 84rem);
+		aspect-ratio: 1;
+		overflow: visible;
+		border: 1px solid rgba(15, 17, 21, 0.1);
+		background:
+			linear-gradient(145deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.22)),
+			rgba(245, 243, 238, 0.64);
+		box-shadow:
+			0 1.6rem 4rem rgba(15, 17, 21, 0.08),
+			inset 0 1px 0 rgba(255, 255, 255, 0.48);
+		perspective: 1800px;
+		justify-self: center;
+	}
+
+	.property-gallery-modal__image-button {
+		position: relative;
+		z-index: 2;
+		display: grid;
+		place-items: center;
+		width: 100%;
+		height: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: zoom-in;
+		overflow: hidden;
+		touch-action: pan-y;
+	}
+
+	.property-gallery-modal__image-button:focus-visible {
+		outline: 2px solid var(--accent-primary);
+		outline-offset: 3px;
+	}
+
+	.property-gallery-modal__image-frame[data-zoomed="true"] .property-gallery-modal__image-button {
+		cursor: zoom-out;
+	}
+
+	.property-gallery-modal__peek {
+		position: absolute;
+		top: 0;
+		z-index: 1;
+		width: clamp(2.6rem, 5vw, 4.2rem);
+		height: 100%;
+		padding: 0;
+		border: 1px solid rgba(245, 243, 238, 0.18);
+		background: rgba(245, 243, 238, 0.08);
+		opacity: 0.68;
+		overflow: hidden;
+		cursor: pointer;
+		transition:
+			opacity 0.3s var(--ease-premium),
+			transform 0.3s var(--ease-premium),
+			border-color 0.3s var(--ease-premium);
+	}
+
+	.property-gallery-modal__peek::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(90deg, rgba(8, 22, 38, 0.5), transparent 48%, rgba(8, 22, 38, 0.2)),
+			linear-gradient(180deg, rgba(199, 150, 67, 0.16), transparent 42%);
+		pointer-events: none;
+	}
+
+	.property-gallery-modal__peek img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		filter: saturate(0.9) contrast(1.04);
+		transition: transform 0.45s var(--ease-premium);
+	}
+
+	.property-gallery-modal__peek--previous {
+		left: calc(clamp(2.6rem, 5vw, 4.2rem) * -1 - 0.55rem);
+		animation: gallery-peek-previous 0.64s var(--ease-premium);
+	}
+
+	.property-gallery-modal__peek--previous img {
+		object-position: right center;
+	}
+
+	.property-gallery-modal__peek--next {
+		right: calc(clamp(2.6rem, 5vw, 4.2rem) * -1 - 0.55rem);
+		animation: gallery-peek-next 0.64s var(--ease-premium);
+	}
+
+	.property-gallery-modal__peek--next img {
+		object-position: left center;
+	}
+
+	.property-gallery-modal__peek:hover,
+	.property-gallery-modal__peek:focus-visible {
+		border-color: rgba(199, 150, 67, 0.54);
+		opacity: 0.92;
+		outline: none;
+	}
+
+	.property-gallery-modal__peek--previous:hover,
+	.property-gallery-modal__peek--previous:focus-visible {
+		transform: translateX(-0.2rem);
+	}
+
+	.property-gallery-modal__peek--next:hover,
+	.property-gallery-modal__peek--next:focus-visible {
+		transform: translateX(0.2rem);
+	}
+
+	.property-gallery-modal__peek:hover img,
+	.property-gallery-modal__peek:focus-visible img {
+		transform: scale(1.05);
+	}
+
+	.property-gallery-modal__image {
+		width: 100%;
+		height: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		transform: translate3d(var(--gallery-modal-pan-x, 0), var(--gallery-modal-pan-y, 0), 0)
+			scale(var(--gallery-modal-zoom, 1));
+		transform-origin: var(--gallery-modal-origin-x, 50%) var(--gallery-modal-origin-y, 50%);
+		transition: transform 0.45s var(--ease-premium);
+		will-change: transform;
+		backface-visibility: hidden;
+	}
+
+	.property-gallery-modal--contain .property-gallery-modal__image {
+		object-fit: contain;
+		background: rgba(245, 243, 238, 0.92);
+	}
+
+	.property-gallery-modal--natural .property-gallery-modal__image-frame {
+		width: min(
+			100%,
+			calc(
+				(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap)) *
+					var(--gallery-modal-aspect-ratio, 1)
+			),
+			82vw
+		);
+		height: min(
+			calc(82vw / var(--gallery-modal-aspect-ratio, 1)),
+			calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap))
+		);
+		aspect-ratio: var(--gallery-modal-aspect-ratio, 1);
+		overflow: visible;
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+	}
+
+	.property-gallery-modal--natural .property-gallery-modal__image {
+		aspect-ratio: auto;
+		background: transparent;
+	}
+
+	.property-gallery-modal--natural .property-gallery-modal__image-button {
+		overflow: visible;
+		background: transparent;
+	}
+
+	.property-gallery-modal__switch {
+		align-self: center;
+	}
+
+	.property-gallery-modal__switch--previous {
+		justify-self: start;
+	}
+
+	.property-gallery-modal__switch--next {
+		justify-self: end;
+	}
+
+	.property-gallery-modal__image[data-turn-direction="next"] {
+		animation: gallery-image-turn-next 0.64s var(--ease-premium);
+	}
+
+	.property-gallery-modal__image[data-turn-direction="previous"] {
+		animation: gallery-image-turn-previous 0.64s var(--ease-premium);
+	}
+
+	@keyframes gallery-modal-fade {
+		from {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes gallery-image-turn-next {
+		from {
+			opacity: 0;
+			transform: rotateY(-14deg) translateX(2.1rem) scale(0.985);
+		}
+
+		to {
+			opacity: 1;
+			transform: rotateY(0deg) translateX(0) scale(1);
+		}
+	}
+
+	@keyframes gallery-image-turn-previous {
+		from {
+			opacity: 0;
+			transform: rotateY(14deg) translateX(-2.1rem) scale(0.985);
+		}
+
+		to {
+			opacity: 1;
+			transform: rotateY(0deg) translateX(0) scale(1);
+		}
+	}
+
+	@keyframes gallery-peek-next {
+		from {
+			opacity: 0.28;
+			transform: translateX(0.55rem);
+		}
+
+		to {
+			opacity: 0.68;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes gallery-peek-previous {
+		from {
+			opacity: 0.28;
+			transform: translateX(-0.55rem);
+		}
+
+		to {
+			opacity: 0.68;
+			transform: translateX(0);
+		}
+	}
+
+	.property-page .apartment-plans {
+		padding-top: clamp(2.5rem, 4vw, 3.4rem);
+	}
+
+	.property-section {
+		padding: clamp(3.5rem, 6vw, 5rem) 0;
+		border-top: 1px solid rgba(35, 38, 43, 0.08);
+	}
+
+	.property-about {
+		display: grid;
+		grid-template-columns: minmax(0, 0.72fr) minmax(32rem, 1.28fr);
+		gap: clamp(1.8rem, 3.3vw, 2.7rem);
+		align-items: start;
+	}
+
+	.property-about__content {
+		display: grid;
+		gap: clamp(1.1rem, 2vw, 1.6rem);
+		align-content: start;
+	}
+
+	.property-section__heading {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.property-section__heading--wide {
+		grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.7fr);
+		align-items: end;
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.property-section__heading h2 {
+		max-width: 13ch;
+	}
+
+	.property-section__heading--about h2 {
+		max-width: 22ch;
+	}
+
+	.property-section__heading--wide h2 {
+		max-width: 15ch;
+	}
+
+	.property-section__heading--wide p:last-child {
+		margin: 0;
+		max-width: 38ch;
+		color: rgba(15, 17, 21, 0.62);
+	}
+
+	.property-about__description {
+		width: 100%;
+	}
+
+	.property-about__description p {
+		margin: 0;
+		color: rgba(15, 17, 21, 0.68);
+	}
+
+	.property-about__description p + p {
+		margin-top: 1.35rem;
+	}
+
+	.property-location-section__eyebrow {
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	.property-location-section__eyebrow span:last-child {
+		color: rgba(15, 17, 21, 0.72);
+		letter-spacing: 0.08em;
+	}
+
+	.property-location-section__list {
+		list-style: none;
+		display: grid;
+		gap: 1rem;
+		margin: 1.4rem 0 0;
+		padding: 0;
+	}
+
+	.property-location-section__list li {
+		position: relative;
+		padding-left: 1.35rem;
+		font-weight: 900;
+		line-height: 1.55;
+		color: rgba(15, 17, 21, 0.78);
+	}
+
+	.property-location-section__list li::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0.72em;
+		width: 0.45rem;
+		height: 0.45rem;
+		border-radius: 999px;
+		background: var(--accent-primary);
+		transform: translateY(-50%);
+	}
+
+	.property-location-section__facts {
+		list-style: none;
+		display: grid;
+		gap: 0.85rem;
+		margin: 1.35rem 0 0;
+		padding: 1.15rem 0 0;
+		border-top: 1px solid rgba(35, 38, 43, 0.12);
+	}
+
+	.property-location-section__facts li {
+		position: relative;
+		padding-left: 1.15rem;
+		font-size: 0.98rem;
+		font-weight: 700;
+		line-height: 1.6;
+		color: rgba(15, 17, 21, 0.7);
+	}
+
+	.property-location-section__facts li::before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0.78em;
+		width: 0.36rem;
+		height: 0.36rem;
+		border-radius: 999px;
+		background: rgba(199, 150, 67, 0.85);
+		transform: translateY(-50%);
+	}
+
+	.property-about__map {
+		position: sticky;
+		top: 6.75rem;
+	}
+
+	.property-location-map {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.property-location-map__frame {
+		overflow: clip;
+		height: clamp(24rem, 38vw, 30rem);
+	}
+
+	.property-location-map__frame iframe {
+		width: 100%;
+		height: 100%;
+		border: 0;
+		display: block;
+		filter: grayscale(1) saturate(0) contrast(1.06);
+	}
+
+	.property-location-map__meta {
+		display: block;
+		padding: 0.35rem 0 0;
+		border-top: 0;
+		border-bottom: 0;
+		background: transparent;
+	}
+
+	.property-location-map__subtitle {
+		margin: 0;
+		color: rgba(15, 17, 21, 0.66);
+	}
+
+	.property-location-map__actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		min-height: 1.6rem;
+		gap: 1rem;
+		line-height: 1.3;
+	}
+
+	.property-location-map__link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		width: fit-content;
+		color: var(--accent-primary);
+		text-decoration: none;
+	}
+
+	.property-location-map__arrow {
+		width: 0.78rem;
+		height: 0.78rem;
+		flex: 0 0 auto;
+	}
+
+	.property-location-map__link:hover,
+	.property-location-map__link:focus-visible {
+		color: var(--accent-hover);
+		outline: none;
+	}
+
+	.property-location-map__empty {
+		display: grid;
+		place-items: center;
+		min-height: 14rem;
+		padding: 1rem;
+		border: 1px dashed rgba(35, 38, 43, 0.2);
+		background: rgba(255, 255, 255, 0.55);
+	}
+
+	.property-location-map__empty p {
+		margin: 0;
+		text-align: center;
+		color: rgba(15, 17, 21, 0.58);
+	}
+
+	.property-section--similar {
+		padding-bottom: clamp(5rem, 8vw, 7rem);
+	}
+
+	.property-related__grid {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: clamp(1.2rem, 2vw, 1.7rem);
+	}
+
+	.property-related__grid li {
+		min-width: 0;
+	}
+
+	@media (max-width: 1080px) {
+		.property-hero__grid,
+		.property-about,
+		.property-section__heading--wide {
+			grid-template-columns: 1fr;
+		}
+
+		.property-hero__gallery {
+			position: static;
+			justify-self: center;
+			width: 100%;
+		}
+
+		.property-hero__summary {
+			position: static;
+			padding-left: 0;
+			border-left: 0;
+			padding-top: 0.5rem;
+			border-top: 1px solid rgba(35, 38, 43, 0.1);
+		}
+
+		.property-related__grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.property-about__map {
+			position: static;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.property-hero {
+			padding-bottom: 3rem;
+		}
+
+		.property-gallery {
+			--gallery-viewport-offset: 8.5rem;
+			width: 100%;
+			max-height: none;
+		}
+
+		.property-gallery__thumbs {
+			padding-bottom: 0.1rem;
+		}
+
+		.property-hero__facts,
+		.property-related__grid {
+			grid-template-columns: 1fr;
+		}
+
+		.property-hero__cta {
+			width: 100%;
+		}
+
+		.property-gallery-modal {
+			--gallery-modal-padding: 0.85rem;
+			--gallery-modal-toolbar: 3rem;
+			--gallery-modal-gap: 0.8rem;
+		}
+
+		.property-gallery-modal__toolbar {
+			flex-wrap: wrap;
+		}
+
+		.property-gallery-modal__stage {
+			position: relative;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr);
+			align-content: center;
+			justify-items: center;
+			gap: 0;
+		}
+
+		.property-gallery-modal__image-frame {
+			grid-column: 1;
+			grid-row: 1;
+			overflow: clip;
+			width: min(
+				100%,
+				92vw,
+				calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem)
+			);
+			height: min(
+				100%,
+				92vw,
+				calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem)
+			);
+		}
+
+		.property-gallery-modal--natural .property-gallery-modal__image-frame {
+			width: min(
+				100%,
+				92vw,
+				calc(
+					(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem) *
+						var(--gallery-modal-aspect-ratio, 1)
+				)
+			);
+			height: min(
+				calc(92vw / var(--gallery-modal-aspect-ratio, 1)),
+				calc(100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem)
+			);
+		}
+
+		.property-gallery-modal--natural .property-gallery-modal__image-frame[data-zoomed="true"] {
+			width: min(100%, 92vw);
+			height: calc(
+				100svh - (var(--gallery-modal-padding) * 2) - var(--gallery-modal-toolbar) - var(--gallery-modal-gap) - 3.25rem
+			);
+			aspect-ratio: auto;
+		}
+
+		.property-gallery-modal--natural .property-gallery-modal__image-frame[data-zoomed="true"]
+			.property-gallery-modal__image-button {
+			height: 100%;
+			overflow: hidden;
+			touch-action: none;
+		}
+
+		.property-gallery-modal--natural .property-gallery-modal__image-frame[data-zoomed="true"]
+			.property-gallery-modal__image {
+			transition: transform 0.18s var(--ease-premium);
+		}
+
+		.property-gallery-modal__peek {
+			display: none;
+		}
+
+		.property-gallery-modal__switch {
+			position: absolute;
+			z-index: 4;
+			top: 50%;
+			width: 2.85rem;
+			height: 2.85rem;
+			border-color: rgba(245, 243, 238, 0.34);
+			background: rgba(8, 22, 38, 0.42);
+			box-shadow: 0 0.9rem 2rem rgba(8, 22, 38, 0.16);
+			min-width: 0;
+			transform: translateY(-50%);
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		.property-gallery-modal__switch--previous {
+			left: max(0.65rem, env(safe-area-inset-left));
+		}
+
+		.property-gallery-modal__switch--next {
+			right: max(0.65rem, env(safe-area-inset-right));
+		}
+
+		.property-gallery-modal__switch:hover,
+		.property-gallery-modal__switch:focus-visible {
+			transform: translateY(-50%);
+		}
+	}
+</style>

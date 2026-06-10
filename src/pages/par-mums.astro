@@ -1,16 +1,32 @@
 ---
-import { getMessages } from "../i18n/translations";
+import { getMessages, type Locale } from "../i18n/translations";
 import Layout from "../layouts/Layout.astro";
 import { loadAboutPage } from "../sanity/aboutPage";
 
-const locale = "lv";
+const locale = (Astro.props.locale ?? "lv") as Locale;
+const isEnglish = locale === "en";
 const messages = getMessages(locale);
 const content = await loadAboutPage();
 if (!content) {
 	throw new Error("About Us Page content is missing in Sanity.");
 }
 
-const aboutCopy = {
+const aboutCopy = isEnglish ? {
+	introEyebrow: "About us",
+	introTitle: "SIA REO is a trusted partner on your journey to a new home in Ventspils.",
+	introParagraphs: [
+		"The AmberHome project at Talsu Street 3A is designed for people who want a clear and secure path to owning an apartment. We help you compare layouts, understand prices, view apartments and make an informed decision without unnecessary pressure.",
+		"We stay by your side throughout the process, from the first conversation and viewing to reservation, financing and completion of the purchase. Every step is explained clearly, so you always know what is happening now and what comes next.",
+		"Honest communication, transparent terms and a positive buying experience matter to us. We listen to every client individually and help find the solution that truly fits."
+	],
+	valuesTitle: "The values that guide the way we work with you.",
+	values: [
+		"Clear and honest communication",
+		"An individual approach to every buyer",
+		"Quality homes for everyday living",
+		"A secure and understandable purchase process"
+	]
+} : {
 	introEyebrow: "Par mums",
 	introTitle: "SIA REO ir uzticams partneris Jūsu jaunajām mājām Ventspilī.",
 	introParagraphs: [
@@ -29,11 +45,11 @@ const aboutCopy = {
 ---
 
 <Layout
-	title={content.seo?.metaTitle || content.title || messages.pages.aboutUs}
-	description={content.seo?.metaDescription || aboutCopy.introParagraphs[0]}
-	canonicalPath="/about-us"
+	title={isEnglish ? messages.pages.aboutUs : content.seo?.metaTitle || content.title || messages.pages.aboutUs}
+	description={isEnglish ? aboutCopy.introParagraphs[0] : content.seo?.metaDescription || aboutCopy.introParagraphs[0]}
+	canonicalPath={isEnglish ? "/en/about-us" : "/par-mums"}
 	ogImageUrl={content.seo?.ogImage?.src}
-	ogImageAlt={content.seo?.ogImage?.alt}
+	ogImageAlt={isEnglish ? "About AmberHome" : content.seo?.ogImage?.alt}
 	noIndex={content.seo?.noIndex}
 	footerTone="light"
 	locale={locale}

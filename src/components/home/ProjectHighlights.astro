@@ -2,20 +2,35 @@
 import PropertyCard from "../properties/PropertyCard.astro";
 import BenefitsStrip from "../shared/BenefitsStrip.astro";
 import type { Property } from "../../sanity/properties";
+import type { Locale } from "../../i18n/translations";
 
 interface Props {
 	content?: unknown;
 	featuredProperties?: Property[];
-	locale?: string;
+	locale?: Locale;
 }
 
-const { featuredProperties = [] } = Astro.props as Props;
+const { featuredProperties = [], locale = "lv" } = Astro.props as Props;
+const isEnglish = locale === "en";
 
 const overviewImage = "/images/interior-kitchen-dining.jpeg";
 const ctaBackgroundImage =
 	"https://cdn.sanity.io/images/kshtq64w/production/76c3705983f5afede7215f479d0f3fa46abcea0b-1290x1288.jpg?auto=format&fit=crop&w=1800&q=85";
 
-const ctaItems = [
+const ctaItems = isEnglish ? [
+	{
+		title: "We prepare suitable options",
+		body: "Before the viewing, we can prepare several apartments suited to your needs and budget."
+	},
+	{
+		title: "We support your financing",
+		body: "We provide the documents required by banks and other credit institutions."
+	},
+	{
+		title: "We reserve your apartment",
+		body: "Once you have chosen the right apartment, we arrange a reservation while you complete the next steps."
+	}
+] : [
 	{
 		title: "Sagatavojam variantus",
 		body: "Pirms apskates varam sagatavot vairākus Jūsu vajadzībām un budžetam piemērotus dzīvokļus."
@@ -29,7 +44,11 @@ const ctaItems = [
 		body: "Kad esat atradis piemērotāko dzīvokli, veicam rezervāciju nākamo soļu sakārtošanai."
 	}
 ];
-const overviewFacts = [
+const overviewFacts = isEnglish ? [
+	"Each apartment has individual electricity, heating and water meters.",
+	"The building is insulated for energy-efficient everyday living.",
+	"The land beneath the building is privately owned; the apartment includes a proportional undivided share of the land."
+] : [
 	"Katram dzīvoklim ir savi elektrības, apkures un ūdens skaitītāji.",
 	"Ēka ir siltināta, lai mājoklis būtu energoefektīvs ikdienā.",
 	"Zeme zem mājas ir privāts īpašums; iegādājoties dzīvokli, īpašumā ietilpst arī domājamā daļa no zemes."
@@ -39,21 +58,23 @@ const overviewFacts = [
 <section class="project-overview" aria-labelledby="project-overview-title">
 	<div class="project-overview__container project-overview__grid">
 		<div class="project-overview__heading-block fade-in">
-			<p class="project-overview__eyebrow">Jauns daudzdzīvokļu projekts Ventspilī</p>
+			<p class="project-overview__eyebrow">{isEnglish ? "New apartment development in Ventspils" : "Jauns daudzdzīvokļu projekts Ventspilī"}</p>
 			<h2 id="project-overview-title">
 				<span>“AmberHome”</span>
-				<span>Talsu iela 3A</span>
+				<span>{isEnglish ? "Talsu Street 3A" : "Talsu iela 3A"}</span>
 			</h2>
 
 			<div class="project-overview__copy" data-reveal-delay="120">
 				<p class="project-overview__lead">
 					<span class="project-overview__lead-primary">
-						Lieliska lokācija <a class="project-overview__address-link" href="#project-location">Talsu ielā 3A, Ventspilī</a>,
+						{isEnglish ? "An excellent location at " : "Lieliska lokācija "}<a class="project-overview__address-link" href="#project-location">{isEnglish ? "Talsu Street 3A, Ventspils" : "Talsu ielā 3A, Ventspilī"}</a>{isEnglish ? "," : ","}
 					</span>
-					<span class="project-overview__lead-secondary">kur ikdienai nepieciešamais ir ērti sasniedzams.</span>
+					<span class="project-overview__lead-secondary">{isEnglish ? "with everyday essentials within easy reach." : "kur ikdienai nepieciešamais ir ērti sasniedzams."}</span>
 				</p>
 				<p>
-					3, 4 un 5 istabu dzīvokļi ar pārdomātu plānojumu no 53 līdz 90 m² un pilnībā pabeigtu apdari, lai jaunās mājas varētu sākt baudīt bez liekām rūpēm.
+					{isEnglish
+						? "Three, four and five-room apartments from 53 to 90 m², with carefully considered layouts and fully finished interiors ready to enjoy."
+						: "3, 4 un 5 istabu dzīvokļi ar pārdomātu plānojumu no 53 līdz 90 m² un pilnībā pabeigtu apdari, lai jaunās mājas varētu sākt baudīt bez liekām rūpēm."}
 				</p>
 				<ul class="project-overview__facts" role="list">
 					{overviewFacts.map((fact) => (
@@ -61,8 +82,8 @@ const overviewFacts = [
 					))}
 				</ul>
 				<div class="project-overview__actions">
-					<a class="project-overview__button" href="/contact">Sazinies ar mums</a>
-					<a class="project-overview__button project-overview__button--secondary" href="/par-eku">Par Ēku</a>
+					<a class="project-overview__button" href={isEnglish ? "/en/contact" : "/kontakti"}>{isEnglish ? "Contact us" : "Sazinies ar mums"}</a>
+					<a class="project-overview__button project-overview__button--secondary" href={isEnglish ? "/en/about-the-building" : "/par-eku"}>{isEnglish ? "About the building" : "Par Ēku"}</a>
 				</div>
 			</div>
 		</div>
@@ -70,14 +91,14 @@ const overviewFacts = [
 		<figure class="project-overview__image fade-in" data-reveal-delay="140">
 			<img
 				src={overviewImage}
-				alt="Dzīvojamā telpa ar virtuvi gaišā apdarē"
+				alt={isEnglish ? "Bright open-plan living room and kitchen" : "Dzīvojamā telpa ar virtuvi gaišā apdarē"}
 				width="1290"
 				height="1284"
 				loading="lazy"
 			/>
 		</figure>
 
-		<BenefitsStrip placement="home" class="fade-in" data-reveal-delay="180" />
+		<BenefitsStrip placement="home" locale={locale} class="fade-in" data-reveal-delay="180" />
 	</div>
 </section>
 
@@ -86,7 +107,7 @@ const overviewFacts = [
 		<section class="project-apartments" aria-labelledby="project-apartments-title">
 			<div class="project-apartments__container">
 				<header class="project-apartments__header fade-in">
-					<h2 id="project-apartments-title">Pieejamie dzīvokļi</h2>
+					<h2 id="project-apartments-title">{isEnglish ? "Available apartments" : "Pieejamie dzīvokļi"}</h2>
 				</header>
 
 				<ul class="project-apartments__grid" role="list">
@@ -96,8 +117,9 @@ const overviewFacts = [
 								property={property}
 								index={index}
 								showPrice={false}
-								ctaHref="/properties"
-								ctaLabel="Apskaties dzīvokļus"
+								locale={locale}
+								ctaHref={isEnglish ? "/en/apartments" : "/dzīvokļi"}
+								ctaLabel={isEnglish ? "View apartments" : "Apskaties dzīvokļus"}
 							/>
 						</li>
 					))}
@@ -111,7 +133,7 @@ const overviewFacts = [
 	<div class="project-cta__background" style={`--cta-background-image: url("${ctaBackgroundImage}")`} aria-hidden="true"></div>
 	<div class="project-cta__container">
 		<div class="project-cta__content fade-in">
-			<h2 id="project-cta-title">Piesakies jau tagad</h2>
+			<h2 id="project-cta-title">{isEnglish ? "Take the next step" : "Piesakies jau tagad"}</h2>
 			<div class="project-cta__row">
 				<ul class="project-cta__items" role="list">
 					{ctaItems.map((item, index) => (
@@ -122,8 +144,8 @@ const overviewFacts = [
 						</li>
 					))}
 				</ul>
-				<a class="project-cta__button" href="/contact">
-					Sazinies ar mums
+				<a class="project-cta__button" href={isEnglish ? "/en/contact" : "/kontakti"}>
+					{isEnglish ? "Contact us" : "Sazinies ar mums"}
 				</a>
 			</div>
 		</div>

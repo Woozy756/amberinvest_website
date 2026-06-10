@@ -1,0 +1,20 @@
+---
+import ApartmentDetailPage from "../../../dzīvokļi/[category]/[slug].astro";
+import { getAllProperties, type Property } from "../../../../sanity/properties";
+
+export async function getStaticPaths() {
+	const properties = await getAllProperties();
+
+	return properties.map((property) => ({
+		params: {
+			category: property.category.slug,
+			slug: property.slug
+		},
+		props: { property }
+	}));
+}
+
+const { property } = Astro.props as { property: Property };
+---
+
+<ApartmentDetailPage locale="en" property={property} />
