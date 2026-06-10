@@ -91,9 +91,9 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 	}
 
 	.properties-catalog__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding-inline: clamp(1.5rem, 4vw, 3rem);
+		padding-inline: var(--page-gutter);
 	}
 
 	.properties-catalog__hero {
@@ -132,12 +132,12 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 		margin: 0;
 		max-width: 60ch;
 		font-size: clamp(0.97rem, 1.2vw, 1.06rem);
-		line-height: 1.72;
+		line-height: var(--copy-line-height);
 		color: rgba(15, 17, 21, 0.64);
 	}
 
 	.properties-catalog__listing {
-		padding-bottom: clamp(5rem, 8vw, 7rem);
+		padding-bottom: var(--section-space);
 	}
 
 	.properties-catalog__controls {
@@ -318,7 +318,7 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 
 	@media (max-width: 720px) {
 		.properties-catalog {
-			padding-top: 5.6rem;
+			padding-top: calc(5.5rem + 1.5rem);
 		}
 
 		.properties-catalog__hero {
@@ -349,8 +349,24 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 		}
 
 		.properties-filters {
-			margin-inline: calc(clamp(1.5rem, 4vw, 3rem) * -1);
-			padding-inline: clamp(1.5rem, 4vw, 3rem);
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 0.65rem 1rem;
+			width: 100%;
+			overflow: visible;
+		}
+
+		.properties-filters::after {
+			display: none;
+		}
+
+		.properties-filters a {
+			justify-content: space-between;
+			min-width: 0;
+			padding-bottom: 0.65rem;
+			border-bottom: 1px solid rgba(35, 38, 43, 0.18);
+			font-size: 0.7rem;
+			letter-spacing: 0.09em;
 		}
 
 		.properties-utility__results {

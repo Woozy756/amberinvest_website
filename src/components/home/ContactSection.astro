@@ -83,7 +83,7 @@ const benefits = fallbackBenefits;
 			radial-gradient(circle at top left, rgba(199, 150, 67, 0.14), transparent 34%),
 			linear-gradient(180deg, #0f1115 0%, #131821 100%);
 		color: var(--surface-light);
-		padding: clamp(4rem, 7vw, 5.75rem) 0;
+		padding: var(--section-space) 0;
 	}
 
 	.contact-section::before {
@@ -106,9 +106,9 @@ const benefits = fallbackBenefits;
 	.contact-section__container {
 		position: relative;
 		z-index: 1;
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem);
+		padding: 0 var(--page-gutter);
 	}
 
 	.contact-section__layout {
@@ -145,7 +145,7 @@ const benefits = fallbackBenefits;
 		margin: 1.25rem 0 0;
 		max-width: 43ch;
 		font-size: clamp(1rem, 1.3vw, 1.1rem);
-		line-height: 1.75;
+		line-height: var(--copy-line-height);
 		color: rgba(245, 243, 238, 0.72);
 	}
 
@@ -193,7 +193,7 @@ const benefits = fallbackBenefits;
 
 	@media (max-width: 640px) {
 		.contact-section {
-			padding: 3.5rem 0 3.75rem;
+			padding: var(--section-space) 0;
 		}
 
 		.contact-section__layout {

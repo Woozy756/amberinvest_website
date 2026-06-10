@@ -5,6 +5,8 @@ import sanity from "@sanity/astro";
 import tailwindcss from "@tailwindcss/vite";
 import { sendContactEmail, validateContactPayload } from "./src/lib/contact.js";
 
+const isDevelopment = process.argv.includes("dev");
+
 function contactDevApi() {
   return {
     name: "amberhome-contact-dev-api",
@@ -55,15 +57,6 @@ function contactDevApi() {
 // https://astro.build/config
 export default defineConfig({
   output: "static",
-  redirects: {
-    "/how-to-buy": "/kā-iegādāties",
-    "/about-us": "/par-mums",
-    "/contact": "/kontakti",
-    "/properties": "/dzīvokļi",
-    "/properties/3-rooms": "/dzīvokļi/3-istabas",
-    "/properties/4-rooms": "/dzīvokļi/4-istabas",
-    "/properties/5-rooms": "/dzīvokļi/5-istabas",
-  },
   devToolbar: {
     enabled: false,
   },
@@ -78,6 +71,16 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss(), contactDevApi()],
+    define: {
+      "process.env.NODE_ENV": JSON.stringify(isDevelopment ? "development" : "production"),
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          "process.env.NODE_ENV": JSON.stringify(isDevelopment ? "development" : "production"),
+        },
+      },
+    },
     server: {
       headers: {
         "Cache-Control": "no-store",

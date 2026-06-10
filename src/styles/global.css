@@ -14,6 +14,12 @@
 	--font-body: "Noto Sans", sans-serif;
 	--font-heading: "Noto Sans", sans-serif;
 	--ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+	--page-max-width: 1280px;
+	--page-gutter: clamp(1.5rem, 4vw, 3rem);
+	--section-space: clamp(4.5rem, 7vw, 6rem);
+	--section-space-compact: clamp(3.5rem, 5.5vw, 4.75rem);
+	--copy-stack-gap: 1rem;
+	--copy-line-height: 1.72;
 }
 
 *,
@@ -41,7 +47,26 @@ body {
 	line-height: 1.5;
 }
 
+main {
+	min-width: 0;
+}
+
+p,
+li,
+h1,
+h2,
+h3 {
+	overflow-wrap: break-word;
+}
+
 @media (max-width: 860px) {
+	:root {
+		--page-gutter: 1.25rem;
+		--section-space: 3.75rem;
+		--section-space-compact: 3.25rem;
+		--copy-line-height: 1.68;
+	}
+
 	html,
 	body {
 		overflow-x: hidden;
@@ -286,6 +311,10 @@ button[class*="cta"],
 @media (max-width: 640px) {
 	.contact-form__grid {
 		grid-template-columns: 1fr;
+	}
+
+	.contact-form-card {
+		padding: 1.25rem;
 	}
 
 	.contact-form__submit {

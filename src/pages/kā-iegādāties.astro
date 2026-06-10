@@ -545,9 +545,9 @@ const faqStructuredData =
 	}
 
 	.how-to-buy-shell {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding-inline: clamp(1.5rem, 4vw, 3rem);
+		padding-inline: var(--page-gutter);
 	}
 
 	.how-to-buy-eyebrow {
@@ -632,7 +632,7 @@ const faqStructuredData =
 
 	.how-to-buy-copy {
 		display: grid;
-		gap: 1rem;
+		gap: var(--copy-stack-gap);
 	}
 
 	.how-to-buy-copy p,
@@ -642,6 +642,7 @@ const faqStructuredData =
 	.contact-section__benefit span {
 		margin: 0;
 		color: var(--text-secondary);
+		line-height: var(--copy-line-height);
 	}
 
 	.how-to-buy-hero__nav {
@@ -768,7 +769,7 @@ const faqStructuredData =
 	}
 
 	.how-to-buy-process {
-		padding: clamp(5rem, 8vw, 7rem) 0;
+		padding: var(--section-space) 0;
 		background: linear-gradient(180deg, #141921 0%, #101318 100%);
 	}
 
@@ -845,7 +846,7 @@ const faqStructuredData =
 	}
 
 	.how-to-buy-split {
-		padding: clamp(4.85rem, 8vw, 6.75rem) 0;
+		padding: var(--section-space) 0;
 	}
 
 	.how-to-buy-split--dark {
@@ -911,7 +912,7 @@ const faqStructuredData =
 	}
 
 	.how-to-buy-faq {
-		padding: clamp(4.75rem, 8vw, 6.5rem) 0;
+		padding: var(--section-space) 0;
 	}
 
 	.how-to-buy-faq__list {
@@ -983,7 +984,7 @@ const faqStructuredData =
 			radial-gradient(circle at top left, rgba(199, 150, 67, 0.14), transparent 34%),
 			linear-gradient(180deg, #0f1115 0%, #131821 100%);
 		color: var(--surface-light);
-		padding: clamp(5rem, 10vw, 8rem) 0;
+		padding: var(--section-space) 0;
 	}
 
 	.contact-section::before {
@@ -1006,9 +1007,9 @@ const faqStructuredData =
 	.contact-section__container {
 		position: relative;
 		z-index: 1;
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem);
+		padding: 0 var(--page-gutter);
 	}
 
 	.contact-section__layout {
@@ -1051,7 +1052,7 @@ const faqStructuredData =
 	.contact-section__lead p {
 		margin: 0;
 		font-size: clamp(1rem, 1.3vw, 1.1rem);
-		line-height: 1.75;
+		line-height: var(--copy-line-height);
 		color: rgba(245, 243, 238, 0.72);
 	}
 

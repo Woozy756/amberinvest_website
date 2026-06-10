@@ -212,13 +212,13 @@ const initialIndex = Math.max(
 	.apartment-plans {
 		background: var(--surface-light);
 		color: var(--bg-primary);
-		padding: clamp(4rem, 7vw, 5.8rem) 0;
+		padding: var(--section-space) 0;
 	}
 
 	.apartment-plans__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem);
+		padding: 0 var(--page-gutter);
 	}
 
 	.apartment-plans__top-row {
@@ -263,7 +263,7 @@ const initialIndex = Math.max(
 		margin: 0;
 		max-width: 40rem;
 		font-size: clamp(1rem, 1.35vw, 1.1rem);
-		line-height: 1.72;
+		line-height: var(--copy-line-height);
 		color: rgba(15, 17, 21, 0.62);
 	}
 

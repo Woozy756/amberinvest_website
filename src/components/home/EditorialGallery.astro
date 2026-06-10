@@ -148,13 +148,13 @@ const rows = [
 	.editorial-gallery {
 		background: var(--surface-light);
 		color: var(--bg-primary);
-		padding: clamp(3.25rem, 5.5vw, 4.75rem) 0;
+		padding: var(--section-space-compact) 0;
 	}
 
 	.editorial-gallery__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem);
+		padding: 0 var(--page-gutter);
 	}
 
 	.editorial-gallery__rows {

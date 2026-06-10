@@ -187,9 +187,9 @@ const currentYear = new Date().getFullYear();
 	.site-footer__container {
 		position: relative;
 		z-index: 1;
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: clamp(4.5rem, 8vw, 6.5rem) clamp(1.5rem, 4vw, 3rem) 1.5rem;
+		padding: var(--section-space) var(--page-gutter) 1.5rem;
 	}
 
 	.site-footer__grid {

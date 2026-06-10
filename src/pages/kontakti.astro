@@ -102,9 +102,9 @@ const submitLabel = isEnglish ? "Send enquiry" : content.submitLabel || "NosÅ«tÄ
 	}
 
 	.contact-page__shell {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin-inline: auto;
-		padding-inline: clamp(1.5rem, 4vw, 3rem);
+		padding-inline: var(--page-gutter);
 	}
 
 	.contact-page__form-copy {
@@ -131,13 +131,13 @@ const submitLabel = isEnglish ? "Send enquiry" : content.submitLabel || "NosÅ«tÄ
 		margin: 0;
 		color: rgba(15, 17, 21, 0.66);
 		font-size: clamp(1rem, 1.35vw, 1.1rem);
-		line-height: 1.75;
+		line-height: var(--copy-line-height);
 	}
 
 	.contact-page__form-section {
 		position: relative;
 		overflow: clip;
-		padding: clamp(4.5rem, 8vw, 7rem) 0;
+		padding: var(--section-space) 0;
 		background:
 			linear-gradient(90deg, rgba(199, 150, 67, 0.09) 0%, transparent 20%),
 			repeating-linear-gradient(
@@ -219,12 +219,8 @@ const submitLabel = isEnglish ? "Send enquiry" : content.submitLabel || "NosÅ«tÄ
 	}
 
 	@media (max-width: 640px) {
-		.contact-page__shell {
-			padding-inline: 1.25rem;
-		}
-
 		.contact-page__form-section {
-			padding: 3.75rem 0;
+			padding: var(--section-space) 0;
 		}
 
 		.contact-page__form-layout {

@@ -323,9 +323,9 @@ const propertiesItems = [
 	}
 
 	.site-header__shell {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin-inline: auto;
-		padding-inline: clamp(1.25rem, 4vw, 3rem);
+		padding-inline: var(--page-gutter);
 	}
 
 	.site-header__inner {

@@ -182,10 +182,10 @@ const heroLead =
 	.hero__container {
 		position: relative;
 		z-index: 3;
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		min-height: 100svh;
 		margin-inline: auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 3vw, 2rem);
+		padding: 0 var(--page-gutter) clamp(1.25rem, 3vw, 2rem);
 		display: grid;
 		grid-template-rows: minmax(0, 1fr) auto;
 	}

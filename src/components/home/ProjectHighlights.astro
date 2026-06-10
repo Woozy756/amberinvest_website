@@ -71,6 +71,15 @@ const overviewFacts = isEnglish ? [
 					</span>
 					<span class="project-overview__lead-secondary">{isEnglish ? "with everyday essentials within easy reach." : "kur ikdienai nepieciešamais ir ērti sasniedzams."}</span>
 				</p>
+				<figure class="project-overview__image project-overview__image--mobile fade-in" data-reveal-delay="140">
+					<img
+						src={overviewImage}
+						alt={isEnglish ? "Bright open-plan living room and kitchen" : "Dzīvojamā telpa ar virtuvi gaišā apdarē"}
+						width="1290"
+						height="1284"
+						loading="lazy"
+					/>
+				</figure>
 				<p>
 					{isEnglish
 						? "Three, four and five-room apartments from 53 to 90 m², with carefully considered layouts and fully finished interiors ready to enjoy."
@@ -88,7 +97,7 @@ const overviewFacts = isEnglish ? [
 			</div>
 		</div>
 
-		<figure class="project-overview__image fade-in" data-reveal-delay="140">
+		<figure class="project-overview__image project-overview__image--desktop fade-in" data-reveal-delay="140">
 			<img
 				src={overviewImage}
 				alt={isEnglish ? "Bright open-plan living room and kitchen" : "Dzīvojamā telpa ar virtuvi gaišā apdarē"}
@@ -98,7 +107,7 @@ const overviewFacts = isEnglish ? [
 			/>
 		</figure>
 
-		<BenefitsStrip placement="home" locale={locale} class="fade-in" data-reveal-delay="180" />
+		<BenefitsStrip placement="home" locale={locale} class="project-benefits--desktop fade-in" data-reveal-delay="180" />
 	</div>
 </section>
 
@@ -128,6 +137,10 @@ const overviewFacts = isEnglish ? [
 		</section>
 	) : null
 }
+
+<div class="project-benefits-mobile">
+	<BenefitsStrip placement="home" locale={locale} class="project-benefits--mobile fade-in" data-reveal-delay="180" />
+</div>
 
 <section class="project-cta" aria-labelledby="project-cta-title" data-project-cta>
 	<div class="project-cta__background" style={`--cta-background-image: url("${ctaBackgroundImage}")`} aria-hidden="true"></div>
@@ -184,13 +197,13 @@ const overviewFacts = isEnglish ? [
 		scroll-margin-top: 5.25rem;
 		background: var(--surface-light);
 		color: var(--bg-primary);
-		padding: clamp(4.75rem, 7vw, 6.25rem) 0 clamp(3.2rem, 5vw, 4.4rem);
+		padding: var(--section-space) 0 var(--section-space-compact);
 	}
 
 	.project-overview__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem);
+		padding: 0 var(--page-gutter);
 	}
 
 	.project-overview__grid {
@@ -238,6 +251,11 @@ const overviewFacts = isEnglish ? [
 		box-shadow: 0 24px 80px rgba(15, 17, 21, 0.14);
 	}
 
+	.project-overview__image--mobile,
+	.project-benefits-mobile {
+		display: none;
+	}
+
 	.project-overview__image img {
 		width: 100%;
 		height: 100%;
@@ -253,7 +271,7 @@ const overviewFacts = isEnglish ? [
 		max-width: 38rem;
 		padding-top: 0.2rem;
 		font-size: clamp(1rem, 1.22vw, 1.12rem);
-		line-height: 1.72;
+		line-height: var(--copy-line-height);
 		color: rgba(15, 17, 21, 0.68);
 	}
 
@@ -378,9 +396,9 @@ const overviewFacts = isEnglish ? [
 	}
 
 	.project-apartments__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem);
+		padding: 0 var(--page-gutter);
 	}
 
 	.project-apartments__header {
@@ -512,9 +530,9 @@ const overviewFacts = isEnglish ? [
 	}
 
 	.project-cta__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: clamp(4rem, 7vw, 6rem) clamp(1.5rem, 4vw, 3rem);
+		padding: var(--section-space) var(--page-gutter);
 	}
 
 	.project-cta__content {
@@ -635,7 +653,7 @@ const overviewFacts = isEnglish ? [
 		@media (max-width: 720px) {
 		.project-overview {
 			scroll-margin-top: 4.8rem;
-			padding: 3.35rem 0 0;
+			padding: var(--section-space-compact) 0 0;
 		}
 
 		.project-overview__grid {
@@ -662,8 +680,28 @@ const overviewFacts = isEnglish ? [
 			justify-self: stretch;
 		}
 
+		.project-overview__image--desktop,
+		:global(.project-benefits--desktop) {
+			display: none;
+		}
+
+		.project-overview__image--mobile {
+			display: block;
+			margin-block: 0.35rem 0.15rem;
+		}
+
+		.project-benefits-mobile {
+			display: block;
+			padding: 0 0 var(--section-space-compact);
+			background: linear-gradient(180deg, #f0eadf 0%, var(--surface-light) 100%);
+		}
+
+		.project-benefits-mobile :global(.project-benefits--mobile) {
+			margin-top: 0;
+		}
+
 		.project-apartments {
-			padding: 0 0 3.35rem;
+			padding: 0 0 var(--section-space-compact);
 		}
 
 		.project-apartments__header {
@@ -752,7 +790,7 @@ const overviewFacts = isEnglish ? [
 		}
 
 		.project-cta__container {
-			padding-block: 3.8rem;
+			padding-block: var(--section-space);
 		}
 
 		.project-cta__item {

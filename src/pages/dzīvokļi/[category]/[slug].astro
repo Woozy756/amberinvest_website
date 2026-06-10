@@ -316,9 +316,9 @@ const propertyStructuredData = {
 	}
 
 	.property-page__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding-inline: clamp(1.5rem, 4vw, 3rem);
+		padding-inline: var(--page-gutter);
 	}
 
 	.property-page__eyebrow {
@@ -1056,7 +1056,7 @@ const propertyStructuredData = {
 	}
 
 	.property-section {
-		padding: clamp(3.5rem, 6vw, 5rem) 0;
+		padding: var(--section-space-compact) 0;
 		border-top: 1px solid rgba(35, 38, 43, 0.08);
 	}
 
@@ -1110,6 +1110,7 @@ const propertyStructuredData = {
 	.property-about__description p {
 		margin: 0;
 		color: rgba(15, 17, 21, 0.68);
+		line-height: var(--copy-line-height);
 	}
 
 	.property-about__description p + p {
@@ -1266,7 +1267,7 @@ const propertyStructuredData = {
 	}
 
 	.property-section--similar {
-		padding-bottom: clamp(5rem, 8vw, 7rem);
+		padding-bottom: var(--section-space);
 	}
 
 	.property-related__grid {

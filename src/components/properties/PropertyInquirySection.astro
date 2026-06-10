@@ -83,7 +83,7 @@ const propertyHref = getPropertyHref(property, locale);
 			radial-gradient(circle at top left, rgba(199, 150, 67, 0.16), transparent 34%),
 			linear-gradient(180deg, #0f1115 0%, #131821 100%);
 		color: var(--surface-light);
-		padding: clamp(4.8rem, 8vw, 6.5rem) 0;
+		padding: var(--section-space) 0;
 	}
 
 	.property-inquiry::before {
@@ -106,9 +106,9 @@ const propertyHref = getPropertyHref(property, locale);
 	.property-inquiry__container {
 		position: relative;
 		z-index: 1;
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding-inline: clamp(1.5rem, 4vw, 3rem);
+		padding-inline: var(--page-gutter);
 	}
 
 	.property-inquiry__layout {
@@ -145,7 +145,7 @@ const propertyHref = getPropertyHref(property, locale);
 		margin: 1.2rem 0 0;
 		max-width: 43ch;
 		font-size: clamp(1rem, 1.3vw, 1.08rem);
-		line-height: 1.72;
+		line-height: var(--copy-line-height);
 		color: rgba(245, 243, 238, 0.74);
 	}
 

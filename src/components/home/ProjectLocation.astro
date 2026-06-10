@@ -53,15 +53,15 @@ const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
 <style>
 	.project-location {
 		scroll-margin-top: 6rem;
-		padding: clamp(3.5rem, 6vw, 5rem) 0 clamp(3.75rem, 6vw, 5rem);
+		padding: var(--section-space-compact) 0;
 		background: #f6f5f1;
 		color: var(--bg-primary);
 	}
 
 	.project-location__container {
-		width: min(100%, 1280px);
+		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
-		padding: 0 clamp(1.5rem, 4vw, 3rem);
+		padding: 0 var(--page-gutter);
 	}
 
 	.project-location__grid {
@@ -97,7 +97,7 @@ const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
 	.project-location__copy p {
 		margin: 0;
 		font-size: clamp(1rem, 1.35vw, 1.12rem);
-		line-height: 1.78;
+		line-height: var(--copy-line-height);
 		color: rgba(15, 17, 21, 0.67);
 	}
 
@@ -152,7 +152,7 @@ const googleMapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
 
 	@media (max-width: 720px) {
 		.project-location {
-			padding: 3.4rem 0 3.75rem;
+			padding: var(--section-space-compact) 0;
 		}
 
 		.project-location__grid {
