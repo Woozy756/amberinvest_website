@@ -2,7 +2,6 @@ import {
 	getAllProperties,
 	getPropertyCategories,
 	getPropertyCategoryHref,
-	getPropertyCategoryHrefForLocale,
 	getPropertyHref,
 } from "../sanity/properties";
 
@@ -34,21 +33,9 @@ export async function GET() {
 		"/par-mums",
 		"/kā-iegādāties",
 		"/kontakti",
-		"/en",
-		"/en/apartments",
-		"/en/about-the-building",
-		"/en/about-us",
-		"/en/how-to-buy",
-		"/en/contact",
 	];
-	const categoryPaths = categories.flatMap((category) => [
-		getPropertyCategoryHref(category),
-		getPropertyCategoryHrefForLocale(category, "en"),
-	]);
-	const propertyPaths = properties.flatMap((property) => [
-		getPropertyHref(property),
-		getPropertyHref(property, "en"),
-	]);
+	const categoryPaths = categories.map((category) => getPropertyCategoryHref(category));
+	const propertyPaths = properties.map((property) => getPropertyHref(property));
 	const paths = [...new Set([...staticPaths, ...categoryPaths, ...propertyPaths])];
 	const body = [
 		'<?xml version="1.0" encoding="UTF-8"?>',

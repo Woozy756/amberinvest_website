@@ -1,17 +1,16 @@
 ---
-import ApartmentCategoryPage from "../../../dzīvokļi/[category]/index.astro";
-import { getPropertyCategories, type PropertyCategory } from "../../../../sanity/properties";
+import { getPropertyCategories, getPropertyCategoryHref } from "../../../../sanity/properties";
 
 export async function getStaticPaths() {
 	const categories = await getPropertyCategories();
 
 	return categories.map((category) => ({
 		params: { category: category.slug },
-		props: { category }
+		props: { destination: getPropertyCategoryHref(category) }
 	}));
 }
 
-const { category } = Astro.props as { category: PropertyCategory };
----
+const { destination } = Astro.props as { destination: string };
 
-<ApartmentCategoryPage locale="en" category={category} />
+return Astro.redirect(encodeURI(destination), 301);
+---

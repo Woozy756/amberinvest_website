@@ -1,29 +1,25 @@
 ---
-import { getMessages, type Locale } from "../i18n/translations";
-import { getAlternateLocaleHref, localizeInternalHref } from "../lib/routes";
+import { getMessages } from "../i18n/translations";
+import { localizeInternalHref } from "../lib/routes";
 import {
 	getPropertyCategories,
-	getPropertyCategoryHrefForLocale,
+	getPropertyCategoryHref,
 	getPropertyCategoryLabel
 } from "../sanity/properties";
 import type { SiteLink, SiteSettings } from "../sanity/siteSettings";
 
 interface Props {
 	overlay?: boolean;
-	locale?: Locale;
 	siteSettings?: SiteSettings | null;
 }
 
-const { overlay = false, locale = "lv", siteSettings = null } = Astro.props;
-const messages = getMessages(locale);
-const isEnglish = locale === "en";
+const { overlay = false, siteSettings = null } = Astro.props;
+const messages = getMessages("lv");
 const propertyCategories = await getPropertyCategories();
-const homeHref = isEnglish ? "/en" : "/";
-const propertiesHref = isEnglish ? "/en/apartments" : "/dzīvokļi";
-const contactHref = isEnglish ? "/en/contact" : "/kontakti";
-const aboutBuildingHref = isEnglish ? "/en/about-the-building" : "/par-eku";
-const languageHref = getAlternateLocaleHref(Astro.url.pathname, isEnglish ? "lv" : "en");
-const languageLabel = isEnglish ? "LV" : "EN";
+const homeHref = "/";
+const propertiesHref = "/dzīvokļi";
+const contactHref = "/kontakti";
+const aboutBuildingHref = "/par-eku";
 
 const isPropertiesLink = (item: SiteLink) => {
 	const href = item.href.trim().toLowerCase();
@@ -38,8 +34,8 @@ const normalizeNavHref = (href: string) => {
 };
 const mainNavOrder = new Map([
 	[homeHref, 0],
-	[isEnglish ? "/en/how-to-buy" : "/kā-iegādāties", 1],
-	[isEnglish ? "/en/about-us" : "/par-mums", 2],
+	["/kā-iegādāties", 1],
+	["/par-mums", 2],
 	[aboutBuildingHref, 3]
 ]);
 const orderMainNavItems = (items: SiteLink[]) =>
@@ -49,14 +45,14 @@ const orderMainNavItems = (items: SiteLink[]) =>
 		return aOrder - bOrder;
 	});
 
-const configuredNavItems = (isEnglish ? [] : siteSettings?.headerNavigation ?? []).map((item) => ({
+const configuredNavItems = (siteSettings?.headerNavigation ?? []).map((item) => ({
 	...item,
-	href: localizeInternalHref(item.href, locale)
+	href: localizeInternalHref(item.href)
 }));
 const defaultNavItems: SiteLink[] = [
 	{ label: messages.header.home, href: homeHref },
-	{ label: messages.header.howToBuy, href: isEnglish ? "/en/how-to-buy" : "/kā-iegādāties" },
-	{ label: messages.header.aboutUs, href: isEnglish ? "/en/about-us" : "/par-mums" },
+	{ label: messages.header.howToBuy, href: "/kā-iegādāties" },
+	{ label: messages.header.aboutUs, href: "/par-mums" },
 	{ label: messages.header.aboutBuilding, href: aboutBuildingHref }
 ];
 const baseNavItems = configuredNavItems.length > 0 ? configuredNavItems : defaultNavItems;
@@ -76,16 +72,16 @@ const mainNavItems = orderMainNavItems(visibleNavItems.filter((item) => !isPrope
 const leadingNavItems = mainNavItems.slice(0, 1);
 const trailingNavItems = mainNavItems.slice(1);
 
-const homeAriaLabel = siteSettings?.siteTitle ?? (isEnglish ? "Home page" : "Sākumlapa");
+const homeAriaLabel = siteSettings?.siteTitle ?? "Sākumlapa";
 const logo = siteSettings?.logo;
 const logoAlt = logo?.alt || siteSettings?.siteTitle || "";
-const headerCtaLabel = isEnglish ? "Contact us" : "Sazinies ar mums";
+const headerCtaLabel = "Sazinies ar mums";
 
 const propertiesItems = [
 	{ href: propertiesHref, label: messages.header.propertiesListing },
 	...propertyCategories.map((category) => ({
-		href: getPropertyCategoryHrefForLocale(category, locale),
-		label: getPropertyCategoryLabel(category, locale)
+		href: getPropertyCategoryHref(category),
+		label: getPropertyCategoryLabel(category, "lv")
 	}))
 ];
 ---
@@ -146,9 +142,6 @@ const propertiesItems = [
 
 			<div class="site-header__actions">
 				<a class="header-cta" href={contactHref}>{headerCtaLabel}</a>
-				<a class="language-switch" href={languageHref} hreflang={isEnglish ? "lv" : "en"} aria-label={isEnglish ? "Latviešu valoda" : "English"}>
-					{languageLabel}
-				</a>
 				<button
 					class="menu-toggle"
 					type="button"
@@ -204,11 +197,6 @@ const propertiesItems = [
 					</li>
 				))
 			}
-			<li class="mobile-nav__item mobile-nav__item--cta">
-				<a class="mobile-nav__link" href={languageHref} hreflang={isEnglish ? "lv" : "en"}>
-					{isEnglish ? "Latviešu" : "English"}
-				</a>
-			</li>
 			<li class="mobile-nav__item mobile-nav__item--cta">
 				<a class="mobile-nav__link mobile-nav__link--cta" href={contactHref}>{headerCtaLabel}</a>
 			</li>
@@ -546,26 +534,6 @@ const propertiesItems = [
 		display: flex;
 		align-items: center;
 		gap: 0.85rem;
-	}
-
-	.language-switch {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-width: 2.6rem;
-		min-height: 2.9rem;
-		color: var(--surface-light);
-		text-decoration: none;
-		font-size: 0.7rem;
-		font-weight: 800;
-		letter-spacing: 0.12em;
-		border-bottom: 1px solid rgba(199, 150, 67, 0.65);
-	}
-
-	.language-switch:hover,
-	.language-switch:focus-visible {
-		color: var(--accent-primary);
-		outline: none;
 	}
 
 	.header-cta {

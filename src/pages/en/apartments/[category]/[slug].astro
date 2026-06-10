@@ -1,6 +1,5 @@
 ---
-import ApartmentDetailPage from "../../../dzīvokļi/[category]/[slug].astro";
-import { getAllProperties, type Property } from "../../../../sanity/properties";
+import { getAllProperties, getPropertyHref } from "../../../../sanity/properties";
 
 export async function getStaticPaths() {
 	const properties = await getAllProperties();
@@ -10,11 +9,11 @@ export async function getStaticPaths() {
 			category: property.category.slug,
 			slug: property.slug
 		},
-		props: { property }
+		props: { destination: getPropertyHref(property) }
 	}));
 }
 
-const { property } = Astro.props as { property: Property };
----
+const { destination } = Astro.props as { destination: string };
 
-<ApartmentDetailPage locale="en" property={property} />
+return Astro.redirect(encodeURI(destination), 301);
+---
