@@ -7,6 +7,7 @@ interface Props {
 
 const { content } = Astro.props;
 const heroImage = content?.heroBackgroundImage?.asset?.url ?? "";
+const mobileHeroImage = "/images/hero-mobile.png";
 const availabilityMetrics = content?.metrics ?? [];
 const primaryCtaLabel = "APSKATIES DZĪVOKĻUS";
 const primaryCtaHref = "/properties";
@@ -24,7 +25,7 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 			<section
 				class="hero"
 				aria-labelledby="hero-title"
-				style={`--hero-background-image: url("${heroImage}")`}
+				style={`--hero-background-image: url("${heroImage}"); --hero-mobile-image: url("${mobileHeroImage}")`}
 			>
 				<div class="hero__image" aria-hidden="true"></div>
 				<div class="hero__container">
@@ -450,19 +451,20 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 		}
 	}
 
-	@media (max-width: 860px) {
-		.hero-pin {
-			height: 145svh;
-		}
+		@media (max-width: 860px) {
+			.hero-pin {
+				height: 145svh;
+			}
 
-		.hero {
-			--hero-header-clearance: clamp(5rem, 12svh, 6.75rem);
-			--hero-content-bottom-space: clamp(1.25rem, 4svh, 2.25rem);
-			--hero-content-nudge: 0rem;
-			--mobile-stats-y: 34svh;
-			--mobile-stats-opacity: 0;
-			--mobile-hero-pointer-events: auto;
-			--mobile-stats-pointer-events: none;
+			.hero {
+				--hero-header-clearance: clamp(5rem, 12svh, 6.75rem);
+				--hero-content-bottom-space: clamp(1.25rem, 4svh, 2.25rem);
+				--hero-content-nudge: 0rem;
+				--mobile-hero-content-y: -10svh;
+				--mobile-stats-y: 34svh;
+				--mobile-stats-opacity: 0;
+				--mobile-hero-pointer-events: auto;
+				--mobile-stats-pointer-events: none;
 
 			position: sticky;
 			top: 0;
@@ -470,9 +472,31 @@ const heroTitleMain = "Atrodi savas jaunās mājas";
 			display: flex;
 		}
 
-		.hero__image {
-			background-attachment: fixed;
-		}
+			.hero__image {
+				background-image: var(--hero-mobile-image);
+				background-attachment: scroll;
+				background-position: center center;
+			}
+
+			.hero::before {
+				background: linear-gradient(
+					to bottom,
+					rgba(20, 35, 70, 0.34) 0%,
+					rgba(20, 35, 70, 0.2) 32%,
+					rgba(20, 35, 70, 0.06) 52%,
+					rgba(20, 35, 70, 0) 100%
+				);
+			}
+
+			.hero::after {
+				background: radial-gradient(
+					ellipse at 50% 34%,
+					rgba(0, 0, 0, 0.18) 0%,
+					rgba(0, 0, 0, 0.08) 34%,
+					rgba(0, 0, 0, 0.02) 52%,
+					rgba(0, 0, 0, 0) 66%
+				);
+			}
 
 		.hero__container {
 			display: grid;
