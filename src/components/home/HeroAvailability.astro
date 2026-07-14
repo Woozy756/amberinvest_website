@@ -29,7 +29,8 @@ const primaryCtaHref = isEnglish ? "/en/apartments" : "/dzīvokļi";
 const contactCtaLabel = isEnglish ? "Contact us" : "Sazinies ar mums";
 const contactCtaHref = isEnglish ? "/en/contact" : "/kontakti";
 const heroProjectKicker = isEnglish ? "New apartment development" : "Jaunais daudzīvokļu projekts";
-const heroProjectLocation = isEnglish ? '"AmberHome" Talsu Street 3A' : '"AmberHome" Talsu iela 3A';
+const heroProjectBrand = "AmberHome";
+const heroProjectAddress = isEnglish ? "Talsu Street 3A" : "Talsu iela 3A";
 const heroTitlePrefix = isEnglish ? "Discover and" : "Iepazīsties un";
 const heroTitleMain = isEnglish ? "Find your new home" : "Atrodi savas jaunās mājas";
 const mobileHeroLead = isEnglish
@@ -53,13 +54,16 @@ const heroLead =
 				<div class="hero__container">
 					<div class="hero__body">
 						<div class="hero__content fade-in">
-							<h1 id="hero-title">
-								<span class="hero__project-kicker">{heroProjectKicker}</span>
-								<strong class="hero__project-heading hero__project-heading--desktop">{heroProjectLocation}</strong>
-								<strong class="hero__project-heading hero__project-heading--mobile">
-									<span>“AmberHome”</span>
-									<span>{isEnglish ? "Talsu Street 3A" : "Talsu ielā 3A"}</span>
-								</strong>
+								<h1 id="hero-title">
+									<span class="hero__project-kicker">{heroProjectKicker}</span>
+									<strong class="hero__project-heading hero__project-heading--desktop">
+										<span>{heroProjectBrand}</span>
+										<span>{heroProjectAddress}</span>
+									</strong>
+									<strong class="hero__project-heading hero__project-heading--mobile">
+										<span>{heroProjectBrand}</span>
+										<span>{heroProjectAddress}</span>
+									</strong>
 								<span class="hero__intro-line hero__intro-line--desktop">{heroTitlePrefix}</span>
 								<strong class="hero__intro-main hero__intro-main--desktop">{heroTitleMain}</strong>
 								<span class="hero__mobile-supporting">{isEnglish ? "Discover and find your new home" : "Iepazīsties un atrodi savas jaunās mājas"}</span>
@@ -199,24 +203,25 @@ const heroLead =
 		text-align: center;
 	}
 
-	.hero__content {
-		position: relative;
-		z-index: 1;
-		display: grid;
-		justify-items: center;
-		max-width: min(100%, 56rem);
-		transform: translateY(var(--hero-content-nudge));
-	}
+		.hero__content {
+			position: relative;
+			z-index: 1;
+			display: grid;
+			justify-items: center;
+			max-width: min(100%, 56rem);
+			padding: clamp(1.35rem, 2.6vw, 2rem) clamp(1.25rem, 2.4vw, 2rem);
+			border: 1px solid rgba(245, 243, 238, 0.045);
+			border-radius: 1.25rem;
+			background: rgba(9, 12, 18, 0.045);
+			box-shadow: 0 16px 32px rgba(4, 8, 14, 0.06);
+			backdrop-filter: blur(7px);
+			-webkit-backdrop-filter: blur(7px);
+			transform: translateY(var(--hero-content-nudge));
+		}
 
-	.hero__content::before {
-		content: "";
-		position: absolute;
-		z-index: -1;
-		inset: clamp(-1.25rem, -2.4vw, -0.85rem) clamp(-1.5rem, -3.4vw, -1rem);
-		background: radial-gradient(ellipse at center, rgba(8, 11, 16, 0.44) 0%, rgba(8, 11, 16, 0.3) 44%, rgba(8, 11, 16, 0) 72%);
-		filter: blur(2px);
-		pointer-events: none;
-	}
+		.hero__content::before {
+			display: none;
+		}
 
 	h1 .hero__project-heading--mobile,
 	h1 .hero__mobile-supporting,
@@ -230,13 +235,11 @@ const heroLead =
 		font-family: var(--font-body);
 		font-size: clamp(2.05rem, 3.9vw, 3.85rem);
 		font-weight: 400;
-		line-height: 1.02;
+		line-height: 1;
 		letter-spacing: 0;
 		max-width: 100%;
 		color: var(--surface-light);
-		text-shadow:
-			0 2px 10px rgba(0, 0, 0, 0.92),
-			0 10px 34px rgba(0, 0, 0, 0.72);
+		text-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
 	}
 
 		h1 span,
@@ -249,23 +252,39 @@ const heroLead =
 			font-weight: 900;
 		}
 
-		h1 .hero__project-kicker,
-		h1 .hero__intro-line,
-		h1 .hero__intro-main {
-			font-size: clamp(1.25rem, 2.45vw, 2.45rem);
-			line-height: 1.08;
-		}
+	h1 .hero__project-kicker,
+	h1 .hero__intro-line,
+	h1 .hero__intro-main {
+		font-size: clamp(1.25rem, 2.45vw, 2.45rem);
+		line-height: 1.08;
+	}
 
-		h1 .hero__project-kicker {
-			font-weight: 400;
-		}
+	h1 .hero__project-kicker {
+		font-size: clamp(1rem, 1.45vw, 1.18rem);
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		line-height: 1.35;
+		color: rgba(245, 243, 238, 0.88);
+		text-transform: uppercase;
+	}
 
-		h1 .hero__project-heading {
-			margin: clamp(0.12rem, 0.35vw, 0.28rem) 0 clamp(0.55rem, 1.2vw, 0.9rem);
-			font-size: inherit;
-			line-height: 1.02;
-			white-space: normal;
-		}
+	h1 .hero__project-heading {
+		margin: clamp(0.12rem, 0.35vw, 0.28rem) 0 clamp(0.55rem, 1.2vw, 0.9rem);
+		font-size: inherit;
+		line-height: 1.02;
+		white-space: normal;
+	}
+
+	h1 .hero__intro-line {
+		font-size: clamp(1.1rem, 1.65vw, 1.45rem);
+		font-weight: 500;
+		color: rgba(245, 243, 238, 0.92);
+	}
+
+	h1 .hero__intro-main {
+		font-size: clamp(1.55rem, 2.2vw, 2.1rem);
+		font-weight: 900;
+	}
 
 	h1::after {
 		content: "";
@@ -286,12 +305,10 @@ const heroLead =
 	.hero__lead {
 		margin: clamp(0.85rem, 1.4vw, 1.05rem) 0 0;
 		max-width: 42rem;
-		font-size: clamp(0.98rem, 1.15vw, 1.12rem);
+		font-size: clamp(1.02rem, 1.18vw, 1.16rem);
 		line-height: 1.58;
-		color: rgba(245, 243, 238, 0.94);
-		text-shadow:
-			0 1px 8px rgba(0, 0, 0, 0.95),
-			0 6px 24px rgba(0, 0, 0, 0.72);
+		color: rgba(245, 243, 238, 0.98);
+		text-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
 	}
 
 	.hero__lead strong {
@@ -501,20 +518,28 @@ const heroLead =
 			width: 100%;
 			max-width: min(100%, 34rem);
 			justify-items: center;
-			padding-inline: 0.35rem;
+			padding:
+				clamp(1.1rem, 3.6vw, 1.45rem)
+				clamp(0.95rem, 4vw, 1.25rem);
+			border-color: rgba(245, 243, 238, 0.08);
+			background: rgba(9, 12, 18, 0.1);
+			box-shadow: 0 18px 34px rgba(4, 8, 14, 0.12);
+			backdrop-filter: blur(14px);
+			-webkit-backdrop-filter: blur(14px);
 			text-align: center;
 		}
 
 		.hero__content::before {
-			display: none;
+			display: block;
 		}
 
 		.hero::before {
 			background: linear-gradient(
 				to bottom,
-				rgba(20, 35, 70, 0.35) 0%,
-				rgba(20, 35, 70, 0.22) 38%,
-				rgba(20, 35, 70, 0.05) 65%,
+				rgba(16, 28, 58, 0.5) 0%,
+				rgba(16, 28, 58, 0.34) 30%,
+				rgba(16, 28, 58, 0.14) 52%,
+				rgba(16, 28, 58, 0.03) 66%,
 				rgba(20, 35, 70, 0) 100%
 			);
 		}
@@ -539,9 +564,9 @@ const heroLead =
 			font-size: clamp(2.05rem, 7.8vw, 2.75rem);
 			max-width: 100%;
 			color: #fff;
-			-webkit-text-stroke: 0.45px rgba(15, 17, 21, 0.82);
-			paint-order: stroke fill;
-			text-shadow: none;
+			-webkit-text-stroke: 0;
+			paint-order: normal;
+			text-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
 			text-align: center;
 		}
 
@@ -554,9 +579,11 @@ const heroLead =
 
 		h1 .hero__project-kicker {
 			max-width: 24ch;
-			font-size: clamp(1.05rem, 4vw, 1.35rem);
+			font-size: clamp(0.88rem, 3.3vw, 1rem);
+			font-weight: 700;
+			letter-spacing: 0.08em;
 			line-height: 1.25;
-			white-space: nowrap;
+			white-space: normal;
 		}
 
 		h1 .hero__project-heading--desktop,
@@ -604,9 +631,9 @@ const heroLead =
 			font-weight: 700;
 			line-height: 1.55;
 			color: #fff;
-			-webkit-text-stroke: 0.2px rgba(15, 17, 21, 0.78);
-			paint-order: stroke fill;
-			text-shadow: none;
+			-webkit-text-stroke: 0;
+			paint-order: normal;
+			text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
 			text-align: center;
 			text-wrap: balance;
 		}
