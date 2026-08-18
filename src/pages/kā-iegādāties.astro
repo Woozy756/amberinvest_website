@@ -240,7 +240,10 @@ const englishContent = {
 	contactDefaultInformation: "I would like to book an apartment viewing.",
 	contactSubmitLabel: "Book a viewing"
 };
-const content = isEnglish ? englishContent : latvianContent;
+// Latvian content is managed in Sanity. Keep the translated copy only for the
+// legacy English rendering so Studio remains the single source of truth for
+// the live Latvian page.
+const content = isEnglish ? englishContent : sanityContent;
 const sectionNav = isEnglish ? [
 	{ href: "#process", label: "Step by step" },
 	{ href: "#financing", label: "Financing" },

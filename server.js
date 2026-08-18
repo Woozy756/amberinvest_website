@@ -16,7 +16,9 @@ const rebuildStatusFile = path.join(rebuildStateDir, "rebuild-status.json");
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
 const rebuildToken = process.env.REBUILD_WEBHOOK_TOKEN || "";
-const rebuildDebounceMs = normalizeNonNegativeInteger(process.env.REBUILD_DEBOUNCE_MS, 60_000);
+// Keep a short debounce so a Sanity publish becomes visible promptly while
+// still combining the burst of asset/document webhooks from one edit.
+const rebuildDebounceMs = normalizeNonNegativeInteger(process.env.REBUILD_DEBOUNCE_MS, 5_000);
 const contactRateLimitWindowMs = 15 * 60_000;
 const contactRateLimitMax = 3;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

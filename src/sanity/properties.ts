@@ -494,29 +494,15 @@ function mapProject(rawProject?: RawPropertyProject): PropertyProject | undefine
 
 function mapProperty(rawProperty: RawProperty): Property {
   const category = mapCategory(rawProperty.category)
-  const rooms = getRoomsFromCategorySlug(category.slug) ?? rawProperty.rooms ?? 0
-  const apartmentNumber = getApartmentNumber(rawProperty)
-  const title =
-    apartmentNumber !== null
-      ? replaceApartmentNumber(trimValue(rawProperty.title), apartmentNumber) ?? ''
-      : trimValue(rawProperty.title) ?? ''
-  const slug =
-    apartmentNumber !== null
-      ? replaceApartmentSlugNumber(trimValue(rawProperty.slug), apartmentNumber) ?? ''
-      : trimValue(rawProperty.slug) ?? ''
-  const propertyCode =
-    apartmentNumber !== null
-      ? replaceApartmentNumber(trimValue(rawProperty.propertyCode), apartmentNumber) ?? ''
-      : trimValue(rawProperty.propertyCode) ?? ''
-  const correctedArea = apartmentNumber === 15 ? 70.6 : rawProperty.area ?? 0
-  const correctedFloor =
-    apartmentNumber !== null ? getFloorFromApartmentNumber(apartmentNumber) : rawProperty.floor ?? 0
+  const rooms = rawProperty.rooms ?? 0
+  const title = trimValue(rawProperty.title) ?? ''
+  const slug = trimValue(rawProperty.slug) ?? ''
+  const propertyCode = trimValue(rawProperty.propertyCode) ?? ''
+  const area = rawProperty.area ?? 0
+  const floor = rawProperty.floor ?? 0
   const image = rawProperty.heroImage ?? ''
-  const generatedDescription = getPropertyDescription(
-    rooms,
-    correctedArea,
-    trimValue(rawProperty.shortDescription),
-  )
+  const shortDescription = trimValue(rawProperty.shortDescription) ?? ''
+  const descriptionParagraphs = getDescriptionParagraphs(rawProperty.description)
   const seo = mapSeo(rawProperty.seo)
   const gallery =
     rawProperty.gallery
@@ -533,16 +519,8 @@ function mapProperty(rawProperty: RawProperty): Property {
         label: trimValue(item.label),
       }))
       .filter((item) => item.src) ?? []
-  const primaryFloorPlanNumber = getApartmentNumberFromPlanFilename(
-    rawProperty.floorPlanImage?.originalFilename,
-  )
-  const primaryFloorPlanMatches =
-    apartmentNumber === null ||
-    primaryFloorPlanNumber === null ||
-    primaryFloorPlanNumber === apartmentNumber
-  const primaryFloorPlan = primaryFloorPlanMatches ? rawProperty.floorPlanImage : undefined
-  const fallbackFloorPlanImage =
-    trimValue(primaryFloorPlan?.src) ?? trimValue(rawProperty.additionalFloorPlanImage?.src)
+  const primaryFloorPlan = rawProperty.floorPlanImage
+  const fallbackFloorPlanImage = trimValue(primaryFloorPlan?.src)
   const fallbackFloorPlanAlt = title
     ? `${title} dzīvokļa plāns`
     : `${rooms || ''} istabu dzīvokļa plāns`.trim()
@@ -575,28 +553,21 @@ function mapProperty(rawProperty: RawProperty): Property {
     mapFloorPlanImage(rawProperty.additionalFloorPlanImage, 'Stāva plāns'),
   ].filter((item): item is PropertyImage => Boolean(item))
 
-  const correctedDetails =
-    apartmentNumber === 10
-      ? rawProperty.details?.map((detail) =>
-          detail.label === 'Guļamistabas' ? {...detail, value: '3'} : detail,
-        )
-      : rawProperty.details
-
   return {
     id: rawProperty._id,
     title,
     slug,
     propertyCode,
     status: rawProperty.status ?? 'available',
-    shortDescription: generatedDescription,
-    descriptionParagraphs: generatedDescription ? [generatedDescription] : getDescriptionParagraphs(rawProperty.description),
+    shortDescription,
+    descriptionParagraphs: descriptionParagraphs.length > 0 ? descriptionParagraphs : [shortDescription].filter(Boolean),
     aboutSectionTitle: trimValue(rawProperty.aboutSectionTitle),
     rooms,
-    area: correctedArea,
+    area,
     price: rawProperty.price ?? 0,
     pricePerSquareMeter: rawProperty.pricePerSquareMeter ?? 0,
     currency: trimValue(rawProperty.currency) ?? 'EUR',
-    floor: correctedFloor,
+    floor,
     building: trimValue(rawProperty.building),
     image,
     gallery:
@@ -625,7 +596,7 @@ function mapProperty(rawProperty: RawProperty): Property {
     floorPlanSectionTitle: trimValue(rawProperty.floorPlanSectionTitle),
     floorPlanCardTitle: trimValue(rawProperty.floorPlanCardTitle),
     details:
-      correctedDetails
+      rawProperty.details
         ?.map((detail) => ({
           label: detail.label ?? '',
           value: detail.value ?? '',
@@ -633,12 +604,7 @@ function mapProperty(rawProperty: RawProperty): Property {
         .filter((detail) => detail.label && detail.value) ?? [],
     category,
     project: mapProject(rawProperty.project),
-    seo: seo
-      ? {
-          ...seo,
-          metaDescription: generatedDescription || seo.metaDescription,
-        }
-      : undefined,
+    seo,
   }
 }
 

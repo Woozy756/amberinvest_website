@@ -45,7 +45,7 @@ const formCardIntro = isEnglish
 const defaultInformation =
 	isEnglish
 		? "I would like more information about the available properties."
-		: "Vēlos saņemt vairāk informācijas par pieejamajiem īpašumiem.";
+		: content.defaultInformation || "Vēlos saņemt vairāk informācijas par pieejamajiem īpašumiem.";
 const submitLabel = isEnglish ? "Send enquiry" : content.submitLabel || "Nosūtīt pieprasījumu";
 ---
 
