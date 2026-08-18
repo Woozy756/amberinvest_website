@@ -21,6 +21,7 @@ CONTACT_SMTP_USER=your-mailbox@your-domain.tld
 CONTACT_SMTP_PASS=your-mailbox-password
 CONTACT_FROM_EMAIL=your-mailbox@your-domain.tld
 REBUILD_WEBHOOK_TOKEN=replace-with-a-long-random-secret
+REBUILD_DEBOUNCE_MS=5000
 ```
 
 ## Garmtech deployment steps
@@ -48,6 +49,21 @@ Create a webhook in Sanity that sends a `POST` request to:
 https://your-domain.tld/api/rebuild
 ```
 
+For the current production site this is:
+
+```text
+https://amberhome.lv/api/rebuild
+```
+
+Use these Sanity webhook settings:
+
+- dataset: `production`
+- trigger: create, update and delete
+- filter: leave empty so every website document can trigger a rebuild
+- drafts: disabled (only the Sanity **Publish** action should update the public site)
+- HTTP method: `POST`
+- HTTP header: `Authorization` = `Bearer YOUR_REBUILD_WEBHOOK_TOKEN`
+
 Add one of these headers:
 
 ```text
@@ -61,6 +77,10 @@ x-rebuild-token: YOUR_REBUILD_WEBHOOK_TOKEN
 ```
 
 The endpoint returns `202 Accepted` and starts a background build.
+
+With the default debounce, the build begins roughly five seconds after the
+last webhook. Check the result in the Garmtech Node application log or call
+`/api/rebuild/status` with the same authorization header.
 
 ## How rebuilds work
 
