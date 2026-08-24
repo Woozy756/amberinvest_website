@@ -425,17 +425,6 @@ const initialIndex = Math.max(
 		cursor: zoom-in;
 	}
 
-	:global(.apartment-plans__image-trigger)::after {
-		content: "";
-		position: absolute;
-		right: clamp(0.25rem, 2%, 1rem);
-		bottom: clamp(0.65rem, 4%, 1.6rem);
-		width: min(8.75rem, 34%);
-		height: min(6.5rem, 28%);
-		background: #fff;
-		pointer-events: none;
-	}
-
 	:global(.apartment-plans__image-trigger:focus-visible) {
 		outline: 2px solid var(--accent-primary);
 		outline-offset: 0.45rem;
