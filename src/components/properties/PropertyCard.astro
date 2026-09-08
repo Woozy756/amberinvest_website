@@ -19,6 +19,10 @@ interface Props {
 
 const { property, ctaHref, ctaLabel, showPrice = true, index = 0, locale = "lv" } = Astro.props as Props;
 const isEnglish = locale === "en";
+const areaLabel = property.area.toLocaleString(isEnglish ? "en-GB" : "lv-LV", {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2
+});
 const localizedTitle = getLocalizedPropertyTitle(property, locale);
 const localizedCtaLabel = ctaLabel || (isEnglish ? "View details" : "Skatīt detaļas");
 const status = {
@@ -72,7 +76,7 @@ const imageFetchPriority = index < 2 ? "high" : "auto";
 				</div>
 				<div>
 					<dt>{isEnglish ? "Area" : "Platība"}</dt>
-					<dd>{property.area.toFixed(1)} m²</dd>
+					<dd>{areaLabel} m²</dd>
 				</div>
 				<div>
 					<dt>{isEnglish ? "Floor" : "Stāvs"}</dt>
