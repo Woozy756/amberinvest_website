@@ -154,14 +154,19 @@ export function getLocalizedPropertyImageText(value: string | undefined, locale:
 }
 
 export function getLocalizedPropertyDescription(
-  property: Pick<Property, 'rooms' | 'area' | 'shortDescription'>,
+  property: Pick<Property, 'rooms' | 'area' | 'shortDescription' | 'details'>,
   locale: 'lv' | 'en' = 'lv',
 ): string {
   if (locale === 'lv') return property.shortDescription
 
-  const bedrooms = Math.max(property.rooms - 1, 0)
+  const detailValue = (label: string) => property.details.find((detail) => detail.label === label)?.value
+  const bedrooms = Number(detailValue('Guļamistabas')) || Math.max(property.rooms - 1, 0)
+  const bathrooms = Number(detailValue('Vannas istabas')) || 1
+  const hasSeparateRoom = property.rooms > bedrooms + 1
   const bedroomText = bedrooms === 1 ? 'one bedroom' : `${bedrooms} bedrooms`
-  return `${property.rooms}-room apartment with a total area of ${formatDescriptionArea(property.area)} m². The layout includes an open-plan living room and kitchen, ${bedroomText}, a bathroom and a separate WC. The apartment has heat-recovery ventilation, individually adjustable underfloor heating in every room and a fully finished interior with fitted sanitary ware. Each apartment has individual electricity, heating and water meters, and residents have access to on-site parking.`
+  const bathroomText = bathrooms === 1 ? 'one bathroom' : `${bathrooms} bathrooms`
+  const separateRoomText = hasSeparateRoom ? ', one separate room' : ''
+  return `${property.rooms}-room apartment with a total area of ${property.area.toFixed(2)} m². The layout includes an open-plan living room and kitchen, ${bedroomText}${separateRoomText}, and ${bathroomText}. The apartment has heat-recovery ventilation, individually adjustable underfloor heating in every room and a fully finished interior with fitted sanitary ware. Each apartment has individual electricity, heating and water meters, and residents have access to on-site parking.`
 }
 
 export const propertyStatusMeta: Record<

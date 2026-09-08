@@ -25,9 +25,20 @@ export interface PropertyPageViewModel {
 }
 
 const factExclusionLabels = new Set(["Kopējā platība", "Istabu skaits", "Stāvs", "Statuss"]);
+const englishAdditionalRoomLabels: Record<string, string> = {
+	"Gaitenis un atsevišķa istaba": "Hallway and a separate room",
+	"Palīgtelpa, gaitenis un atsevišķa istaba": "Utility room, hallway and a separate room",
+	"Priekštelpa un gaitenis": "Entrance hall and hallway",
+	"Priekštelpa": "Entrance hall",
+	"Gaitenis": "Hallway"
+};
 
 export function createPropertyPageViewModel(property: Property, locale: Locale = "lv"): PropertyPageViewModel {
 	const isEnglish = locale === "en";
+	const areaLabel = property.area.toLocaleString(isEnglish ? "en-GB" : "lv-LV", {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	});
 	const status = isEnglish
 		? {
 				...propertyStatusMeta[property.status],
@@ -51,13 +62,13 @@ export function createPropertyPageViewModel(property: Property, locale: Locale =
 
 	const keyFacts: PropertyFact[] = [
 		{ label: isEnglish ? "Rooms" : "Istabas", value: String(property.rooms) },
-		{ label: isEnglish ? "Area" : "Platība", value: `${property.area.toFixed(1)} m²` },
+		{ label: isEnglish ? "Area" : "Platība", value: `${areaLabel} m²` },
 		{ label: isEnglish ? "Floor" : "Stāvs", value: isEnglish ? `Floor ${property.floor}` : `${property.floor}. stāvs` },
 		{ label: isEnglish ? "Status" : "Statuss", value: status.label },
 	];
 
 	const floorPlanSpecs = [
-		{ label: isEnglish ? "Total area" : "Kopējā platība", value: `${property.area.toFixed(1)} m²` },
+		{ label: isEnglish ? "Total area" : "Kopējā platība", value: `${areaLabel} m²` },
 		{ label: isEnglish ? "Number of rooms" : "Istabu skaits", value: String(property.rooms) },
 		{ label: isEnglish ? "Floor" : "Stāvs", value: isEnglish ? `Floor ${property.floor}` : `${property.floor}. stāvs` },
 		...(property.building ? [{ label: isEnglish ? "Building" : "Ēka", value: property.building }] : []),
@@ -78,9 +89,9 @@ export function createPropertyPageViewModel(property: Property, locale: Locale =
 							value:
 								detail.value === "Apvienota ar virtuvi un ēdamzonu"
 									? "Combined with the kitchen and dining area"
-									: detail.value === "Gaitenis un atsevišķa istaba"
-										? "Hallway and a separate room"
-										: getLocalizedPropertyImageText(detail.value, locale) ?? detail.value
+									: englishAdditionalRoomLabels[detail.value] ??
+										getLocalizedPropertyImageText(detail.value, locale) ??
+										detail.value
 						}
 					: detail
 			),
