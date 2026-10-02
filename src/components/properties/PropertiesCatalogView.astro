@@ -23,6 +23,15 @@ const catalogHref = isEnglish ? "/en/apartments" : "/dzīvokļi";
 const catalogTotalCount = categories.reduce((sum, category) => sum + category.propertyCount, 0);
 
 const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
+const areas = properties.map((property) => property.area).filter((area) => area > 0);
+const areaRange = areas.length > 0
+	? `${Math.min(...areas).toLocaleString(isEnglish ? "en-GB" : "lv-LV", { maximumFractionDigits: 2 })}–${Math.max(...areas).toLocaleString(isEnglish ? "en-GB" : "lv-LV", { maximumFractionDigits: 2 })} m²`
+	: null;
+const categoryAccusative = ({
+	"3-rooms": "trīsistabu dzīvokļus",
+	"4-rooms": "četristabu dzīvokļus",
+	"5-rooms": "piecistabu dzīvokļus"
+} as Record<string, string>)[activeCategory] ?? "dzīvokļus";
 ---
 
 <main class="properties-catalog">
@@ -79,6 +88,22 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 			}
 		</div>
 	</section>
+
+	<section class="properties-catalog__context" aria-labelledby="catalog-context-title">
+		<div class="properties-catalog__container">
+			<h2 id="catalog-context-title">{isEnglish ? "Apartments at Talsu Street 3A" : "Dzīvokļi Talsu ielā 3A"}</h2>
+			<p>
+				{isEnglish
+					? `Compare ${activeCategory === "all" ? "apartments" : title.toLowerCase()} in Ventspils${areaRange ? ` with floor areas of ${areaRange}` : ""}. Each listing includes an apartment plan and its position in the building.`
+					: `Salīdzini ${categoryAccusative} Ventspilī${areaRange ? ` ar platību ${areaRange}` : ""}. Pie katra dzīvokļa vari apskatīt plānojumu un tā novietojumu ēkā.`}
+			</p>
+			<p>
+				<a href={isEnglish ? "/en/about-the-building" : "/par-eku"}>{isEnglish ? "Learn about the building" : "Uzzini vairāk par ēku"}</a>
+				<span aria-hidden="true"> · </span>
+				<a href={isEnglish ? "/en/how-to-buy" : "/kā-iegādāties"}>{isEnglish ? "How to buy" : "Kā iegādāties dzīvokli"}</a>
+			</p>
+		</div>
+	</section>
 </main>
 
 <style>
@@ -94,6 +119,31 @@ const sortedProperties = [...properties].sort((a, b) => a.price - b.price);
 		width: min(100%, var(--page-max-width));
 		margin: 0 auto;
 		padding-inline: var(--page-gutter);
+	}
+
+	.properties-catalog__context {
+		padding: clamp(2rem, 5vw, 4rem) 0;
+	}
+
+	.properties-catalog__context .properties-catalog__container {
+		max-width: 55rem;
+	}
+
+	.properties-catalog__context h2 {
+		margin: 0 0 0.85rem;
+		font-family: var(--font-heading);
+		font-size: clamp(1.5rem, 2.4vw, 2rem);
+	}
+
+	.properties-catalog__context p {
+		margin: 0 0 0.9rem;
+		line-height: 1.7;
+	}
+
+	.properties-catalog__context a {
+		color: #865d23;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
 	}
 
 	.properties-catalog__hero {

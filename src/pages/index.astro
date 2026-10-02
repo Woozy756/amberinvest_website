@@ -33,6 +33,8 @@ const featuredProperties = featuredPropertySlugs
 	overlayHeader={true}
 	footerTone="light"
 	locale={locale}
+	preloadDesktopImage={homepage?.hero.heroBackgroundImage?.asset?.url ?? "/images/hero-night.webp"}
+	preloadMobileImage="/images/hero-mobile.webp"
 >
 		<main>
 			<HeroAvailability content={homepage?.hero} locale={locale} />
