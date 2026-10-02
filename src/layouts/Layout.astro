@@ -93,8 +93,9 @@ const serializeStructuredData = (data: Record<string, unknown>) =>
 		</script>
 		<link rel="icon" type="image/png" href="/favicon.png" />
 		<link rel="shortcut icon" href="/favicon.png" />
-		{preloadDesktopImage ? <link rel="preload" as="image" href={preloadDesktopImage} media="(min-width: 861px)" /> : null}
-		{preloadMobileImage ? <link rel="preload" as="image" href={preloadMobileImage} media="(max-width: 860px)" /> : null}
+		<link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+		{preloadDesktopImage ? <link rel="preload" as="image" href={preloadDesktopImage} media="(min-width: 861px)" fetchpriority="high" /> : null}
+		{preloadMobileImage ? <link rel="preload" as="image" href={preloadMobileImage} media="(max-width: 860px)" fetchpriority="high" /> : null}
 		<meta name="generator" content={Astro.generator} />
 		<title>{pageTitle}</title>
 		{metaDescription ? <meta name="description" content={metaDescription} /> : null}

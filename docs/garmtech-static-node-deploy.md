@@ -33,6 +33,12 @@ REBUILD_DEBOUNCE_MS=5000
 5. Run the initial build with `npm run build`.
 6. Start or restart the Node application.
 
+The `build` script now builds into a temporary directory and replaces `dist/`
+only after a complete build with an `index.html`. A failed manual build leaves
+the previously published site intact. On shared hosting with a low process
+limit, set the Node application environment variable `GOMAXPROCS=1` before
+running the build.
+
 After that:
 
 - the static site is served from `dist/`

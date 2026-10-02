@@ -1,0 +1,67 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+	title="Lapa nav atrasta | AmberHome"
+	description="Šī lapa nav pieejama. Apskati AmberHome dzīvokļus Ventspilī vai atgriezies sākumlapā."
+	canonicalPath="/404"
+	noIndex={true}
+>
+	<main class="not-found">
+		<div class="not-found__content">
+			<p class="not-found__code">404</p>
+			<h1>Lapa nav atrasta</h1>
+			<p>Iespējams, adrese ir mainījusies vai ievadīta kļūdaini.</p>
+			<div class="not-found__links">
+				<a href="/">Uz sākumlapu</a>
+				<a href="/dzīvokļi">Apskatīt dzīvokļus</a>
+				<a href="/kontakti">Sazināties ar mums</a>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	.not-found {
+		display: grid;
+		min-height: 65vh;
+		place-items: center;
+		padding: 8rem var(--page-gutter) 6rem;
+		background: var(--surface-light);
+		color: var(--bg-primary);
+		text-align: center;
+	}
+
+	.not-found__content {
+		max-width: 40rem;
+	}
+
+	.not-found__code {
+		margin: 0 0 0.5rem;
+		color: var(--accent-primary);
+		font-size: 1.2rem;
+		font-weight: 900;
+		letter-spacing: 0.2em;
+	}
+
+	h1 {
+		margin: 0 0 1rem;
+		font-size: clamp(2.5rem, 6vw, 4.5rem);
+	}
+
+	.not-found__links {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.75rem 1.5rem;
+		margin-top: 2rem;
+	}
+
+	.not-found__links a {
+		color: #795212;
+		font-weight: 700;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
+</style>

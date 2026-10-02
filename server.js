@@ -4,6 +4,8 @@ import { createReadStream, existsSync } from "node:fs";
 import { access, mkdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { pipeline } from "node:stream";
+import { createGzip } from "node:zlib";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,6 +59,7 @@ const mimeTypes = {
 	".woff2": "font/woff2",
 	".xml": "application/xml; charset=utf-8"
 };
+const compressibleExtensions = new Set([".css", ".html", ".js", ".json", ".mjs", ".svg", ".txt", ".xml"]);
 
 function normalizeNonNegativeInteger(value, fallback) {
 	const normalized = Number(value);
@@ -542,6 +545,46 @@ function getAssetCacheControl(filePath) {
 		: "public, max-age=300";
 }
 
+function acceptsGzipEncoding(headerValue) {
+	return String(headerValue || "").split(",").some((value) => {
+		const [encoding, ...parameters] = value.trim().split(";");
+		if (encoding.trim().toLowerCase() !== "gzip") {
+			return false;
+		}
+
+		const quality = parameters.find((parameter) => /^\s*q\s*=/i.test(parameter));
+		return !quality || Number(quality.split("=")[1]) > 0;
+	});
+}
+
+function getCanonicalRedirect(nodeRequest, requestPath) {
+	if (nodeRequest.method !== "GET" && nodeRequest.method !== "HEAD") {
+		return null;
+	}
+
+	const requestHost = String(nodeRequest.headers.host || "").toLowerCase().split(":")[0];
+	const isWwwHost = requestHost === "www.amberhome.lv";
+	let canonicalPath = requestPath;
+
+	if (canonicalPath.endsWith("/index.html")) {
+		canonicalPath = canonicalPath.slice(0, -"/index.html".length) || "/";
+	}
+
+	if (canonicalPath !== "/") {
+		canonicalPath = canonicalPath.replace(/\/+$/, "");
+	}
+
+	if (!isWwwHost && canonicalPath === requestPath) {
+		return null;
+	}
+
+	const destination = new URL(nodeRequest.url || "/", "https://amberhome.lv");
+	destination.host = "amberhome.lv";
+	destination.protocol = "https:";
+	destination.pathname = canonicalPath;
+	return destination.toString();
+}
+
 async function resolveStaticFile(requestPath) {
 	const cleanPath = decodeURIComponent(requestPath.split("?")[0]);
 	const normalizedPath = path.normalize(cleanPath).replace(/^(\.\.[/\\])+/, "");
@@ -666,6 +709,12 @@ const server = createServer(async (nodeRequest, nodeResponse) => {
 		nodeRequest.url || "/",
 		`http://${nodeRequest.headers.host || "localhost"}`
 	).pathname;
+	const canonicalRedirect = getCanonicalRedirect(nodeRequest, requestPath);
+	if (canonicalRedirect) {
+		nodeResponse.writeHead(301, { Location: canonicalRedirect });
+		nodeResponse.end();
+		return;
+	}
 
 	if (nodeRequest.method === "POST" && requestPath === "/api/contact") {
 		await handleContact(nodeRequest, nodeResponse);
@@ -702,6 +751,21 @@ const server = createServer(async (nodeRequest, nodeResponse) => {
 	nodeResponse.statusCode = filePath.endsWith(`${path.sep}404.html`) ? 404 : 200;
 	nodeResponse.setHeader("Content-Type", mimeTypes[extension] || "application/octet-stream");
 	nodeResponse.setHeader("Cache-Control", getAssetCacheControl(filePath));
+
+	if (compressibleExtensions.has(extension)) {
+		nodeResponse.setHeader("Vary", "Accept-Encoding");
+	}
+
+	if (compressibleExtensions.has(extension) && acceptsGzipEncoding(nodeRequest.headers["accept-encoding"])) {
+		nodeResponse.setHeader("Content-Encoding", "gzip");
+		pipeline(createReadStream(filePath), createGzip({ level: 5 }), nodeResponse, (error) => {
+			if (error && error.code !== "ERR_STREAM_PREMATURE_CLOSE") {
+				logServerError("gzip-static", error);
+			}
+		});
+		return;
+	}
+
 	createReadStream(filePath).pipe(nodeResponse);
 });
 
