@@ -9,8 +9,8 @@ interface Props {
 
 const { content, locale = "lv" } = Astro.props;
 const isEnglish = locale === "en";
-const heroFallbackImage = "/images/hero-night.png";
-const mobileHeroImage = "/images/hero-mobile.png";
+const heroFallbackImage = "/images/hero-night.webp";
+const mobileHeroImage = "/images/hero-mobile.webp";
 const heroImage = content?.heroBackgroundImage?.asset?.url ?? heroFallbackImage;
 const availabilityMetrics = isEnglish
 	? [
@@ -48,7 +48,7 @@ const heroLead =
 			<section
 				class="hero"
 				aria-labelledby="hero-title"
-				style={`--hero-background-image: url("${heroImage}"); --hero-mobile-image: url("${mobileHeroImage}"); --hero-fallback-image: url("${heroFallbackImage}")`}
+				style={`--hero-background-image: url("${heroImage}"); --hero-mobile-image: url("${mobileHeroImage}")`}
 			>
 				<div class="hero__image" aria-hidden="true"></div>
 				<div class="hero__container">
@@ -152,7 +152,7 @@ const heroLead =
 
 	.hero__image {
 		z-index: 0;
-		background-image: var(--hero-background-image), var(--hero-fallback-image);
+		background-image: var(--hero-background-image);
 		filter: brightness(1.28) saturate(1.04);
 		opacity: 1;
 	}
@@ -502,7 +502,7 @@ const heroLead =
 		}
 
 		.hero__image {
-			background-image: var(--hero-mobile-image), var(--hero-fallback-image);
+			background-image: var(--hero-mobile-image);
 			background-attachment: scroll;
 			background-position: center center;
 		}

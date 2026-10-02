@@ -8,19 +8,19 @@ const locale = (Astro.props.locale ?? "lv") as Locale;
 const isEnglish = locale === "en";
 const [properties, categories] = await Promise.all([getAllProperties(), getPropertyCategories()]);
 const catalogLead = isEnglish
-	? "Explore the available apartments at Talsu Street 3A and find a home that suits your everyday needs and budget."
-	: "Apskati pieejamos dzīvokļus Talsu ielā 3A un atrodi mājokli, kas atbilst Tavām ikdienas vajadzībām un budžetam.";
+	? "Explore apartments at Talsu Street 3A in Ventspils. Compare layouts, floor areas, prices and availability to find a home that suits you."
+	: "Apskati dzīvokļus Ventspilī, Talsu ielā 3A. Salīdzini plānojumus, platības, cenas un pieejamību AmberHome projektā.";
 ---
 
 <Layout
-	title={isEnglish ? "AmberHome | Apartments" : "Amberinvest | Dzīvokļi"}
+	title={isEnglish ? "Apartments in Ventspils | AmberHome" : "Dzīvokļi Ventspilī | AmberHome Talsu ielā 3A"}
 	description={catalogLead}
 	canonicalPath={isEnglish ? "/en/apartments" : "/dzīvokļi"}
 	footerTone="dark"
 	locale={locale}
 >
 	<PropertiesCatalogView
-		title={isEnglish ? "All apartments" : "Visi dzīvokļi"}
+		title={isEnglish ? "Apartments in Ventspils" : "Dzīvokļi Ventspilī"}
 		lead={catalogLead}
 		properties={properties}
 		categories={categories}

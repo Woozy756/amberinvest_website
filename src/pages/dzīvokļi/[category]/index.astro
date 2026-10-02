@@ -37,11 +37,24 @@ const [properties, categories] = await Promise.all([
 	getPropertiesByCategory(category.slug),
 	getPropertyCategories()
 ]);
+const categoryTitle = isEnglish ? categoryLabel : `${categoryLabel} Ventspilī`;
+const categoryAccusative = ({
+	"3-rooms": "trīsistabu dzīvokļus",
+	"4-rooms": "četristabu dzīvokļus",
+	"5-rooms": "piecistabu dzīvokļus"
+} as Record<string, string>)[category.slug] ?? "dzīvokļus";
+const categoryLocationSentence = `Apskati ${categoryAccusative} AmberHome projektā Ventspilī, Talsu ielā 3A. Salīdzini plānojumus, platības, cenas un pieejamību.`;
+const locationLead = isEnglish
+	? categoryDescription
+	: `${category.description ? `${category.description} ` : ""}${categoryLocationSentence}`;
+const categoryMetaDescription = isEnglish
+	? categoryDescription
+	: categoryLocationSentence;
 ---
 
 <Layout
-	title={isEnglish ? `AmberHome | ${categoryLabel}` : category.seo?.metaTitle || `Amberinvest | ${category.label}`}
-	description={isEnglish ? categoryDescription : category.seo?.metaDescription || category.description}
+	title={isEnglish ? `${categoryLabel} in Ventspils | AmberHome` : category.seo?.metaTitle || `${categoryTitle} | AmberHome`}
+	description={isEnglish ? categoryDescription : category.seo?.metaDescription || categoryMetaDescription}
 	canonicalPath={getPropertyCategoryHrefForLocale(category, locale)}
 	ogImageUrl={category.seo?.ogImage?.src}
 	ogImageAlt={isEnglish ? `${categoryLabel} at AmberHome` : category.seo?.ogImage?.alt}
@@ -50,8 +63,8 @@ const [properties, categories] = await Promise.all([
 	locale={locale}
 >
 	<PropertiesCatalogView
-		title={categoryLabel}
-		lead={categoryDescription}
+		title={categoryTitle}
+		lead={locationLead}
 		properties={properties}
 		categories={categories}
 		activeCategory={category.slug}
